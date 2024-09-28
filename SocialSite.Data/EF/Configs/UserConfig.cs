@@ -18,7 +18,7 @@ internal sealed class UserConfig : IEntityTypeConfiguration<User>
         builder.HasIndex(e => e.Role);
         builder.HasIndex(e => e.IsActive);
         builder.HasIndex(e => e.Email).IsUnique();
-        //builder.HasIndex(e => e.GoogleId).IsUnique();
+        builder.HasIndex(e => e.GoogleId).IsUnique();
 
         builder.Property(e => e.Role)
             .HasMaxLength(20)
@@ -41,6 +41,29 @@ internal sealed class UserConfig : IEntityTypeConfiguration<User>
         builder.HasMany(e => e.Chats)
             .WithOne(e => e.Owner)
             .HasForeignKey(e => e.OwnerId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasMany(e => e.Chats)
+            .WithMany(e => e.Users);
+
+        builder.HasMany(e => e.FriendRequests)
+            .WithOne(e => e.Receiver)
+            .HasForeignKey(e => e.ReceiverId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasMany(e => e.FriendRequests)
+            .WithOne(e => e.Requester)
+            .HasForeignKey(e => e.RequesterId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasMany(e => e.Friendships)
+            .WithOne(e => e.User1)
+            .HasForeignKey(e => e.User1Id)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasMany(e => e.Friendships)
+            .WithOne(e => e.User2)
+            .HasForeignKey(e => e.User2Id)
             .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasOne(e => e.CreatedBy)

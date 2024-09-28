@@ -13,7 +13,7 @@ public class DataContext(DbContextOptions<DataContext> options, IServiceProvider
     public DbSet<Post> Posts { get; set; }
     public DbSet<Message> Messages { get; set; }
     public DbSet<Chat> Chats { get; set; }
-    public DbSet<FriendPair> FriendPairs { get; set; }
+    public DbSet<FriendRequest> FriendPairs { get; set; }
     public DbSet<Image> Images { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
