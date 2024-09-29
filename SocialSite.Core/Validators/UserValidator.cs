@@ -19,9 +19,5 @@ public sealed class UserValidator : AbstractValidator<User>
             .NotEmpty()
             .EmailAddress()
             .MaximumLength(254);
-
-        RuleFor(e => e.GoogleId)
-            .NotEmpty()
-            .MaximumLength(128);
     }
 }

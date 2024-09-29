@@ -1,8 +1,10 @@
-﻿namespace SocialSite.Domain.Models.Enums;
+﻿using System.ComponentModel;
+
+namespace SocialSite.Domain.Models.Enums;
 
 public enum FriendRequestSettingState
 {
-    AnyOne,
-    FriendsOfFriends,
-    NoOne
+    [Description("Kdokoliv")] AnyOne,
+    [Description("Pouze přátelé")] FriendsOfFriends,
+    [Description("Nikdo")] NoOne
 }

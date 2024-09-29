@@ -2,6 +2,7 @@ using SocialSite.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDBConnection(builder.Configuration, builder.Environment);
 builder.Services.AddCoreServices();
 builder.Services.AddControllersWithViews();
 

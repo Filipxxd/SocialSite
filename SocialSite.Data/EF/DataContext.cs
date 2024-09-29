@@ -10,11 +10,12 @@ namespace SocialSite.Data.EF;
 public class DataContext(DbContextOptions<DataContext> options, IServiceProvider serviceProvider) : DbContext(options)
 {
     public DbSet<User> Users { get; set; }
-    public DbSet<Post> Posts { get; set; }
+    public DbSet<UserSettings> UsersSettings { get; set; }
+    public DbSet<FriendRequest> FriendRequests { get; set; }
+    public DbSet<Friendship> Friendships { get; set; }
     public DbSet<Message> Messages { get; set; }
-    public DbSet<Chat> Chats { get; set; }
-    public DbSet<FriendRequest> FriendPairs { get; set; }
-    public DbSet<Image> Images { get; set; }
+    public DbSet<GroupChat> GroupChats { get; set; }
+    public DbSet<GroupUser> GroupUsers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
