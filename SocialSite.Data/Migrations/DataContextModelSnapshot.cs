@@ -178,22 +178,36 @@ namespace SocialSite.Data.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(254)
+                        .HasColumnType("nvarchar(254)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Users", t =>
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("FirstName");
+
+                    b.HasIndex("LastName");
+
+                    b.HasIndex("Role");
+
+                    b.ToTable("Users", null, t =>
                         {
                             t.HasCheckConstraint("CK_Users_Role", "[Role] IN ('User','Admin')");
                         });
