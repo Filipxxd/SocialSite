@@ -5,12 +5,13 @@ namespace SocialSite.Domain.Models;
 public class User
 {
     public int UserId { get; set; }
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
+    public string FirstName { get; set; } = default!;
+    public string LastName { get; set; } = default!;
+    public string Email { get; set; } = default!;
+    public string Bio { get; set; } = default!;
     public Role Role { get; set; }
 
-    public UserSettings Settings { get; set; } = new();
+    public UserSettings Settings { get; set; } = default!;
 
     public string FullName => $"{FirstName} {LastName}";
 

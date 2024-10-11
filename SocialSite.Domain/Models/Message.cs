@@ -3,7 +3,7 @@
 public class Message
 {
     public int MessageId { get; set; }
-    public string Content { get; set; } = string.Empty;
+    public string Content { get; set; } = default!;
 
     public DateTime SentAt { get; set; }
 

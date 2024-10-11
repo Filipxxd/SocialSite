@@ -3,7 +3,7 @@
 public class GroupChat
 {
     public int GroupChatId { get; set; }
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = default!;
 
     public int OwnerId { get; set; }
     public virtual User? Owner { get; set; }
