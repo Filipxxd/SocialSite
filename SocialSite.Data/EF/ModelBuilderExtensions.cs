@@ -5,7 +5,7 @@ namespace SocialSite.Data.EF;
 
 internal static class ModelBuilderExtensions
 {
-    public static void ApplyAllConfigurationsFromAssembly(this ModelBuilder modelBuilder, Assembly assembly)
+    public static void ApplyConfigurations(this ModelBuilder modelBuilder, Assembly assembly)
     {
         var applyGenericMethod = typeof(ModelBuilder)
             .GetMethods()
@@ -25,6 +25,27 @@ internal static class ModelBuilderExtensions
             var applyConcreteMethod = applyGenericMethod.MakeGenericMethod(entityType);
             var configurationInstance = Activator.CreateInstance(configType);
             applyConcreteMethod.Invoke(modelBuilder, [configurationInstance]);
+        }
+    }
+
+    public static void SetEnumConstraints(this ModelBuilder builder)
+    {
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType.IsEnum)
+                {
+                    var enumType = property.ClrType;
+                    var enumValues = Enum.GetNames(enumType).Select(name => $"'{name}'");
+
+                    var checkConstraint = property.IsNullable
+                        ? $"[{property.GetColumnName()}] IS NULL OR [{property.GetColumnName()}] IN ({string.Join(",", enumValues)})"
+                        : $"[{property.GetColumnName()}] IN ({string.Join(",", enumValues)})";
+
+                    builder.Entity(entityType.ClrType).ToTable(e => e.HasCheckConstraint($"CK_{entityType.GetTableName()}_{property.GetColumnName()}", checkConstraint));
+                }
+            }
         }
     }
 }

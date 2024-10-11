@@ -17,27 +17,10 @@ public class DataContext(DbContextOptions<DataContext> options, IServiceProvider
     public DbSet<GroupChat> GroupChats { get; set; }
     public DbSet<GroupUser> GroupUsers { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        modelBuilder.ApplyAllConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-        {
-            foreach (var property in entityType.GetProperties())
-            {
-                if (property.ClrType.IsEnum)
-                {
-                    var enumType = property.ClrType;
-                    var enumValues = Enum.GetNames(enumType).Select(name => $"'{name}'");
-
-                    var checkConstraint = property.IsNullable
-                        ? $"[{property.GetColumnName()}] IS NULL OR [{property.GetColumnName()}] IN ({string.Join(",", enumValues)})"
-                        : $"[{property.GetColumnName()}] IN ({string.Join(",", enumValues)})";
-
-                    modelBuilder.Entity(entityType.ClrType).ToTable(e => e.HasCheckConstraint($"CK_{entityType.GetTableName()}_{property.GetColumnName()}", checkConstraint));
-                }
-            }
-        }
+        builder.ApplyConfigurations(Assembly.GetExecutingAssembly());
+        builder.SetEnumConstraints();
     }
 
     public int SaveChanges(int currentUserId)
@@ -95,4 +78,6 @@ public class DataContext(DbContextOptions<DataContext> options, IServiceProvider
             }
         }
     }
+
+
 }
