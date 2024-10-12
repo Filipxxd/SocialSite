@@ -10,7 +10,7 @@ public class User : IdentityUser<int>
     public string LastName { get; set; } = default!;
     public string? Bio { get; set; }
 
-    public bool AllowNonFriendMessages { get; set; }
+    public bool AllowNonFriendMessages { get; set; } = true;
     public FriendRequestSettingState FriendRequestSettingState { get; set; }
 
     public string FullName => $"{FirstName} {LastName}";
