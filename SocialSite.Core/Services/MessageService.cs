@@ -25,13 +25,22 @@ public sealed class MessageService : IMessageService
     {
         return await _context.Messages
             .AsNoTracking()
-            .Where(e => e.SenderId == currentUserId && e.ReceiverId == receivingUserId)
-            .OrderByDescending(e => e.SentAt)
+            .Where(m => (m.SenderId == currentUserId && m.ReceiverId == receivingUserId) || (m.ReceiverId == currentUserId && m.SenderId == receivingUserId))
+            .OrderByDescending(m => m.SentAt)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Message>> GetAllGroupChatAsync(int groupChatId)
+    public async Task<IEnumerable<Message>> GetAllGroupChatAsync(int groupChatId, int currentUserId)
     {
+        var isInGroup = await _context.Messages
+            .AsNoTracking()
+            .Include(m => m.GroupChat)
+                .ThenInclude(gc => gc!.GroupUsers)
+            .AnyAsync(m => m.GroupChat!.GroupUsers.Any(gu => gu.UserId == currentUserId));
+
+        if (!isInGroup)
+            return [];
+
         return await _context.Messages
             .AsNoTracking()
             .Where(e => e.GroupChatId == groupChatId)
@@ -46,31 +55,25 @@ public sealed class MessageService : IMessageService
         var validationResult = _validator.Validate<MessageValidator, Message>(message);
 
         if (!validationResult.IsValid)
-        {
             return Result.Fail(ResultErrors.NotValid, validationResult.Errors.Select(e => e.ErrorMessage));
-        }
 
-        if (message.GroupChatId != null)
-        {
-            var groupChat = await _context.GroupChats
-                .AsNoTracking()
-                .SingleOrDefaultAsync(e => e.Id == message.GroupChatId);
-
-            if (groupChat is null)
-            {
-                return Result.Fail(ResultErrors.NotFound, $"Group chat with given id: {message.GroupChatId} was not found.");
-            }
-        }
-        else if (message.ReceiverId != null)
+        if (message.IsDirect)
         {
             var receivingUser = await _context.Users
                 .AsNoTracking()
                 .SingleOrDefaultAsync(e => e.Id == message.ReceiverId);
 
             if (receivingUser is null)
-            {
-                return Result.Fail(ResultErrors.NotFound, $"Receiving user with given id: {message.ReceiverId} was not found.");
-            }
+                return Result.Fail(ResultErrors.NotFound, $"Receiving user with given id: '{message.ReceiverId}' was not found.");
+        }
+        else
+        {
+            var groupChat = await _context.GroupChats
+                .AsNoTracking()
+                .SingleOrDefaultAsync(e => e.Id == message.GroupChatId);
+
+            if (groupChat is null)
+                return Result.Fail(ResultErrors.NotFound, $"Group chat with given id: '{message.GroupChatId}' was not found.");
         }
 
         _context.Messages.Add(message);

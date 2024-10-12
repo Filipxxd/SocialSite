@@ -7,6 +7,8 @@ public class Message
 
     public DateTime SentAt { get; set; }
 
+    public bool IsDirect => GroupChatId is null && ReceiverId != null;
+
     public int SenderId { get; set; }
     public virtual User? Sender { get; set; }
 
