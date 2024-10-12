@@ -24,7 +24,7 @@ public sealed class AccountAppService
         _options = options;
     }
 
-    public async Task<Result> Register(RegisterDto dto)
+    public async Task<Result> RegisterAsync(RegisterDto dto)
     {
         var userExists = await _userManager.FindByNameAsync(dto.UserName);
         if (userExists != null)
@@ -39,7 +39,7 @@ public sealed class AccountAppService
         return Result.Success();
     }
 
-    public async Task<Result<TokenDto>> Login(LoginDto dto)
+    public async Task<Result<TokenDto>> LoginAsync(LoginDto dto)
     {
         var user = await _userManager.FindByNameAsync(dto.UserName);
         if (user is null)

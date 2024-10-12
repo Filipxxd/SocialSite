@@ -21,7 +21,7 @@ public sealed class AccountController : ControllerBase
     [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] RegisterDto model)
     {
-        var result = await _accountAppService.Register(model);
+        var result = await _accountAppService.RegisterAsync(model);
 
         return result.IsSuccess ? Created() : BadRequest(result);
     }
@@ -31,7 +31,7 @@ public sealed class AccountController : ControllerBase
     [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Login([FromBody] LoginDto model)
     {
-        var result = await _accountAppService.Login(model);
+        var result = await _accountAppService.LoginAsync(model);
 
         return result.IsSuccess ? Ok(result.Entity) : BadRequest(result);
     }
