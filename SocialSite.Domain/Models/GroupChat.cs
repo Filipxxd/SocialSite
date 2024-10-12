@@ -2,7 +2,7 @@
 
 public class GroupChat
 {
-    public int GroupChatId { get; set; }
+    public int Id { get; set; }
     public string Name { get; set; } = default!;
 
     public int OwnerId { get; set; }

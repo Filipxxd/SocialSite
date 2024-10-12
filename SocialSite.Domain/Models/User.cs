@@ -1,17 +1,17 @@
-﻿using SocialSite.Domain.Models.Enums;
+﻿using Microsoft.AspNetCore.Identity;
+using SocialSite.Domain.Models.Enums;
 
 namespace SocialSite.Domain.Models;
 
-public class User
+public class User : IdentityUser<int>
 {
-    public int UserId { get; set; }
+    public override string UserName { get; set; } = default!;
     public string FirstName { get; set; } = default!;
     public string LastName { get; set; } = default!;
-    public string Email { get; set; } = default!;
-    public string Bio { get; set; } = default!;
-    public Role Role { get; set; }
+    public string? Bio { get; set; }
 
-    public UserSettings Settings { get; set; } = default!;
+    public bool AllowNonFriendMessages { get; set; } = true;
+    public FriendRequestSettingState FriendRequestSettingState { get; set; }
 
     public string FullName => $"{FirstName} {LastName}";
 

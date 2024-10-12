@@ -10,7 +10,7 @@ internal sealed class MessageConfig : IEntityTypeConfiguration<Message>
     {
         builder.ToTable(Tables.Messages);
 
-        builder.HasKey(e => e.MessageId);
+        builder.HasKey(e => e.Id);
 
         builder.HasOne(e => e.Sender)
             .WithMany(e => e.SentMessages)
