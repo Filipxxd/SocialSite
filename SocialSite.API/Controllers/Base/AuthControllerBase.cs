@@ -4,7 +4,7 @@ using SocialSite.Application.Exceptions;
 using SocialSite.Domain.Models;
 using System.Security.Claims;
 
-namespace SocialSite.API.Controllers;
+namespace SocialSite.API.Controllers.Base;
 
 public abstract class AuthControllerBase : ControllerBase
 {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SocialSite.API.Controllers.Base;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Messages;
 using SocialSite.Domain.Models;
