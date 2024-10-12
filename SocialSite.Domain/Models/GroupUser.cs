@@ -2,7 +2,7 @@
 
 public class GroupUser
 {
-    public int GroupUserId { get; set; }
+    public int Id { get; set; }
 
     public DateTime JoinedAt { get; set; }
 

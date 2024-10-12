@@ -8,12 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
     <PackageReference Include="Scrutor" Version="5.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SocialSite.Core\SocialSite.Core.csproj" />
+    <ProjectReference Include="..\SocialSite.Application\SocialSite.Application.csproj" />
   </ItemGroup>
 
 </Project>

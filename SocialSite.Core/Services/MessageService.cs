@@ -54,18 +54,18 @@ public sealed class MessageService : IMessageService
         {
             var groupChat = await _context.GroupChats
                 .AsNoTracking()
-                .SingleOrDefaultAsync(e => e.GroupChatId == message.GroupChatId);
+                .SingleOrDefaultAsync(e => e.Id == message.GroupChatId);
 
             if (groupChat is null)
             {
                 return Result.Fail(ResultErrors.NotFound, $"Group chat with given id: {message.GroupChatId} was not found.");
             }
         }
-        else
+        else if (message.ReceiverId != null)
         {
             var receivingUser = await _context.Users
                 .AsNoTracking()
-                .SingleOrDefaultAsync(e => e.UserId == message.ReceiverId);
+                .SingleOrDefaultAsync(e => e.Id == message.ReceiverId);
 
             if (receivingUser is null)
             {

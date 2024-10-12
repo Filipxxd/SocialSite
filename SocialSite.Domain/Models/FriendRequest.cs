@@ -4,7 +4,7 @@ namespace SocialSite.Domain.Models;
 
 public class FriendRequest
 {
-    public int FriendRequestId { get; set; }
+    public int Id { get; set; }
 
     public FriendRequestStatus Status { get; set; }
 

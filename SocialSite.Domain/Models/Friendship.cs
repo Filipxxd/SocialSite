@@ -2,7 +2,7 @@
 
 public class Friendship
 {
-    public int FriendshipId { get; set; }
+    public int Id { get; set; }
 
     public DateTime FriendsSince { get; set; }
 

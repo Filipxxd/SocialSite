@@ -1,19 +1,22 @@
 using SocialSite.API;
+using SocialSite.Core.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddDBConnection(builder.Configuration, builder.Environment);
+builder.Services.AddContextWithIdentity(builder.Configuration, builder.Environment);
 builder.Services.AddCoreServices();
+builder.Services.ConfigureAuthentication(builder.Configuration);
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.Configure<JwtSetup>(builder.Configuration.GetSection("JWT"));
+builder.Services.AddApplicationServices();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddSwagger();
+}
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -22,6 +25,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

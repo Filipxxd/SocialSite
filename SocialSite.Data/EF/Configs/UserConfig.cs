@@ -11,18 +11,8 @@ internal sealed class UserConfig : IEntityTypeConfiguration<User>
     {
         builder.ToTable(Tables.Users);
 
-        builder.HasKey(e => e.UserId);
-
         builder.HasIndex(e => e.FirstName);
         builder.HasIndex(e => e.LastName);
-        builder.HasIndex(e => e.Role);
-        builder.HasIndex(e => e.Email).IsUnique();
-
-        builder.Property(e => e.Role)
-            .HasMaxLength(20)
-            .HasConversion(
-                v => v.ToString(),
-                v => (Role)Enum.Parse(typeof(Role), v));
 
         builder.Property(e => e.FirstName)
             .HasMaxLength(50);
@@ -33,9 +23,11 @@ internal sealed class UserConfig : IEntityTypeConfiguration<User>
         builder.Property(e => e.Email)
             .HasMaxLength(254);
 
-        builder.HasOne(e => e.Settings)
-            .WithOne(e => e.User)
-            .HasForeignKey<UserSettings>(e => e.UserId);
+        builder.Property(e => e.FriendRequestSettingState)
+            .HasMaxLength(20)
+            .HasConversion(
+                v => v.ToString(),
+                v => (FriendRequestSettingState)Enum.Parse(typeof(FriendRequestSettingState), v));
 
         builder.HasMany(e => e.GroupUsers)
             .WithOne(e => e.User)

@@ -2,7 +2,6 @@
 
 public class Result
 {
-    public virtual bool IsFailed => Errors.Count != 0;
     public virtual bool IsSuccess => Errors.Count == 0;
     public virtual Dictionary<string, IEnumerable<string>> Errors { get; protected set; } = [];
 

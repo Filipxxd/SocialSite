@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Models.Base;
@@ -7,10 +9,8 @@ using System.Reflection;
 
 namespace SocialSite.Data.EF;
 
-public class DataContext(DbContextOptions<DataContext> options, IServiceProvider serviceProvider) : DbContext(options)
+public class DataContext(DbContextOptions<DataContext> options, IServiceProvider serviceProvider) : IdentityDbContext<User, IdentityRole<int>, int>(options)
 {
-    public DbSet<User> Users { get; set; }
-    public DbSet<UserSettings> UsersSettings { get; set; }
     public DbSet<FriendRequest> FriendRequests { get; set; }
     public DbSet<Friendship> Friendships { get; set; }
     public DbSet<Message> Messages { get; set; }
@@ -19,6 +19,7 @@ public class DataContext(DbContextOptions<DataContext> options, IServiceProvider
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
+        base.OnModelCreating(builder);
         builder.ApplyConfigurations(Assembly.GetExecutingAssembly());
         builder.SetEnumConstraints();
     }
@@ -78,6 +79,4 @@ public class DataContext(DbContextOptions<DataContext> options, IServiceProvider
             }
         }
     }
-
-
 }

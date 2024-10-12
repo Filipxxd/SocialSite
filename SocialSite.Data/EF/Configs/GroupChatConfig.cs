@@ -10,7 +10,7 @@ internal sealed class GroupChatConfig : IEntityTypeConfiguration<GroupChat>
     {
         builder.ToTable(Tables.GroupChats);
 
-        builder.HasKey(e => e.GroupChatId);
+        builder.HasKey(e => e.Id);
 
         builder.HasIndex(e => e.Name);
 

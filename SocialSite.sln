@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialSite.Data", "SocialSi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialSite.Core", "SocialSite.Core\SocialSite.Core.csproj", "{3876143A-A08D-4F4D-8346-70476D58941D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialSite.API", "SocialSite.API\SocialSite.API.csproj", "{988FF382-5267-4948-937E-97EC2BC7F885}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialSite.API", "SocialSite.API\SocialSite.API.csproj", "{988FF382-5267-4948-937E-97EC2BC7F885}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialSite.Application", "SocialSite.Application\SocialSite.Application.csproj", "{DEA76C0A-CBB7-4A69-B7C2-FBEA922891E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{988FF382-5267-4948-937E-97EC2BC7F885}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{988FF382-5267-4948-937E-97EC2BC7F885}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{988FF382-5267-4948-937E-97EC2BC7F885}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEA76C0A-CBB7-4A69-B7C2-FBEA922891E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEA76C0A-CBB7-4A69-B7C2-FBEA922891E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEA76C0A-CBB7-4A69-B7C2-FBEA922891E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEA76C0A-CBB7-4A69-B7C2-FBEA922891E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
