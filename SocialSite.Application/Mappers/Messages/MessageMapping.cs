@@ -14,7 +14,7 @@ public class MessageMapping : IRegister
 
         config.NewConfig<NewGroupChatMessageDto, Message>()
             .Map(dest => dest.Content, src => src.Content)
-            .Map(dest => dest.GroupChat, src => src.GroupChatId);
+            .Map(dest => dest.GroupChatId, src => src.GroupChatId);
 
         config.NewConfig<Message, DirectMessageDto>()
             .Map(dest => dest.Content, src => src.Content)
@@ -25,7 +25,6 @@ public class MessageMapping : IRegister
         config.NewConfig<Message, GroupChatMessageDto>()
             .Map(dest => dest.Content, src => src.Content)
             .Map(dest => dest.SenderId, src => src.SenderId)
-            .Map(dest => dest.GroupChatId, src => src.GroupChatId)
             .Map(dest => dest.SentAt, src => src.SentAt);
     }
 }
