@@ -28,7 +28,7 @@ public sealed class AccountAppService
     {
         var userExists = await _userManager.FindByNameAsync(dto.UserName);
         if (userExists != null)
-            return Result.Fail(ResultErrors.AlreadyExists, $"User with given username: '{dto.UserName}' already exists.");
+            return Result.Fail(ResultErrors.NotValid, $"User with given username: '{dto.UserName}' already exists.");
 
         var user = dto.Adapt<User>();
 

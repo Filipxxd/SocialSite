@@ -12,7 +12,9 @@ public class MessageValidator : AbstractValidator<Message>
 
         RuleFor(e => e.SentAt).Must(dt => dt <= dateTimeProvider.GetDateTime());
 
-        RuleFor(e => e.SenderId).NotEmpty();
+        RuleFor(e => e.SenderId).NotEmpty()
+            .Must((entity, senderId) => senderId != entity.ReceiverId)
+                .WithMessage("Sender cannot be same as Receiver.");
 
         When(e => e.GroupChatId != null, () =>
         {

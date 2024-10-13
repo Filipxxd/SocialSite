@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SocialSite.Application.AppServices;
+using SocialSite.Application.Mappers.Chats;
 using SocialSite.Core.Services;
 using SocialSite.Core.Utilities;
 using SocialSite.Core.Validators;
@@ -13,7 +14,7 @@ using SocialSite.Domain.Models;
 using SocialSite.Domain.Utilities;
 using System.Text;
 
-namespace SocialSite.API;
+namespace SocialSite.API.Extensions;
 
 internal static class ConfigExtensions
 {
@@ -101,7 +102,7 @@ internal static class ConfigExtensions
                 .WithScopedLifetime();
         });
 
-        TypeAdapterConfig.GlobalSettings.Scan();
+        TypeAdapterConfig.GlobalSettings.Scan(typeof(GroupChatMappings).Assembly);
 
         return services;
     }
@@ -110,7 +111,7 @@ internal static class ConfigExtensions
     {
         services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "SocialSite API", Version = "v1" });
 
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
