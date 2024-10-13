@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SocialSite.Application.AppServices;
+using SocialSite.Application.Mappers.Chats;
 using SocialSite.Core.Services;
 using SocialSite.Core.Utilities;
 using SocialSite.Core.Validators;
@@ -101,7 +102,7 @@ internal static class ConfigExtensions
                 .WithScopedLifetime();
         });
 
-        TypeAdapterConfig.GlobalSettings.Scan();
+        TypeAdapterConfig.GlobalSettings.Scan(typeof(GroupChatMappings).Assembly);
 
         return services;
     }
