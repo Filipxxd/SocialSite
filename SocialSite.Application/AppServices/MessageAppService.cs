@@ -15,18 +15,28 @@ public sealed class MessageAppService
         _messageService = messageService;
     }
 
-    public async Task<IEnumerable<DirectMessageDto>> GetAllPrivateMessages(int receivingUserId, User currentUser)
+    public async Task<Result<IEnumerable<DirectMessageDto>>> GetAllPrivateMessages(int receivingUserId, User currentUser)
     {
-        var messages = await _messageService.GetAllDirectAsync(receivingUserId, currentUser.Id);
+        var messagesResult = await _messageService.GetAllDirectAsync(receivingUserId, currentUser.Id);
 
-        return messages.Adapt<IEnumerable<DirectMessageDto>>();
+        if (!messagesResult.IsSuccess)
+            return Result<IEnumerable<DirectMessageDto>>.Fail(messagesResult.Errors);
+
+        var dtos = messagesResult.Entity.Adapt<IEnumerable<DirectMessageDto>>();
+
+        return Result<IEnumerable<DirectMessageDto>>.Success(dtos);
     }
 
-    public async Task<IEnumerable<GroupChatMessageDto>> GetAllGroupChatMessagesAsync(int groupChatId, User currentUser)
+    public async Task<Result<IEnumerable<GroupChatMessageDto>>> GetAllGroupChatMessagesAsync(int groupChatId, User currentUser)
     {
-        var messages = await _messageService.GetAllGroupChatAsync(groupChatId, currentUser.Id);
+        var messagesResult = await _messageService.GetAllGroupChatAsync(groupChatId, currentUser.Id);
 
-        return messages.Adapt<IEnumerable<GroupChatMessageDto>>();
+        if (!messagesResult.IsSuccess)
+            return Result<IEnumerable<GroupChatMessageDto>>.Fail(messagesResult.Errors);
+
+        var dtos = messagesResult.Adapt<IEnumerable<GroupChatMessageDto>>();
+
+        return Result<IEnumerable<GroupChatMessageDto>>.Success(dtos);
     }
 
     public async Task<Result> SendPrivateMessageAsync(NewDirectMessageDto dto, User currentUser)

@@ -23,29 +23,29 @@ public sealed class MessageController : AuthControllerBase
     }
 
     [HttpGet("get-all-direct")]
-    [ProducesResponseType(typeof(IEnumerable<DirectMessageDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Result<IEnumerable<DirectMessageDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result<IEnumerable<DirectMessageDto>>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllDirectMessages(int receivingUserId)
     {
         var currentUser = await GetCurrentUserAsync();
         var result = await _messageAppService.GetAllPrivateMessages(receivingUserId, currentUser);
 
-        return Ok(result);
+        return result.GetResponse();
     }
 
     [HttpGet("get-all-groupchat")]
-    [ProducesResponseType(typeof(IEnumerable<GroupChatMessageDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Result<IEnumerable<GroupChatMessageDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result<IEnumerable<GroupChatMessageDto>>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllGroupChatMessages(int groupChatId)
     {
         var currentUser = await GetCurrentUserAsync();
         var result = await _messageAppService.GetAllGroupChatMessagesAsync(groupChatId, currentUser);
 
-        return Ok(result);
+        return result.GetResponse();
     }
 
     [HttpPost("send-direct")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SendDirect(NewDirectMessageDto dto)
     {
@@ -56,7 +56,7 @@ public sealed class MessageController : AuthControllerBase
     }
 
     [HttpPost("send-groupchat")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SendGroupChat(NewGroupChatMessageDto dto)
     {

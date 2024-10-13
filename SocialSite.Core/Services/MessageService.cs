@@ -21,16 +21,18 @@ public sealed class MessageService : IMessageService
         _validator = validator;
     }
 
-    public async Task<IEnumerable<Message>> GetAllDirectAsync(int receivingUserId, int currentUserId)
+    public async Task<Result<IEnumerable<Message>>> GetAllDirectAsync(int receivingUserId, int currentUserId)
     {
-        return await _context.Messages
+        var messages = await _context.Messages
             .AsNoTracking()
             .Where(m => (m.SenderId == currentUserId && m.ReceiverId == receivingUserId) || (m.ReceiverId == currentUserId && m.SenderId == receivingUserId))
             .OrderByDescending(m => m.SentAt)
             .ToListAsync();
+
+        return Result<IEnumerable<Message>>.Success(messages);
     }
 
-    public async Task<IEnumerable<Message>> GetAllGroupChatAsync(int groupChatId, int currentUserId)
+    public async Task<Result<IEnumerable<Message>>> GetAllGroupChatAsync(int groupChatId, int currentUserId)
     {
         var isInGroup = await _context.Messages
             .AsNoTracking()
@@ -39,13 +41,15 @@ public sealed class MessageService : IMessageService
             .AnyAsync(m => m.GroupChat!.GroupUsers.Any(gu => gu.UserId == currentUserId));
 
         if (!isInGroup)
-            return [];
+            return Result<IEnumerable<Message>>.Fail(ResultErrors.NotValid, "User is not part of group.");
 
-        return await _context.Messages
+        var messages = await _context.Messages
             .AsNoTracking()
             .Where(e => e.GroupChatId == groupChatId)
             .OrderByDescending(e => e.SentAt)
             .ToListAsync();
+
+        return Result<IEnumerable<Message>>.Success(messages);
     }
 
     public async Task<Result> SendMessageAsync(Message message)
