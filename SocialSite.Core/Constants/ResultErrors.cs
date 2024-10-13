@@ -5,4 +5,5 @@ public static class ResultErrors
     public const string NotFound = nameof(NotFound);
     public const string NotValid = nameof(NotValid);
     public const string NotAuthorized = nameof(NotAuthorized);
+    public const string Concurrency = nameof(Concurrency);
 }

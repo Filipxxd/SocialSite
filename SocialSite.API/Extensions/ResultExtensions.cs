@@ -28,6 +28,11 @@ internal static class ResultExtensions
             return new UnauthorizedObjectResult(result);
         }
 
+        if (result.Errors.ContainsKey(ResultErrors.Concurrency))
+        {
+            return new ConflictObjectResult(result);
+        }
+
         return new ObjectResult(result)
         {
             StatusCode = 500
