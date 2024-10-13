@@ -23,7 +23,7 @@ public sealed class ChatController : AuthControllerBase
     }
 
     [HttpGet("get-all-group")]
-    [ProducesResponseType(typeof(IEnumerable<GroupChatInfoDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result<IEnumerable<GroupChatInfoDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllGroupChats()
     {
         var currentUser = await GetCurrentUserAsync();
@@ -33,8 +33,8 @@ public sealed class ChatController : AuthControllerBase
     }
 
     [HttpGet("get-group")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(Result), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Result<GroupChatDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result<GroupChatDto>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetGroupChatById([FromQuery] int groupChatId)
     {
         var currentUser = await GetCurrentUserAsync();
@@ -44,7 +44,7 @@ public sealed class ChatController : AuthControllerBase
     }
 
     [HttpGet("get-all-direct")]
-    [ProducesResponseType(typeof(IEnumerable<DirectChatInfo>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result<IEnumerable<DirectChatInfo>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllDirectChats()
     {
         var currentUser = await GetCurrentUserAsync();
@@ -54,7 +54,7 @@ public sealed class ChatController : AuthControllerBase
     }
 
     [HttpPost("create-group")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateGroupChat([FromBody] NewGroupChatDto dto)
     {
@@ -65,7 +65,7 @@ public sealed class ChatController : AuthControllerBase
     }
 
     [HttpPost("add-to-group")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddToGroupChat([FromBody] UserInGroupChat dto)
     {
@@ -76,7 +76,7 @@ public sealed class ChatController : AuthControllerBase
     }
 
     [HttpPost("remove-from-group")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RemoveFromGroupChat([FromBody] UserInGroupChat dto)
     {
