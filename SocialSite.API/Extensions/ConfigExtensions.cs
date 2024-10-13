@@ -13,7 +13,7 @@ using SocialSite.Domain.Models;
 using SocialSite.Domain.Utilities;
 using System.Text;
 
-namespace SocialSite.API;
+namespace SocialSite.API.Extensions;
 
 internal static class ConfigExtensions
 {

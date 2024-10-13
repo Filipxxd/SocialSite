@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SocialSite.API.Controllers.Base;
+using SocialSite.API.Extensions;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Messages;
 using SocialSite.Domain.Models;
@@ -51,7 +52,7 @@ public sealed class MessageController : AuthControllerBase
         var currentUser = await GetCurrentUserAsync();
         var result = await _messageAppService.SendPrivateMessageAsync(dto, currentUser);
 
-        return result.IsSuccess ? Created() : BadRequest(result);
+        return result.GetResponse(true);
     }
 
     [HttpPost("send-groupchat")]
@@ -62,6 +63,6 @@ public sealed class MessageController : AuthControllerBase
         var currentUser = await GetCurrentUserAsync();
         var result = await _messageAppService.SendGroupChatMessageAsync(dto, currentUser);
 
-        return result.IsSuccess ? Created() : BadRequest(result);
+        return result.GetResponse(true);
     }
 }

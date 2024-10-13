@@ -15,6 +15,7 @@ public abstract class AuthControllerBase : ControllerBase
         _userManager = userManager;
     }
 
+    [NonAction]
     protected async Task<User> GetCurrentUserAsync()
     {
         var userName = User.FindFirstValue(ClaimTypes.Name) ?? "";

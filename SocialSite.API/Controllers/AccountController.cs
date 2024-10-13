@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SocialSite.API.Extensions;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Account;
 using SocialSite.Domain.Utilities;
@@ -23,7 +24,7 @@ public sealed class AccountController : ControllerBase
     {
         var result = await _accountAppService.RegisterAsync(model);
 
-        return result.IsSuccess ? Created() : BadRequest(result);
+        return result.GetResponse(true);
     }
 
     [HttpPost("login")]
@@ -33,6 +34,6 @@ public sealed class AccountController : ControllerBase
     {
         var result = await _accountAppService.LoginAsync(model);
 
-        return result.IsSuccess ? Ok(result.Entity) : BadRequest(result);
+        return result.GetResponse(true);
     }
 }
