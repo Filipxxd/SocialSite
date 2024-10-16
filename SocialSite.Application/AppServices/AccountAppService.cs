@@ -39,15 +39,10 @@ public sealed class AccountAppService
         if (!result.IsSuccess)
             return Result<TokenDto>.Fail(ResultErrors.NotValid, result.Errors.SelectMany(e => e.Value));
 
-        var authClaims = new List<Claim>
-        {
-            new(ClaimTypes.Name, dto.UserName),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        };
-
-        authClaims.AddRange(result.Entity);
-
-        var token = GetToken(authClaims);
+        var token = GetToken([
+            new(ClaimTypes.Name, dto.UserName), 
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), 
+            ..result.Entity ]);
 
         return Result<TokenDto>.Success(new()
         {
@@ -56,7 +51,7 @@ public sealed class AccountAppService
         });
     }
 
-    private JwtSecurityToken GetToken(List<Claim> authClaims)
+    private JwtSecurityToken GetToken(IEnumerable<Claim> authClaims)
     {
         var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.Secret));
 
