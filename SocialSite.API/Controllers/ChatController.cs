@@ -7,12 +7,13 @@ using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Chats;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Utilities;
+using System.Net;
 
 namespace SocialSite.API.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("[controller]")]
+[Route("chats")]
 public sealed class ChatController : AuthControllerBase
 {
     private readonly ChatAppService _chatAppService;
@@ -22,14 +23,14 @@ public sealed class ChatController : AuthControllerBase
         _chatAppService = chatAppService;
     }
 
-    [HttpGet("get-all-group")]
-    [ProducesResponseType(typeof(Result<IEnumerable<GroupChatInfoDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllGroupChats()
+    [HttpGet("get-all")]
+    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(Result<IEnumerable<ChatInfoDto>>))]
+    public async Task<IActionResult> GetAllChats()
     {
         var currentUser = await GetCurrentUserAsync();
-        var result = await _chatAppService.GetAllGroupChats(currentUser.Id);
+        var dtos = await _chatAppService.GetAllChatsAsync(currentUser.Id);
 
-        return result.GetResponse();
+        return Ok(dtos);
     }
 
     [HttpGet("get-group")]
@@ -39,16 +40,6 @@ public sealed class ChatController : AuthControllerBase
     {
         var currentUser = await GetCurrentUserAsync();
         var result = await _chatAppService.GetGroupChatByIdAsync(groupChatId, currentUser.Id);
-
-        return result.GetResponse();
-    }
-
-    [HttpGet("get-all-direct")]
-    [ProducesResponseType(typeof(Result<IEnumerable<DirectChatInfo>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllDirectChats()
-    {
-        var currentUser = await GetCurrentUserAsync();
-        var result = await _chatAppService.GetAllDirectChatsAsync(currentUser.Id);
 
         return result.GetResponse();
     }

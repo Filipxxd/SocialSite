@@ -15,16 +15,16 @@ public sealed class ChatAppService
         _chatService = chatService;
     }
 
-    public async Task<Result<IEnumerable<GroupChatInfoDto>>> GetAllGroupChats(int currentUserId)
+    public async Task<IEnumerable<ChatInfoDto>> GetAllChatsAsync(int currentUserId)
     {
         var groupChatsResult = await _chatService.GetAllGroupChatsAsync(currentUserId);
+        var directChatsResult = await _chatService.GetAllDirectChatsAsync(currentUserId);
 
-        if (!groupChatsResult.IsSuccess)
-            return Result<IEnumerable<GroupChatInfoDto>>.Fail(groupChatsResult.Errors);
+        var dtos = groupChatsResult.Entity.Adapt<IEnumerable<ChatInfoDto>>().ToList();
 
-        var dtos = groupChatsResult.Entity.Adapt<IEnumerable<GroupChatInfoDto>>();
+        dtos.AddRange(directChatsResult.Entity.Adapt<IEnumerable<ChatInfoDto>>());
 
-        return Result<IEnumerable<GroupChatInfoDto>>.Success(dtos);
+        return dtos;
     }
 
     public async Task<Result<GroupChatDto>> GetGroupChatByIdAsync(int groupChatId, int currentUserId)
@@ -37,18 +37,6 @@ public sealed class ChatAppService
         var dto = groupChatResult.Adapt<GroupChatDto>();
 
         return Result<GroupChatDto>.Success(dto);
-    }
-
-    public async Task<Result<IEnumerable<DirectChatInfo>>> GetAllDirectChatsAsync(int currentUserId)
-    {
-        var directChatsResult = await _chatService.GetAllDirectChatsAsync(currentUserId);
-
-        if (!directChatsResult.IsSuccess)
-            return Result<IEnumerable<DirectChatInfo>>.Fail(directChatsResult.Errors);
-
-        var dtos = directChatsResult.Entity.Adapt<IEnumerable<DirectChatInfo>>();
-
-        return Result<IEnumerable<DirectChatInfo>>.Success(dtos);
     }
 
     public async Task<Result> CreateGroupChatAsync(NewGroupChatDto dto, User currentUser)

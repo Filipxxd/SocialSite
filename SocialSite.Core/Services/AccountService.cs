@@ -1,5 +1,4 @@
-﻿using Humanizer;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using SocialSite.Core.Constants;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
@@ -34,6 +33,8 @@ public sealed class AccountService : IAccountService
 
         var userRoles = await _userManager.GetRolesAsync(user);
         var claims = userRoles.Select(e => new Claim(ClaimTypes.Role, e)).ToList();
+
+        claims.Add(new("fullname", user.FullName));
 
         return Result<IEnumerable<Claim>>.Success(claims);
     }
