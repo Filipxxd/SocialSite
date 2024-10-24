@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialSite.Core.Constants;
+using SocialSite.Core.Exceptions;
 using SocialSite.Core.Validators;
 using SocialSite.Data.EF;
 using SocialSite.Domain.Models;
@@ -19,118 +20,102 @@ public sealed class ChatService : IChatService
         _context = context;
     }
 
-    public async Task<Result<IEnumerable<GroupChat>>> GetAllGroupChatsAsync(int currentUserId)
+    public async Task<IEnumerable<Chat>> GetAllChatsAsync(int currentUserId)
     {
-        var groupChats = await _context.GroupChats
+        return await _context.Chats
             .AsNoTracking()
-            .Include(gc => gc.GroupUsers)
-            .Where(gc => gc.GroupUsers.Any(gu => gu.UserId == currentUserId))
+            .Include(gc => gc.ChatUsers)
+                .ThenInclude(cu => cu.User)
+            .Where(gc => gc.ChatUsers.Any(uc => uc.UserId == currentUserId))
             .ToListAsync();
-
-        return Result<IEnumerable<GroupChat>>.Success(groupChats);
     }
 
-    public async Task<Result<GroupChat>> GetGroupChatByIdAsync(int groupChatId, int currentUserId)
+    public async Task<Chat> GetChatByIdAsync(int chatId, int currentUserId)
     {
-        var groupChat = await _context.GroupChats
+        return await _context.Chats
             .AsNoTracking()
-            .Include(gc => gc.GroupUsers)
-                .ThenInclude(gu => gu.User)
-            .Include(gc => gc.Owner)
-            .SingleOrDefaultAsync(gc => gc.Id == groupChatId);
-
-        if (groupChat is null)
-            return Result<GroupChat>.Fail(ResultErrors.NotFound, "Group chat was not found.");
-
-        if (!groupChat.GroupUsers.Any(e => e.UserId == currentUserId))
-            return Result<GroupChat>.Fail(ResultErrors.NotFound, "User is not part of group chat.");
-
-        return Result<GroupChat>.Success(groupChat);
+            .Include(c => c.ChatUsers)
+                .ThenInclude(uc => uc.User)
+            .Include(c => c.Owner)
+            .Include(c => c.Messages.OrderByDescending(m => m.SentAt))
+                .ThenInclude(m => m.Sender)
+            .Where(c => c.ChatUsers.Any(uc => uc.UserId == currentUserId))
+            .SingleOrDefaultAsync(c => c.Id == chatId)
+            ?? throw new NotFoundException();
     }
 
-    public async Task<Result<IEnumerable<User>>> GetAllDirectChatsAsync(int currentUserId)
+    public async Task<Chat> CreateChatAsync(Chat chat)
     {
-        var users = await _context.Messages
-            .AsNoTracking()
-            .Where(m => (m.SenderId == currentUserId || m.ReceiverId == currentUserId) && m.GroupChatId == null)
-            .Select(m => m.SenderId == currentUserId ? m.Receiver! : m.Sender!)
-            .Distinct()
-            .ToListAsync();
-
-        return Result<IEnumerable<User>>.Success(users);
-    }
-
-    public async Task<Result> CreateGroupChatAsync(GroupChat chat)
-    {
-        var validationResult = _validator.Validate<GroupChatValidator, GroupChat>(chat);
+        var validationResult = _validator.Validate<ChatValidator, Chat>(chat);
 
         if (!validationResult.IsValid)
-            return Result.Fail(ResultErrors.NotValid, validationResult.Errors.Select(e => e.ErrorMessage));
+            throw new NotValidException();
 
-        chat.GroupUsers.Add(new()
-        {
-            UserId = chat.OwnerId
-        });
+        var userIds = chat.ChatUsers.Select(cu => cu.UserId);
 
-        _context.GroupChats.Add(chat);
-        await _context.SaveChangesAsync();
-
-        return Result.Success();
-    }
-
-    public async Task<Result> AddToGroupChatAsync(int groupChatId, int userId, int currentUserId)
-    {
-        var groupChat = await _context.GroupChats
-            .Include(gc => gc.GroupUsers)
-            .SingleOrDefaultAsync(gc => gc.Id == groupChatId);
-
-        if (groupChat is null)
-            return Result.Fail(ResultErrors.NotFound, "Group chat was not found.");
-
-        var user = await _context.Users
+        var chatExists = await _context.Chats
             .AsNoTracking()
-            .SingleOrDefaultAsync(u => u.Id == userId);
+            .AnyAsync(c => c.OwnerId == null && c.ChatUsers.All(cu => userIds.Contains(cu.UserId)));
 
-        if (user is null)
-            return Result.Fail(ResultErrors.NotFound, "User was not found.");
+        if (chatExists)
+            throw new NotValidException();
 
-        if (groupChat.OwnerId != currentUserId)
-            return Result.Fail(ResultErrors.NotAuthorized, "Only owner can add user to a group chat.");
-
-        if (groupChat.GroupUsers.Any(gu => gu.UserId == userId))
-            return Result.Fail(ResultErrors.NotValid, "User is already part of group chat.");
-
-        groupChat.GroupUsers.Add(new()
-        {
-            UserId = userId
-        });
-
+        _context.Chats.Add(chat);
         await _context.SaveChangesAsync();
 
-        return Result.Success();
+        return await _context.Chats
+                    .AsNoTracking()
+                    .Include(c => c.ChatUsers)
+                        .ThenInclude(uc => uc.User)
+                    .Include(c => c.Owner)
+                    .SingleAsync(c => c.Id == chat.Id);
     }
 
-    public async Task<Result> RemoveFromGroupChatAsync(int groupChatId, int userId, int currentUserId)
+    public async Task<Result> AssignUsersToGroupChatAsync(int groupChatId, IEnumerable<int> userIds, int currentUserId)
     {
-        var groupChat = await _context.GroupChats
-            .Include(gc => gc.GroupUsers.Where(e => e.UserId == userId))
+        var groupChat = await _context.Chats
+            .Include(gc => gc.ChatUsers)
             .SingleOrDefaultAsync(gc => gc.Id == groupChatId);
 
         if (groupChat is null)
             return Result.Fail(ResultErrors.NotFound, "Group chat was not found.");
 
         if (groupChat.OwnerId != currentUserId)
-            return Result.Fail(ResultErrors.NotAuthorized, "Only owner can remove user from a group chat.");
+            return Result.Fail(ResultErrors.NotAuthorized, "Only the owner can modify users in the group chat.");
 
-        var groupUser = groupChat.GroupUsers.FirstOrDefault(gu => gu.UserId == userId);
+        var currentGroupUserIds = groupChat.ChatUsers.Select(gu => gu.UserId).ToList();
+        var usersToAdd = userIds.Except(currentGroupUserIds).ToList();
+        var usersToRemove = currentGroupUserIds.Except(userIds).ToList();
 
-        if (groupUser is null)
-            return Result.Fail(ResultErrors.NotValid, "User is not part of group chat.");
+        foreach (var userId in usersToAdd)
+        {
+            var user = await _context.Users
+                .AsNoTracking()
+                .SingleOrDefaultAsync(u => u.Id == userId);
 
-        groupChat.GroupUsers.Remove(groupUser);
+            if (user is null)
+                return Result.Fail(ResultErrors.NotFound, $"User with ID {userId} was not found.");
+
+            groupChat.ChatUsers.Add(new()
+            {
+                UserId = userId
+            });
+        }
+
+        foreach (var userId in usersToRemove)
+        {
+            var groupUser = groupChat.ChatUsers.FirstOrDefault(gu => gu.UserId == userId);
+
+            if (groupUser != null)
+            {
+                groupChat.ChatUsers.Remove(groupUser);
+            }
+        }
 
         await _context.SaveChangesAsync();
 
         return Result.Success();
     }
+
+
 }

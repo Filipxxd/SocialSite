@@ -1,11 +1,12 @@
-﻿using Mapster;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SocialSite.Application.Dtos.Account;
-using SocialSite.Core.Constants;
+using SocialSite.Application.Mappers;
+using SocialSite.Core.Exceptions;
 using SocialSite.Core.Utilities;
 using SocialSite.Domain.Models;
+using SocialSite.Domain.Services;
 using SocialSite.Domain.Utilities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -15,63 +16,41 @@ namespace SocialSite.Application.AppServices;
 
 public sealed class AccountAppService
 {
-    private readonly UserManager<User> _userManager;
+    private readonly IAccountService _accountService;
     private readonly IOptions<JwtSetup> _options;
 
-    public AccountAppService(UserManager<User> userManager, IOptions<JwtSetup> options)
+    public AccountAppService(UserManager<User> userManager, IOptions<JwtSetup> options, IAccountService accountService)
     {
-        _userManager = userManager;
         _options = options;
+        _accountService = accountService;
     }
 
     public async Task<Result> RegisterAsync(RegisterDto dto)
     {
-        var userExists = await _userManager.FindByNameAsync(dto.UserName);
-        if (userExists != null)
-            return Result.Fail(ResultErrors.NotValid, $"User with given username: '{dto.UserName}' already exists.");
-
-        var user = dto.Adapt<User>();
-
-        var result = await _userManager.CreateAsync(user, dto.Password);
-        if (!result.Succeeded)
-            return Result.Fail(ResultErrors.NotValid, result.Errors.Select(e => e.Description));
-
-        return Result.Success();
+        var user = dto.Map();
+        return await _accountService.RegisterAsync(user, dto.Password);
     }
 
-    public async Task<Result<TokenDto>> LoginAsync(LoginDto dto)
+    public async Task<TokenDto> LoginAsync(LoginDto dto)
     {
-        var user = await _userManager.FindByNameAsync(dto.UserName);
-        if (user is null)
-            return Result<TokenDto>.Fail(ResultErrors.NotValid, "Invalid credentials.");
+        var result = await _accountService.LoginAsync(dto.UserName, dto.Password);
 
-        var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
-        if (!passwordValid)
-            return Result<TokenDto>.Fail(ResultErrors.NotValid, "Invalid credentials.");
+        if (!result.IsSuccess)
+            throw new NotValidException();
 
-        var userRoles = await _userManager.GetRolesAsync(user);
-
-        var authClaims = new List<Claim>
-        {
-            new(ClaimTypes.Name, user.UserName),
+        var token = GetToken([
+            new(ClaimTypes.Name, dto.UserName),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        };
+            ..result.Entity ]);
 
-        foreach (var userRole in userRoles)
-        {
-            authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-        }
-
-        var token = GetToken(authClaims);
-
-        return Result<TokenDto>.Success(new()
+        return new()
         {
             Token = new JwtSecurityTokenHandler().WriteToken(token),
             Expiration = token.ValidTo
-        });
+        };
     }
 
-    private JwtSecurityToken GetToken(List<Claim> authClaims)
+    private JwtSecurityToken GetToken(IEnumerable<Claim> authClaims)
     {
         var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.Secret));
 

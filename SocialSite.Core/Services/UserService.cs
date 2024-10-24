@@ -1,4 +1,6 @@
-﻿using SocialSite.Core.Validators;
+﻿using Microsoft.EntityFrameworkCore;
+using SocialSite.Core.Constants;
+using SocialSite.Core.Validators;
 using SocialSite.Data.EF;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
@@ -14,6 +16,7 @@ public sealed class UserService(EntityValidator entityValidator, DataContext con
 
     public async Task<Result<IEnumerable<User>>> GetAllAsync(UserFilter userFilter, PageFilter pageFilter)
     {
+        // TODO: .AsNoTrackingWithIdentityResolution()
         return new();
     }
 
@@ -24,7 +27,15 @@ public sealed class UserService(EntityValidator entityValidator, DataContext con
 
     public async Task<Result<User>> GetUserByIdAsync(int userId)
     {
-        return new();
+        var user = await _context.Users
+            .AsNoTracking()
+            .Include(u => u)
+            .SingleOrDefaultAsync(u => u.Id == userId);
+        
+        if (user is null)
+            return Result<User>.Fail(ResultErrors.NotFound, "User was not found.");
+        
+        return Result<User>.Success(user);
     }
 
     public async Task<Result> CreateAsync(User user)

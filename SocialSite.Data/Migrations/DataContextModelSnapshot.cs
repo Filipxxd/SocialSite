@@ -155,6 +155,50 @@ namespace SocialSite.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("SocialSite.Domain.Models.Chat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("OwnerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("Chats", (string)null);
+                });
+
+            modelBuilder.Entity("SocialSite.Domain.Models.ChatUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChatId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("GroupUsers");
+                });
+
             modelBuilder.Entity("SocialSite.Domain.Models.FriendRequest", b =>
                 {
                     b.Property<int>("Id")
@@ -216,56 +260,6 @@ namespace SocialSite.Data.Migrations
                     b.ToTable("Friendships");
                 });
 
-            modelBuilder.Entity("SocialSite.Domain.Models.GroupChat", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("OwnerId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name");
-
-                    b.HasIndex("OwnerId");
-
-                    b.ToTable("GroupChats", (string)null);
-                });
-
-            modelBuilder.Entity("SocialSite.Domain.Models.GroupUser", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("GroupChatId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("JoinedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupChatId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("GroupUsers");
-                });
-
             modelBuilder.Entity("SocialSite.Domain.Models.Message", b =>
                 {
                     b.Property<int>("Id")
@@ -274,15 +268,12 @@ namespace SocialSite.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("ChatId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("GroupChatId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ReceiverId")
-                        .HasColumnType("int");
 
                     b.Property<int>("SenderId")
                         .HasColumnType("int");
@@ -292,11 +283,11 @@ namespace SocialSite.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupChatId");
-
-                    b.HasIndex("ReceiverId");
+                    b.HasIndex("ChatId");
 
                     b.HasIndex("SenderId");
+
+                    b.HasIndex("SentAt");
 
                     b.ToTable("Messages", (string)null);
                 });
@@ -374,6 +365,7 @@ namespace SocialSite.Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("UserName")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
@@ -448,6 +440,35 @@ namespace SocialSite.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SocialSite.Domain.Models.Chat", b =>
+                {
+                    b.HasOne("SocialSite.Domain.Models.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("SocialSite.Domain.Models.ChatUser", b =>
+                {
+                    b.HasOne("SocialSite.Domain.Models.Chat", "Chat")
+                        .WithMany("ChatUsers")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SocialSite.Domain.Models.User", "User")
+                        .WithMany("UserChats")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SocialSite.Domain.Models.FriendRequest", b =>
                 {
                     b.HasOne("SocialSite.Domain.Models.User", "Receiver")
@@ -486,64 +507,28 @@ namespace SocialSite.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SocialSite.Domain.Models.GroupChat", b =>
-                {
-                    b.HasOne("SocialSite.Domain.Models.User", "Owner")
-                        .WithMany()
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Owner");
-                });
-
-            modelBuilder.Entity("SocialSite.Domain.Models.GroupUser", b =>
-                {
-                    b.HasOne("SocialSite.Domain.Models.GroupChat", "GroupChat")
-                        .WithMany("GroupUsers")
-                        .HasForeignKey("GroupChatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SocialSite.Domain.Models.User", "User")
-                        .WithMany("GroupUsers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("GroupChat");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("SocialSite.Domain.Models.Message", b =>
                 {
-                    b.HasOne("SocialSite.Domain.Models.GroupChat", "GroupChat")
+                    b.HasOne("SocialSite.Domain.Models.Chat", "Chat")
                         .WithMany("Messages")
-                        .HasForeignKey("GroupChatId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("SocialSite.Domain.Models.User", "Receiver")
-                        .WithMany("ReceivedMessages")
-                        .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SocialSite.Domain.Models.User", "Sender")
-                        .WithMany("SentMessages")
+                        .WithMany()
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("GroupChat");
-
-                    b.Navigation("Receiver");
+                    b.Navigation("Chat");
 
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("SocialSite.Domain.Models.GroupChat", b =>
+            modelBuilder.Entity("SocialSite.Domain.Models.Chat", b =>
                 {
-                    b.Navigation("GroupUsers");
+                    b.Navigation("ChatUsers");
 
                     b.Navigation("Messages");
                 });
@@ -552,15 +537,11 @@ namespace SocialSite.Data.Migrations
                 {
                     b.Navigation("Friendships");
 
-                    b.Navigation("GroupUsers");
-
                     b.Navigation("ReceivedFriendRequests");
-
-                    b.Navigation("ReceivedMessages");
 
                     b.Navigation("SentFriendRequests");
 
-                    b.Navigation("SentMessages");
+                    b.Navigation("UserChats");
                 });
 #pragma warning restore 612, 618
         }

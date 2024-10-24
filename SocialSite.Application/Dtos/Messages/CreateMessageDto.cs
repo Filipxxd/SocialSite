@@ -1,7 +1,7 @@
 ﻿namespace SocialSite.Application.Dtos.Messages;
 
-public sealed class NewDirectMessageDto
+public sealed class CreateMessageDto
 {
-    public int ReceiverId { get; set; }
+    public int ChatId { get; set; }
     public string Content { get; set; } = default!;
 }

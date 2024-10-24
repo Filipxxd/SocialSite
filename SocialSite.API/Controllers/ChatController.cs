@@ -7,12 +7,13 @@ using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Chats;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Utilities;
+using System.Net;
 
 namespace SocialSite.API.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("[controller]")]
+[Route("chats")]
 public sealed class ChatController : AuthControllerBase
 {
     private readonly ChatAppService _chatAppService;
@@ -22,67 +23,44 @@ public sealed class ChatController : AuthControllerBase
         _chatAppService = chatAppService;
     }
 
-    [HttpGet("get-all-group")]
-    [ProducesResponseType(typeof(Result<IEnumerable<GroupChatInfoDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllGroupChats()
+    [HttpGet("get-all")]
+    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<ChatInfoDto>))]
+    public async Task<IActionResult> GetAllChats()
     {
         var currentUser = await GetCurrentUserAsync();
-        var result = await _chatAppService.GetAllGroupChats(currentUser.Id);
+        var dtos = await _chatAppService.GetAllChatsAsync(currentUser.Id);
 
-        return result.GetResponse();
+        return Ok(dtos);
     }
 
-    [HttpGet("get-group")]
-    [ProducesResponseType(typeof(Result<GroupChatDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(Result<GroupChatDto>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetGroupChatById([FromQuery] int groupChatId)
+    [HttpGet("get-chat")]
+    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ChatDto))]
+    public async Task<IActionResult> GetChat(int id)
     {
         var currentUser = await GetCurrentUserAsync();
-        var result = await _chatAppService.GetGroupChatByIdAsync(groupChatId, currentUser.Id);
-
-        return result.GetResponse();
+        var dto = await _chatAppService.GetChatByIdAsync(id, currentUser.Id);
+        return Ok(dto);
     }
 
-    [HttpGet("get-all-direct")]
-    [ProducesResponseType(typeof(Result<IEnumerable<DirectChatInfo>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllDirectChats()
+    [HttpPost("create-chat")]
+    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ChatDto))]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)] // ValidationProblems
+    public async Task<IActionResult> CreateChat([FromBody] CreateChatDto dto)
     {
         var currentUser = await GetCurrentUserAsync();
-        var result = await _chatAppService.GetAllDirectChatsAsync(currentUser.Id);
+        var chat = await _chatAppService.CreateChatAsync(dto, currentUser.Id);
 
-        return result.GetResponse();
+        return Ok(chat);
     }
 
-    [HttpPost("create-group")]
-    [ProducesResponseType(typeof(Result), StatusCodes.Status201Created)]
+    [HttpPut("assign-group-users")]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateGroupChat([FromBody] NewGroupChatDto dto)
+    public async Task<IActionResult> AssignGroupUsers([FromBody] AssignGroupChatUsersDto dto)
     {
         var currentUser = await GetCurrentUserAsync();
-        var result = await _chatAppService.CreateGroupChatAsync(dto, currentUser);
+        var result = await _chatAppService.AssignUsersToGroupChatAsync(dto, currentUser.Id);
 
         return result.GetResponse(true);
-    }
-
-    [HttpPost("add-to-group")]
-    [ProducesResponseType(typeof(Result), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> AddToGroupChat([FromBody] UserInGroupChat dto)
-    {
-        var currentUser = await GetCurrentUserAsync();
-        var result = await _chatAppService.AddToGroupChatAsync(dto, currentUser.Id);
-
-        return result.GetResponse(true);
-    }
-
-    [HttpPost("remove-from-group")]
-    [ProducesResponseType(typeof(Result), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> RemoveFromGroupChat([FromBody] UserInGroupChat dto)
-    {
-        var currentUser = await GetCurrentUserAsync();
-        var result = await _chatAppService.AddToGroupChatAsync(dto, currentUser.Id);
-
-        return result.GetResponse();
     }
 }
