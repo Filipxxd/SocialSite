@@ -29,7 +29,7 @@ internal sealed class UserConfig : IEntityTypeConfiguration<User>
                 v => v.ToString(),
                 v => (FriendRequestSettingState)Enum.Parse(typeof(FriendRequestSettingState), v));
 
-        builder.HasMany(e => e.GroupUsers)
+        builder.HasMany(e => e.UserChats)
             .WithOne(e => e.User)
             .HasForeignKey(e => e.UserId);
 

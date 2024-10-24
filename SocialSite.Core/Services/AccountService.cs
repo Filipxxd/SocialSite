@@ -34,7 +34,7 @@ public sealed class AccountService : IAccountService
         var userRoles = await _userManager.GetRolesAsync(user);
         var claims = userRoles.Select(e => new Claim(ClaimTypes.Role, e)).ToList();
 
-        claims.Add(new("fullname", user.FullName));
+        claims.Add(new("fullname", user.Fullname));
 
         return Result<IEnumerable<Claim>>.Success(claims);
     }

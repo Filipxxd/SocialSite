@@ -12,19 +12,16 @@ internal sealed class MessageConfig : IEntityTypeConfiguration<Message>
 
         builder.HasKey(e => e.Id);
 
+        builder.HasIndex(e => e.SentAt);
+
         builder.HasOne(e => e.Sender)
-            .WithMany(e => e.SentMessages)
+            .WithMany()
             .HasForeignKey(e => e.SenderId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(e => e.Receiver)
-            .WithMany(e => e.ReceivedMessages)
-            .HasForeignKey(e => e.ReceiverId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(e => e.GroupChat)
+        builder.HasOne(e => e.Chat)
             .WithMany(e => e.Messages)
-            .HasForeignKey(e => e.GroupChatId)
+            .HasForeignKey(e => e.ChatId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

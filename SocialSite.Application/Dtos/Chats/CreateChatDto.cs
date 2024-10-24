@@ -1,8 +1,8 @@
 ﻿namespace SocialSite.Application.Dtos.Chats;
 
-public sealed class ChatInfoDto
+public sealed class CreateChatDto
 {
-    public int Id { get; set; }
     public string? Name { get; set; }
     public bool IsDirect { get; set; }
+    public IEnumerable<int> UserIds { get; set; } = [];
 }

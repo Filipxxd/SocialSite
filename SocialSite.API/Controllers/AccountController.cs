@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using SocialSite.API.Extensions;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Account;
-using SocialSite.Domain.Utilities;
+using System.Net;
 
 namespace SocialSite.API.Controllers;
 
@@ -18,8 +18,7 @@ public sealed class AccountController : ControllerBase
     }
 
     [HttpPost("register")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     public async Task<IActionResult> Register([FromBody] RegisterDto model)
     {
         var result = await _accountAppService.RegisterAsync(model);
@@ -28,12 +27,11 @@ public sealed class AccountController : ControllerBase
     }
 
     [HttpPost("login")]
-    [ProducesResponseType(typeof(TokenDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(TokenDto))]
     public async Task<IActionResult> Login([FromBody] LoginDto model)
     {
         var result = await _accountAppService.LoginAsync(model);
 
-        return result.GetResponse(true);
+        return Ok(result);
     }
 }

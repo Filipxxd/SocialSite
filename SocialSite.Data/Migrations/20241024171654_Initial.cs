@@ -32,12 +32,12 @@ namespace SocialSite.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AllowNonFriendMessages = table.Column<bool>(type: "bit", nullable: false),
                     FriendRequestSettingState = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(254)", maxLength: 254, nullable: true),
                     NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -222,19 +222,19 @@ namespace SocialSite.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "GroupChats",
+                name: "Chats",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OwnerId = table.Column<int>(type: "int", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OwnerId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GroupChats", x => x.Id);
+                    table.PrimaryKey("PK_Chats", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_GroupChats_Users_OwnerId",
+                        name: "FK_Chats_Users_OwnerId",
                         column: x => x.OwnerId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -247,17 +247,16 @@ namespace SocialSite.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    JoinedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    GroupChatId = table.Column<int>(type: "int", nullable: false)
+                    ChatId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_GroupUsers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_GroupUsers_GroupChats_GroupChatId",
-                        column: x => x.GroupChatId,
-                        principalTable: "GroupChats",
+                        name: "FK_GroupUsers_Chats_ChatId",
+                        column: x => x.ChatId,
+                        principalTable: "Chats",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -277,24 +276,17 @@ namespace SocialSite.Data.Migrations
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SentAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SenderId = table.Column<int>(type: "int", nullable: false),
-                    ReceiverId = table.Column<int>(type: "int", nullable: true),
-                    GroupChatId = table.Column<int>(type: "int", nullable: true)
+                    ChatId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Messages", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Messages_GroupChats_GroupChatId",
-                        column: x => x.GroupChatId,
-                        principalTable: "GroupChats",
+                        name: "FK_Messages_Chats_ChatId",
+                        column: x => x.ChatId,
+                        principalTable: "Chats",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Messages_Users_ReceiverId",
-                        column: x => x.ReceiverId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Messages_Users_SenderId",
                         column: x => x.SenderId,
@@ -351,19 +343,9 @@ namespace SocialSite.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GroupChats_Name",
-                table: "GroupChats",
-                column: "Name");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GroupChats_OwnerId",
-                table: "GroupChats",
-                column: "OwnerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GroupUsers_GroupChatId",
+                name: "IX_GroupUsers_ChatId",
                 table: "GroupUsers",
-                column: "GroupChatId");
+                column: "ChatId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GroupUsers_UserId",
@@ -371,19 +353,24 @@ namespace SocialSite.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Messages_GroupChatId",
-                table: "Messages",
-                column: "GroupChatId");
+                name: "IX_Chats_OwnerId",
+                table: "Chats",
+                column: "OwnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Messages_ReceiverId",
+                name: "IX_Messages_ChatId",
                 table: "Messages",
-                column: "ReceiverId");
+                column: "ChatId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Messages_SenderId",
                 table: "Messages",
                 column: "SenderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_SentAt",
+                table: "Messages",
+                column: "SentAt");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
@@ -442,7 +429,7 @@ namespace SocialSite.Data.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "GroupChats");
+                name: "Chats");
 
             migrationBuilder.DropTable(
                 name: "Users");

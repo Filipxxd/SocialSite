@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SocialSite.Application.Dtos.Account;
-using SocialSite.Core.Constants;
+using SocialSite.Application.Mappers;
+using SocialSite.Core.Exceptions;
 using SocialSite.Core.Utilities;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
@@ -27,28 +28,27 @@ public sealed class AccountAppService
 
     public async Task<Result> RegisterAsync(RegisterDto dto)
     {
-        var user = dto.Adapt<User>();
-
+        var user = dto.Map();
         return await _accountService.RegisterAsync(user, dto.Password);
     }
 
-    public async Task<Result<TokenDto>> LoginAsync(LoginDto dto)
+    public async Task<TokenDto> LoginAsync(LoginDto dto)
     {
         var result = await _accountService.LoginAsync(dto.UserName, dto.Password);
 
         if (!result.IsSuccess)
-            return Result<TokenDto>.Fail(ResultErrors.NotValid, result.Errors.SelectMany(e => e.Value));
+            throw new NotValidException();
 
         var token = GetToken([
-            new(ClaimTypes.Name, dto.UserName), 
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), 
+            new(ClaimTypes.Name, dto.UserName),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             ..result.Entity ]);
 
-        return Result<TokenDto>.Success(new()
+        return new()
         {
             Token = new JwtSecurityTokenHandler().WriteToken(token),
             Expiration = token.ValidTo
-        });
+        };
     }
 
     private JwtSecurityToken GetToken(IEnumerable<Claim> authClaims)

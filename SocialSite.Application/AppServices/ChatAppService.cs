@@ -1,5 +1,7 @@
 ﻿using Mapster;
 using SocialSite.Application.Dtos.Chats;
+using SocialSite.Application.Mappers;
+using SocialSite.Core.Exceptions;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
 using SocialSite.Domain.Utilities;
@@ -9,51 +11,40 @@ namespace SocialSite.Application.AppServices;
 public sealed class ChatAppService
 {
     private readonly IChatService _chatService;
+    private readonly IMessageService _messageService;
 
-    public ChatAppService(IChatService chatService)
+    public ChatAppService(IChatService chatService, IMessageService messageService)
     {
         _chatService = chatService;
+        _messageService = messageService;
     }
 
     public async Task<IEnumerable<ChatInfoDto>> GetAllChatsAsync(int currentUserId)
     {
-        var groupChatsResult = await _chatService.GetAllGroupChatsAsync(currentUserId);
-        var directChatsResult = await _chatService.GetAllDirectChatsAsync(currentUserId);
+        var chats = await _chatService.GetAllChatsAsync(currentUserId);
 
-        var dtos = groupChatsResult.Entity.Adapt<IEnumerable<ChatInfoDto>>().ToList();
-
-        dtos.AddRange(directChatsResult.Entity.Adapt<IEnumerable<ChatInfoDto>>());
-
-        return dtos;
+        return chats.Map();
     }
 
-    public async Task<Result<GroupChatDto>> GetGroupChatByIdAsync(int groupChatId, int currentUserId)
+    public async Task<ChatDto> GetChatByIdAsync(int chatId, int currentUserId)
     {
-        var groupChatResult = await _chatService.GetGroupChatByIdAsync(groupChatId, currentUserId);
+        var chat = await _chatService.GetChatByIdAsync(chatId, currentUserId);
 
-        if (!groupChatResult.IsSuccess)
-            return Result<GroupChatDto>.Fail(groupChatResult.Errors);
-
-        var dto = groupChatResult.Adapt<GroupChatDto>();
-
-        return Result<GroupChatDto>.Success(dto);
+        return chat.Map(currentUserId);
     }
 
-    public async Task<Result> CreateGroupChatAsync(NewGroupChatDto dto, User currentUser)
+    public async Task<ChatDto> CreateChatAsync(CreateChatDto dto, User currentUser)
     {
-        var groupChat = dto.Adapt<GroupChat>();
-        groupChat.OwnerId = currentUser.Id;
+        if (!dto.UserIds.Any(id => id == currentUser.Id))
+            throw new NotValidException();
 
-        return await _chatService.CreateGroupChatAsync(groupChat);
+        var chat = await _chatService.CreateChatAsync(dto.Map(currentUser.Id));
+
+        return chat.Map(currentUser.Id);
     }
 
-    public async Task<Result> AddToGroupChatAsync(UserInGroupChat dto, int currentUserId)
+    public async Task<Result> AssignUsersToGroupChatAsync(AssignGroupChatUsersDto dto, User currentUser)
     {
-        return await _chatService.AddToGroupChatAsync(dto.GroupChatId, dto.UserId, currentUserId);
-    }
-
-    public async Task<Result> RemoveFromGroupChatAsync(UserInGroupChat dto, int currentUserId)
-    {
-        return await _chatService.RemoveFromGroupChatAsync(dto.GroupChatId, dto.UserId, currentUserId);
+        return await _chatService.AssignUsersToGroupChatAsync(dto.GroupChatId, dto.UserIds, currentUser.Id);
     }
 }
