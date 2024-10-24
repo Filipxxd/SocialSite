@@ -1,5 +1,4 @@
-﻿using Mapster;
-using SocialSite.Application.Dtos.Chats;
+﻿using SocialSite.Application.Dtos.Chats;
 using SocialSite.Application.Mappers;
 using SocialSite.Core.Exceptions;
 using SocialSite.Domain.Models;

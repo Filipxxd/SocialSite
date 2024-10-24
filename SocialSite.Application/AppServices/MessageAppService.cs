@@ -1,5 +1,4 @@
-﻿using Mapster;
-using SocialSite.Application.Dtos.Messages;
+﻿using SocialSite.Application.Dtos.Messages;
 using SocialSite.Application.Mappers;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
