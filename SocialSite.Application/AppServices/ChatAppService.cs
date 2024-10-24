@@ -1,7 +1,6 @@
 ﻿using SocialSite.Application.Dtos.Chats;
 using SocialSite.Application.Mappers;
 using SocialSite.Core.Exceptions;
-using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
 using SocialSite.Domain.Utilities;
 
@@ -22,7 +21,7 @@ public sealed class ChatAppService
     {
         var chats = await _chatService.GetAllChatsAsync(currentUserId);
 
-        return chats.Map();
+        return chats.Map(currentUserId);
     }
 
     public async Task<ChatDto> GetChatByIdAsync(int chatId, int currentUserId)
@@ -32,18 +31,18 @@ public sealed class ChatAppService
         return chat.Map(currentUserId);
     }
 
-    public async Task<ChatDto> CreateChatAsync(CreateChatDto dto, User currentUser)
+    public async Task<ChatDto> CreateChatAsync(CreateChatDto dto, int currentUserId)
     {
-        if (!dto.UserIds.Any(id => id == currentUser.Id))
+        if (!dto.UserIds.Any(id => id == currentUserId))
             throw new NotValidException();
 
-        var chat = await _chatService.CreateChatAsync(dto.Map(currentUser.Id));
+        var chat = await _chatService.CreateChatAsync(dto.Map(currentUserId));
 
-        return chat.Map(currentUser.Id);
+        return chat.Map(currentUserId);
     }
 
-    public async Task<Result> AssignUsersToGroupChatAsync(AssignGroupChatUsersDto dto, User currentUser)
+    public async Task<Result> AssignUsersToGroupChatAsync(AssignGroupChatUsersDto dto, int currentUserId)
     {
-        return await _chatService.AssignUsersToGroupChatAsync(dto.GroupChatId, dto.UserIds, currentUser.Id);
+        return await _chatService.AssignUsersToGroupChatAsync(dto.GroupChatId, dto.UserIds, currentUserId);
     }
 }

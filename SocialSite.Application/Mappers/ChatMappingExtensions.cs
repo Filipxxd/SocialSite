@@ -35,10 +35,10 @@ internal static class ChatMappingExtensions
         }).ToList()
     };
 
-    public static IEnumerable<ChatInfoDto> Map(this IEnumerable<Chat> input) => input.Select(chat => new ChatInfoDto
+    public static IEnumerable<ChatInfoDto> Map(this IEnumerable<Chat> input, int currentUserId) => input.Select(chat => new ChatInfoDto
     {
         Id = chat.Id,
-        Name = chat.Name,
+        Name = chat.Name ?? chat.ChatUsers.Select(e => e.User).First(e => e!.Id != currentUserId)!.Fullname,
         IsDirect = chat.OwnerId is null
     });
 }

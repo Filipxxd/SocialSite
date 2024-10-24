@@ -48,7 +48,7 @@ public sealed class ChatController : AuthControllerBase
     public async Task<IActionResult> CreateChat([FromBody] CreateChatDto dto)
     {
         var currentUser = await GetCurrentUserAsync();
-        var chat = await _chatAppService.CreateChatAsync(dto, currentUser);
+        var chat = await _chatAppService.CreateChatAsync(dto, currentUser.Id);
 
         return Ok(chat);
     }
@@ -59,7 +59,7 @@ public sealed class ChatController : AuthControllerBase
     public async Task<IActionResult> AssignGroupUsers([FromBody] AssignGroupChatUsersDto dto)
     {
         var currentUser = await GetCurrentUserAsync();
-        var result = await _chatAppService.AssignUsersToGroupChatAsync(dto, currentUser);
+        var result = await _chatAppService.AssignUsersToGroupChatAsync(dto, currentUser.Id);
 
         return result.GetResponse(true);
     }

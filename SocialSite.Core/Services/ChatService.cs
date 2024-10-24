@@ -25,6 +25,7 @@ public sealed class ChatService : IChatService
         return await _context.Chats
             .AsNoTracking()
             .Include(gc => gc.ChatUsers)
+                .ThenInclude(cu => cu.User)
             .Where(gc => gc.ChatUsers.Any(uc => uc.UserId == currentUserId))
             .ToListAsync();
     }
