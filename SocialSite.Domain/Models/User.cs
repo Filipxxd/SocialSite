@@ -19,4 +19,5 @@ public class User : IdentityUser<int>
     public virtual ICollection<FriendRequest> SentFriendRequests { get; set; } = [];
     public virtual ICollection<FriendRequest> ReceivedFriendRequests { get; set; } = [];
     public virtual ICollection<Friendship> Friendships { get; set; } = [];
+    public virtual ICollection<Post> Posts { get; set; } = [];
 }

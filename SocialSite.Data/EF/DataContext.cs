@@ -15,6 +15,8 @@ public class DataContext(DbContextOptions<DataContext> options, IServiceProvider
     public DbSet<Friendship> Friendships { get; set; }
     public DbSet<Message> Messages { get; set; }
     public DbSet<Chat> Chats { get; set; }
+    public DbSet<Post> Posts { get; set; }
+    public DbSet<Comment> Coments { get; set; }
     public DbSet<ChatUser> GroupUsers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)

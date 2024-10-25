@@ -8,8 +8,12 @@ internal sealed class FriendshipConfig : IEntityTypeConfiguration<Friendship>
 {
     public void Configure(EntityTypeBuilder<Friendship> builder)
     {
+        builder.ToTable(Tables.Friendships);
+
+        builder.HasKey(f => f.Id);
+
         builder.HasOne(f => f.User)
-            .WithMany(u => u.Friendships)
+            .WithMany(f => f.Friendships)
             .HasForeignKey(f => f.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
