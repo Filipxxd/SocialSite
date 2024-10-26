@@ -29,6 +29,12 @@ internal sealed class UserConfig : IEntityTypeConfiguration<User>
                 v => v.ToString(),
                 v => (FriendRequestSettingState)Enum.Parse(typeof(FriendRequestSettingState), v));
 
+        builder.Property(e => e.PostVisibility)
+            .HasMaxLength(20)
+            .HasConversion(
+                v => v.ToString(),
+                v => (PostVisibility)Enum.Parse(typeof(PostVisibility), v));
+
         builder.HasMany(e => e.UserChats)
             .WithOne(e => e.User)
             .HasForeignKey(e => e.UserId);

@@ -38,6 +38,7 @@ namespace SocialSite.Data.Migrations
                     Bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AllowNonFriendMessages = table.Column<bool>(type: "bit", nullable: false),
                     FriendRequestSettingState = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    PostVisibility = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(254)", maxLength: 254, nullable: true),
                     NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -56,6 +57,7 @@ namespace SocialSite.Data.Migrations
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
                     table.CheckConstraint("CK_Users_FriendRequestSettingState", "[FriendRequestSettingState] IN ('AnyOne','FriendsOfFriends','NoOne')");
+                    table.CheckConstraint("CK_Users_PostVisibility", "[PostVisibility] IN ('Everyone','FriendsOnly','Private')");
                 });
 
             migrationBuilder.CreateTable(

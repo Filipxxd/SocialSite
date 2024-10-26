@@ -492,6 +492,11 @@ namespace SocialSite.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("PostVisibility")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -520,6 +525,8 @@ namespace SocialSite.Data.Migrations
                     b.ToTable("Users", null, t =>
                         {
                             t.HasCheckConstraint("CK_Users_FriendRequestSettingState", "[FriendRequestSettingState] IN ('AnyOne','FriendsOfFriends','NoOne')");
+
+                            t.HasCheckConstraint("CK_Users_PostVisibility", "[PostVisibility] IN ('Everyone','FriendsOnly','Private')");
                         });
                 });
 
