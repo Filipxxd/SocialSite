@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SocialSite.Data.EF;
 
@@ -11,9 +12,11 @@ using SocialSite.Data.EF;
 namespace SocialSite.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241026082521_Images")]
+    partial class Images
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -322,7 +325,7 @@ namespace SocialSite.Data.Migrations
 
                     b.ToTable("Images", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Images_Entity", "[Entity] IN ('Post','Message','Profile','GroupChat')");
+                            t.HasCheckConstraint("CK_Images_Entity", "[Entity] IN ('Post','Message','Profile')");
                         });
                 });
 
@@ -660,12 +663,6 @@ namespace SocialSite.Data.Migrations
 
             modelBuilder.Entity("SocialSite.Domain.Models.Image", b =>
                 {
-                    b.HasOne("SocialSite.Domain.Models.Chat", null)
-                        .WithOne("Image")
-                        .HasForeignKey("SocialSite.Domain.Models.Image", "EntityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SocialSite.Domain.Models.Message", null)
                         .WithMany("Images")
                         .HasForeignKey("EntityId")
@@ -737,8 +734,6 @@ namespace SocialSite.Data.Migrations
             modelBuilder.Entity("SocialSite.Domain.Models.Chat", b =>
                 {
                     b.Navigation("ChatUsers");
-
-                    b.Navigation("Image");
 
                     b.Navigation("Messages");
                 });

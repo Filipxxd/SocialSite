@@ -10,4 +10,5 @@ internal static class Tables
     public const string Messages = nameof(Messages);
     public const string Friendships = nameof(Friendships);
     public const string FriendRequests = nameof(FriendRequests);
+    public const string Images = nameof(Images);
 }

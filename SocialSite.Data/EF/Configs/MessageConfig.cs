@@ -23,6 +23,11 @@ internal sealed class MessageConfig : IEntityTypeConfiguration<Message>
             .WithMany(e => e.Messages)
             .HasForeignKey(e => e.ChatId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(p => p.Images)
+            .WithOne()
+            .HasForeignKey(p => p.EntityId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 

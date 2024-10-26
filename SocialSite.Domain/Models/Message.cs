@@ -12,4 +12,6 @@ public class Message
 
     public int ChatId { get; set; }
     public virtual Chat? Chat { get; set; }
+
+    public virtual ICollection<Image> Images { get; set; } = [];
 }

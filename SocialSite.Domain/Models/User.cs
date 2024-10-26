@@ -21,4 +21,6 @@ public class User : IdentityUser<int>
     public virtual ICollection<Friendship> Friendships { get; set; } = [];
     public virtual ICollection<Post> Posts { get; set; } = [];
     public virtual ICollection<Report> Reports { get; set; } = [];
+
+    public virtual Image? ProfileImage { get; set; }
 }
