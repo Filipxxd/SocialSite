@@ -16,6 +16,8 @@ internal class ImageConfig : IEntityTypeConfiguration<Image>
         builder.Property(e => e.Name)
             .HasMaxLength(100);
 
+        builder.HasIndex(e => new { e.EntityId, e.Entity });
+
         builder.Property(e => e.Entity)
             .HasMaxLength(20)
             .HasConversion(

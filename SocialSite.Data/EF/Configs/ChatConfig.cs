@@ -30,7 +30,6 @@ internal sealed class ChatConfig : IEntityTypeConfiguration<Chat>
         builder.HasOne(x => x.Image)
             .WithOne()
             .HasForeignKey<Image>(i => i.EntityId)
-            .HasPrincipalKey<Chat>(c => c.Id)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

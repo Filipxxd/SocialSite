@@ -12,8 +12,8 @@ using SocialSite.Data.EF;
 namespace SocialSite.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20241026103659_ChatImage")]
-    partial class ChatImage
+    [Migration("20241026165151_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -322,6 +322,8 @@ namespace SocialSite.Data.Migrations
 
                     b.HasIndex("EntityId")
                         .IsUnique();
+
+                    b.HasIndex("EntityId", "Entity");
 
                     b.ToTable("Images", null, t =>
                         {

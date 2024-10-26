@@ -61,7 +61,6 @@ internal sealed class UserConfig : IEntityTypeConfiguration<User>
         builder.HasOne(x => x.ProfileImage)
             .WithOne()
             .HasForeignKey<Image>(i => i.EntityId)
-            .HasPrincipalKey<User>(u => u.Id)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

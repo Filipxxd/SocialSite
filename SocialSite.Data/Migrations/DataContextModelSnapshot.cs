@@ -320,6 +320,8 @@ namespace SocialSite.Data.Migrations
                     b.HasIndex("EntityId")
                         .IsUnique();
 
+                    b.HasIndex("EntityId", "Entity");
+
                     b.ToTable("Images", null, t =>
                         {
                             t.HasCheckConstraint("CK_Images_Entity", "[Entity] IN ('Post','Message','Profile','GroupChat')");
