@@ -20,6 +20,6 @@ internal class PostConfig : IEntityTypeConfiguration<Post>
         builder.HasMany(p => p.Comments)
             .WithOne(p => p.Post)
             .HasForeignKey(p => p.PostId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

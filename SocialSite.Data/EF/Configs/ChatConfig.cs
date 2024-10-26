@@ -19,10 +19,12 @@ internal sealed class ChatConfig : IEntityTypeConfiguration<Chat>
 
         builder.HasMany(e => e.ChatUsers)
             .WithOne(e => e.Chat)
-            .HasForeignKey(e => e.ChatId);
+            .HasForeignKey(e => e.ChatId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(e => e.Messages)
             .WithOne(e => e.Chat)
-            .HasForeignKey(e => e.ChatId);
+            .HasForeignKey(e => e.ChatId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -15,11 +15,11 @@ internal class CommentConfig : IEntityTypeConfiguration<Comment>
         builder.HasOne(c => c.User)
             .WithMany()
             .HasForeignKey(c => c.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(c => c.Post)
             .WithMany(c => c.Comments)
             .HasForeignKey(c => c.PostId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

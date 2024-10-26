@@ -22,7 +22,7 @@ internal sealed class MessageConfig : IEntityTypeConfiguration<Message>
         builder.HasOne(e => e.Chat)
             .WithMany(e => e.Messages)
             .HasForeignKey(e => e.ChatId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 
