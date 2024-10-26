@@ -28,17 +28,17 @@ public sealed class MessageService : IMessageService
         var validationResult = _validator.Validate<MessageValidator, Message>(message);
 
         if (!validationResult.IsValid)
-            throw new NotValidException();
+            throw new NotValidException("");
 
         var chat = await _context.Chats.AsNoTracking()
             .Include(e => e.ChatUsers)
             .SingleOrDefaultAsync(e => e.Id == message.ChatId);
 
         if (chat is null)
-            throw new NotFoundException();
+            throw new NotFoundException("Chat was not found");
 
         if (!chat.ChatUsers.Any(e => e.UserId == message.SenderId))
-            throw new NotValidException();
+            throw new NotValidException("Sender is not part of Chat");
 
         _context.Messages.Add(message);
         await _context.SaveChangesAsync();

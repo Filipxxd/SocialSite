@@ -34,7 +34,7 @@ public sealed class ChatAppService
     public async Task<ChatDto> CreateChatAsync(CreateChatDto dto, int currentUserId)
     {
         if (!dto.UserIds.Any(id => id == currentUserId))
-            throw new NotValidException();
+            throw new NotValidException("Cannot create chats without current user participating in it");
 
         var chat = await _chatService.CreateChatAsync(dto.Map(currentUserId));
 

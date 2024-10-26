@@ -1,3 +1,3 @@
 ﻿namespace SocialSite.Core.Exceptions;
 
-public class NotAuthorizedException : Exception { }
+public class NotAuthorizedException(string message) : Exception(message) { }

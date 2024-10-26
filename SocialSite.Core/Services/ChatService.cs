@@ -41,7 +41,7 @@ public sealed class ChatService : IChatService
                 .ThenInclude(m => m.Sender)
             .Where(c => c.ChatUsers.Any(uc => uc.UserId == currentUserId))
             .SingleOrDefaultAsync(c => c.Id == chatId)
-            ?? throw new NotFoundException();
+            ?? throw new NotFoundException("Chat was not found");
     }
 
     public async Task<Chat> CreateChatAsync(Chat chat)
@@ -49,7 +49,7 @@ public sealed class ChatService : IChatService
         var validationResult = _validator.Validate<ChatValidator, Chat>(chat);
 
         if (!validationResult.IsValid)
-            throw new NotValidException();
+            throw new NotValidException("");
 
         var userIds = chat.ChatUsers.Select(cu => cu.UserId);
 
@@ -58,7 +58,7 @@ public sealed class ChatService : IChatService
             .AnyAsync(c => c.OwnerId == null && c.ChatUsers.All(cu => userIds.Contains(cu.UserId)));
 
         if (chatExists)
-            throw new NotValidException();
+            throw new NotValidException("Direct chat between users already exists");
 
         _context.Chats.Add(chat);
         await _context.SaveChangesAsync();

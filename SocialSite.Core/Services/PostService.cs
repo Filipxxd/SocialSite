@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialSite.Core.Exceptions;
 using SocialSite.Data.EF;
+using SocialSite.Data.EF.Extensions;
 using SocialSite.Domain.Models;
+using SocialSite.Domain.Models.Enums;
 using SocialSite.Domain.Utilities;
 
 namespace SocialSite.Core.Services;
@@ -23,31 +25,34 @@ public sealed class PostService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<Post>> GetAllPostsFromFriends(int currentUserId)
+    public async Task<IEnumerable<Post>> GetAllPostsAsync(int currentUserId)
     {
         return await _context.Posts.AsNoTracking()
+            .IncludePostImages()
             .Include(p => p.Comments.OrderByDescending(c => c.SentAt))
-            .Where(p => _context.Friendships
-                .Where(f => f.UserId == currentUserId || f.FriendId == currentUserId)
-                .Select(f => f.UserId == currentUserId ? f.FriendId : f.UserId)
-                .Contains(p.UserId))
+            .Include(p => p.User)
+            .Where(p =>
+                (p.User!.PostVisibility == PostVisibility.Everyone) ||
+                (p.User.PostVisibility == PostVisibility.FriendsOnly &&
+                    _context.Friendships
+                        .Where(f => f.UserId == currentUserId || f.FriendId == currentUserId)
+                        .Select(f => f.UserId == currentUserId ? f.FriendId : f.UserId)
+                        .Contains(p.UserId))
+            )
             .OrderByDescending(p => p.CreatedDate)
             .ToListAsync();
     }
 
-    public async Task CreateComment(Comment comment)
+    public async Task<Comment> CreateCommentAsync(Comment comment)
     {
         var post = await _context.Posts.AsNoTracking().SingleOrDefaultAsync(e => e.Id == comment.PostId);
 
         if (post is null)
-            throw new NotFoundException();
+            throw new NotFoundException("Post was not found");
 
         _context.Coments.Add(comment);
         await _context.SaveChangesAsync();
-    }
 
-    public async Task ReportPost()
-    {
-
+        return comment;
     }
 }
