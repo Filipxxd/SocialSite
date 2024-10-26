@@ -12,6 +12,7 @@ public class User : IdentityUser<int>
 
     public bool AllowNonFriendMessages { get; set; } = true;
     public FriendRequestSettingState FriendRequestSettingState { get; set; }
+    public PostVisibility PostVisibility { get; set; }
 
     public string Fullname => $"{FirstName} {LastName}";
 
