@@ -7,7 +7,7 @@ using System.Net;
 namespace SocialSite.API.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("account")]
 public sealed class AccountController : ControllerBase
 {
     private readonly AccountAppService _accountAppService;
@@ -19,6 +19,7 @@ public sealed class AccountController : ControllerBase
 
     [HttpPost("register")]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> Register([FromBody] RegisterDto model)
     {
         var result = await _accountAppService.RegisterAsync(model);
@@ -28,6 +29,7 @@ public sealed class AccountController : ControllerBase
 
     [HttpPost("login")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(TokenDto))]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> Login([FromBody] LoginDto model)
     {
         var result = await _accountAppService.LoginAsync(model);

@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SocialSite.Application.AppServices;
+using SocialSite.Application.Validators.Chats;
 using SocialSite.Core.Services;
 using SocialSite.Core.Utilities;
-using SocialSite.Core.Validators;
 using SocialSite.Data.EF;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Utilities;
@@ -32,6 +35,7 @@ internal static class ConfigExtensions
 
         services.AddIdentity<User, IdentityRole<int>>(options =>
             {
+                // TODO: Setup realistically
                 options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
@@ -45,7 +49,7 @@ internal static class ConfigExtensions
         return services;
     }
 
-    public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAuthentication(options =>
         {
@@ -70,30 +74,17 @@ internal static class ConfigExtensions
         return services;
     }
 
-    public static IServiceCollection AddCoreServices(this IServiceCollection services)
+    public static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
         services.Scan(scan =>
         {
-            scan.FromAssembliesOf(typeof(EntityValidator))
-                .AddClasses(classes => classes.Where(type => type.IsClass && type.Name.EndsWith("Validator")))
-                .AsSelf()
-                .WithScopedLifetime();
-
-            scan.FromAssembliesOf(typeof(UserService))
+            scan.FromAssembliesOf(typeof(AccountService))
                 .AddClasses(classes => classes.Where(type => type.IsClass && type.Name.EndsWith("Service")))
                 .AsImplementedInterfaces()
                 .WithScopedLifetime();
-        });
 
-        return services;
-    }
-
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-    {
-        services.Scan(scan =>
-        {
             scan.FromAssembliesOf(typeof(AccountAppService))
                 .AddClasses(classes => classes.Where(type => type.IsClass && type.Name.EndsWith("AppService")))
                 .AsSelf()
@@ -101,6 +92,33 @@ internal static class ConfigExtensions
         });
 
         return services;
+    }
+
+    public static IMvcBuilder AddEndpointValidation(this IMvcBuilder builder)
+    {
+        builder.ConfigureApiBehaviorOptions(options =>
+         {
+             options.InvalidModelStateResponseFactory = context =>
+             {
+                 var errors = context.ModelState
+                     .Where(ms => ms.Value?.Errors.Any() == true)
+                     .ToDictionary(
+                         kvp => kvp.Key,
+                         kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage) ?? []
+                     );
+
+                 return new BadRequestObjectResult(new
+                 {
+                     Success = false,
+                     Errors = errors
+                 });
+             };
+         });
+
+        builder.Services.AddValidatorsFromAssemblyContaining<CreateChatDtoValidator>();
+        builder.Services.AddFluentValidationAutoValidation();
+
+        return builder;
     }
 
     public static IServiceCollection AddSwagger(this IServiceCollection services)

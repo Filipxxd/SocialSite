@@ -6,7 +6,6 @@ using SocialSite.API.Extensions;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Chats;
 using SocialSite.Domain.Models;
-using SocialSite.Domain.Utilities;
 using System.Net;
 
 namespace SocialSite.API.Controllers;
@@ -25,6 +24,8 @@ public sealed class ChatController : AuthControllerBase
 
     [HttpGet("get-all")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<ChatInfoDto>))]
+    [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> GetAllChats()
     {
         var currentUser = await GetCurrentUserAsync();
@@ -35,6 +36,8 @@ public sealed class ChatController : AuthControllerBase
 
     [HttpGet("get-chat")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ChatDto))]
+    [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> GetChat(int id)
     {
         var currentUser = await GetCurrentUserAsync();
@@ -44,7 +47,8 @@ public sealed class ChatController : AuthControllerBase
 
     [HttpPost("create-chat")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ChatDto))]
-    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)] // ValidationProblems
+    [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> CreateChat([FromBody] CreateChatDto dto)
     {
         var currentUser = await GetCurrentUserAsync();
@@ -55,7 +59,8 @@ public sealed class ChatController : AuthControllerBase
 
     [HttpPut("assign-group-users")]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
-    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> AssignGroupUsers([FromBody] AssignGroupChatUsersDto dto)
     {
         var currentUser = await GetCurrentUserAsync();

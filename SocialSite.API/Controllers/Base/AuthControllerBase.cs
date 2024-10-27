@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SocialSite.Application.Exceptions;
+using SocialSite.Core.Exceptions;
 using SocialSite.Domain.Models;
 using System.Security.Claims;
 
@@ -19,6 +19,6 @@ public abstract class AuthControllerBase : ControllerBase
     protected async Task<User> GetCurrentUserAsync()
     {
         var userName = User.FindFirstValue(ClaimTypes.Name) ?? "";
-        return await _userManager.FindByNameAsync(userName) ?? throw new AuthException();
+        return await _userManager.FindByNameAsync(userName) ?? throw new NotAuthorizedException("Unable to retrieve User from Claims");
     }
 }

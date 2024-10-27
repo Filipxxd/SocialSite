@@ -12,7 +12,7 @@ using SocialSite.Data.EF;
 namespace SocialSite.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20241024171654_Initial")]
+    [Migration("20241027163625_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -202,6 +202,36 @@ namespace SocialSite.Data.Migrations
                     b.ToTable("GroupUsers");
                 });
 
+            modelBuilder.Entity("SocialSite.Domain.Models.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comments", (string)null);
+                });
+
             modelBuilder.Entity("SocialSite.Domain.Models.FriendRequest", b =>
                 {
                     b.Property<int>("Id")
@@ -231,7 +261,7 @@ namespace SocialSite.Data.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("FriendRequests", t =>
+                    b.ToTable("FriendRequests", null, t =>
                         {
                             t.HasCheckConstraint("CK_FriendRequests_Status", "[Status] IN ('Sent','Rejected','Accepted')");
                         });
@@ -260,7 +290,45 @@ namespace SocialSite.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Friendships");
+                    b.ToTable("Friendships", (string)null);
+                });
+
+            modelBuilder.Entity("SocialSite.Domain.Models.Image", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Entity")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EntityId")
+                        .IsUnique();
+
+                    b.HasIndex("EntityId", "Entity");
+
+                    b.ToTable("Images", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Images_Entity", "[Entity] IN ('Post','Message','Profile','GroupChat')");
+                        });
                 });
 
             modelBuilder.Entity("SocialSite.Domain.Models.Message", b =>
@@ -293,6 +361,72 @@ namespace SocialSite.Data.Migrations
                     b.HasIndex("SentAt");
 
                     b.ToTable("Messages", (string)null);
+                });
+
+            modelBuilder.Entity("SocialSite.Domain.Models.Post", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Posts", (string)null);
+                });
+
+            modelBuilder.Entity("SocialSite.Domain.Models.Report", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reports", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Reports_State", "[State] IN ('Approved','Declined','Pending')");
+
+                            t.HasCheckConstraint("CK_Reports_Type", "[Type] IN ('Offensive','FakeNews','Other')");
+                        });
                 });
 
             modelBuilder.Entity("SocialSite.Domain.Models.User", b =>
@@ -361,6 +495,11 @@ namespace SocialSite.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("PostVisibility")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -389,6 +528,8 @@ namespace SocialSite.Data.Migrations
                     b.ToTable("Users", null, t =>
                         {
                             t.HasCheckConstraint("CK_Users_FriendRequestSettingState", "[FriendRequestSettingState] IN ('AnyOne','FriendsOfFriends','NoOne')");
+
+                            t.HasCheckConstraint("CK_Users_PostVisibility", "[PostVisibility] IN ('Everyone','FriendsOnly','Private')");
                         });
                 });
 
@@ -458,7 +599,7 @@ namespace SocialSite.Data.Migrations
                     b.HasOne("SocialSite.Domain.Models.Chat", "Chat")
                         .WithMany("ChatUsers")
                         .HasForeignKey("ChatId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SocialSite.Domain.Models.User", "User")
@@ -468,6 +609,25 @@ namespace SocialSite.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Chat");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SocialSite.Domain.Models.Comment", b =>
+                {
+                    b.HasOne("SocialSite.Domain.Models.Post", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SocialSite.Domain.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Post");
 
                     b.Navigation("User");
                 });
@@ -510,12 +670,39 @@ namespace SocialSite.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SocialSite.Domain.Models.Image", b =>
+                {
+                    b.HasOne("SocialSite.Domain.Models.Chat", null)
+                        .WithOne("Image")
+                        .HasForeignKey("SocialSite.Domain.Models.Image", "EntityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SocialSite.Domain.Models.Message", null)
+                        .WithMany("Images")
+                        .HasForeignKey("EntityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SocialSite.Domain.Models.Post", null)
+                        .WithMany("Images")
+                        .HasForeignKey("EntityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SocialSite.Domain.Models.User", null)
+                        .WithOne("ProfileImage")
+                        .HasForeignKey("SocialSite.Domain.Models.Image", "EntityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SocialSite.Domain.Models.Message", b =>
                 {
                     b.HasOne("SocialSite.Domain.Models.Chat", "Chat")
                         .WithMany("Messages")
                         .HasForeignKey("ChatId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SocialSite.Domain.Models.User", "Sender")
@@ -529,18 +716,68 @@ namespace SocialSite.Data.Migrations
                     b.Navigation("Sender");
                 });
 
+            modelBuilder.Entity("SocialSite.Domain.Models.Post", b =>
+                {
+                    b.HasOne("SocialSite.Domain.Models.User", "User")
+                        .WithMany("Posts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SocialSite.Domain.Models.Report", b =>
+                {
+                    b.HasOne("SocialSite.Domain.Models.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SocialSite.Domain.Models.User", "User")
+                        .WithMany("Reports")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SocialSite.Domain.Models.Chat", b =>
                 {
                     b.Navigation("ChatUsers");
 
+                    b.Navigation("Image");
+
                     b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("SocialSite.Domain.Models.Message", b =>
+                {
+                    b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("SocialSite.Domain.Models.Post", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("SocialSite.Domain.Models.User", b =>
                 {
                     b.Navigation("Friendships");
 
+                    b.Navigation("Posts");
+
+                    b.Navigation("ProfileImage");
+
                     b.Navigation("ReceivedFriendRequests");
+
+                    b.Navigation("Reports");
 
                     b.Navigation("SentFriendRequests");
 

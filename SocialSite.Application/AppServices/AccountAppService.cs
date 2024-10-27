@@ -36,7 +36,7 @@ public sealed class AccountAppService
         var result = await _accountService.LoginAsync(dto.UserName, dto.Password);
 
         if (!result.IsSuccess)
-            throw new NotValidException();
+            throw new NotValidException("Invalid credentials");
 
         var token = GetToken([
             new(ClaimTypes.Name, dto.UserName),

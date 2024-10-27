@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialSite.Core.Constants;
-using SocialSite.Core.Validators;
 using SocialSite.Data.EF;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
@@ -9,10 +8,9 @@ using SocialSite.Domain.Utilities;
 
 namespace SocialSite.Core.Services;
 
-public sealed class UserService(EntityValidator entityValidator, DataContext context) : IUserService
+public sealed class UserService(DataContext context) : IUserService
 {
     private readonly DataContext _context = context;
-    private readonly EntityValidator _entityValidator = entityValidator;
 
     public async Task<Result<IEnumerable<User>>> GetAllAsync(UserFilter userFilter, PageFilter pageFilter)
     {
@@ -31,10 +29,10 @@ public sealed class UserService(EntityValidator entityValidator, DataContext con
             .AsNoTracking()
             .Include(u => u)
             .SingleOrDefaultAsync(u => u.Id == userId);
-        
+
         if (user is null)
             return Result<User>.Fail(ResultErrors.NotFound, "User was not found.");
-        
+
         return Result<User>.Success(user);
     }
 

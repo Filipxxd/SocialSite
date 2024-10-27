@@ -11,7 +11,7 @@ namespace SocialSite.API.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("[controller]")]
+[Route("message")]
 public sealed class MessageController : AuthControllerBase
 {
     private readonly MessageAppService _messageAppService;
@@ -23,6 +23,8 @@ public sealed class MessageController : AuthControllerBase
 
     [HttpPost("send")]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> SendDirect(CreateMessageDto dto)
     {
         var currentUser = await GetCurrentUserAsync();

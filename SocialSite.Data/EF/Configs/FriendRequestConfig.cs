@@ -8,14 +8,18 @@ internal sealed class FriendRequestConfig : IEntityTypeConfiguration<FriendReque
 {
     public void Configure(EntityTypeBuilder<FriendRequest> builder)
     {
-        builder.HasOne(fr => fr.Sender)
-            .WithMany(u => u.SentFriendRequests)
-            .HasForeignKey(fr => fr.SenderId)
+        builder.ToTable(Tables.FriendRequests);
+
+        builder.HasKey(f => f.Id);
+
+        builder.HasOne(f => f.Sender)
+            .WithMany(f => f.SentFriendRequests)
+            .HasForeignKey(f => f.SenderId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(fr => fr.Receiver)
-            .WithMany(u => u.ReceivedFriendRequests)
-            .HasForeignKey(fr => fr.ReceiverId)
+        builder.HasOne(f => f.Receiver)
+            .WithMany(f => f.ReceivedFriendRequests)
+            .HasForeignKey(f => f.ReceiverId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

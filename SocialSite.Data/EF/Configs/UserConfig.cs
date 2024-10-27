@@ -29,6 +29,12 @@ internal sealed class UserConfig : IEntityTypeConfiguration<User>
                 v => v.ToString(),
                 v => (FriendRequestSettingState)Enum.Parse(typeof(FriendRequestSettingState), v));
 
+        builder.Property(e => e.PostVisibility)
+            .HasMaxLength(20)
+            .HasConversion(
+                v => v.ToString(),
+                v => (PostVisibility)Enum.Parse(typeof(PostVisibility), v));
+
         builder.HasMany(e => e.UserChats)
             .WithOne(e => e.User)
             .HasForeignKey(e => e.UserId);
@@ -46,6 +52,21 @@ internal sealed class UserConfig : IEntityTypeConfiguration<User>
         builder.HasMany(e => e.Friendships)
             .WithOne(e => e.User)
             .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(e => e.Posts)
+            .WithOne(e => e.User)
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(e => e.Reports)
+            .WithOne(e => e.User)
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.ProfileImage)
+            .WithOne()
+            .HasForeignKey<Image>(i => i.EntityId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
