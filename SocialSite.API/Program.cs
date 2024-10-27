@@ -4,11 +4,11 @@ using SocialSite.Core.Utilities;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddContextWithIdentity(builder.Configuration, builder.Environment);
-builder.Services.AddCoreServices();
-builder.Services.ConfigureAuthentication(builder.Configuration);
-builder.Services.AddControllers();
+builder.Services.AddServices();
+builder.Services.AddAuthentication(builder.Configuration);
+builder.Services.AddControllers().AddEndpointValidation();
+
 builder.Services.Configure<JwtSetup>(builder.Configuration.GetSection("JWT"));
-builder.Services.AddApplicationServices();
 
 builder.Services.AddCors(options =>
 {

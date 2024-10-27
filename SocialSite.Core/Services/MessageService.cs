@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialSite.Core.Exceptions;
-using SocialSite.Core.Validators;
 using SocialSite.Data.EF;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
@@ -12,23 +11,16 @@ public sealed class MessageService : IMessageService
 {
     private readonly DataContext _context;
     private readonly IDateTimeProvider _dateTimeProvider;
-    private readonly EntityValidator _validator;
 
-    public MessageService(DataContext context, IDateTimeProvider dateTimeProvider, EntityValidator validator)
+    public MessageService(DataContext context, IDateTimeProvider dateTimeProvider)
     {
         _context = context;
         _dateTimeProvider = dateTimeProvider;
-        _validator = validator;
     }
 
     public async Task<Result> SendMessageAsync(Message message)
     {
         message.SentAt = _dateTimeProvider.GetDateTime();
-
-        var validationResult = _validator.Validate<MessageValidator, Message>(message);
-
-        if (!validationResult.IsValid)
-            throw new NotValidException("");
 
         var chat = await _context.Chats.AsNoTracking()
             .Include(e => e.ChatUsers)

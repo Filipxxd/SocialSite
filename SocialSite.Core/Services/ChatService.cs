@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialSite.Core.Constants;
 using SocialSite.Core.Exceptions;
-using SocialSite.Core.Validators;
 using SocialSite.Data.EF;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
@@ -12,11 +11,9 @@ namespace SocialSite.Core.Services;
 public sealed class ChatService : IChatService
 {
     private readonly DataContext _context;
-    private readonly EntityValidator _validator;
 
-    public ChatService(EntityValidator validator, DataContext context)
+    public ChatService(DataContext context)
     {
-        _validator = validator;
         _context = context;
     }
 
@@ -46,11 +43,6 @@ public sealed class ChatService : IChatService
 
     public async Task<Chat> CreateChatAsync(Chat chat)
     {
-        var validationResult = _validator.Validate<ChatValidator, Chat>(chat);
-
-        if (!validationResult.IsValid)
-            throw new NotValidException("");
-
         var userIds = chat.ChatUsers.Select(cu => cu.UserId);
 
         var chatExists = await _context.Chats
