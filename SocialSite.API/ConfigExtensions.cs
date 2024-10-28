@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SocialSite.API;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Validators.Chats;
 using SocialSite.Core.Services;
@@ -15,7 +16,7 @@ using SocialSite.Domain.Models;
 using SocialSite.Domain.Utilities;
 using System.Text;
 
-namespace SocialSite.API.Extensions;
+namespace SocialSite.API;
 
 internal static class ConfigExtensions
 {

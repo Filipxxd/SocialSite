@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
-namespace SocialSite.Data.EF;
+namespace SocialSite.Data.EF.Extensions;
 
 internal static class ModelBuilderExtensions
 {
