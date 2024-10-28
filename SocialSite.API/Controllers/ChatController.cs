@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SocialSite.API.Controllers.Base;
-using SocialSite.API.Extensions;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Chats;
 using SocialSite.Domain.Models;
@@ -10,10 +8,8 @@ using System.Net;
 
 namespace SocialSite.API.Controllers;
 
-[ApiController]
-[Authorize]
 [Route("chats")]
-public sealed class ChatController : AuthControllerBase
+public sealed class ChatController : ApiControllerBase
 {
     private readonly ChatAppService _chatAppService;
 
@@ -29,9 +25,7 @@ public sealed class ChatController : AuthControllerBase
     public async Task<IActionResult> GetAllChats()
     {
         var currentUser = await GetCurrentUserAsync();
-        var dtos = await _chatAppService.GetAllChatsAsync(currentUser.Id);
-
-        return Ok(dtos);
+        return await ExecuteAsync(() => _chatAppService.GetAllChatsAsync(currentUser.Id));
     }
 
     [HttpGet("get-chat")]
@@ -41,8 +35,7 @@ public sealed class ChatController : AuthControllerBase
     public async Task<IActionResult> GetChat(int id)
     {
         var currentUser = await GetCurrentUserAsync();
-        var dto = await _chatAppService.GetChatByIdAsync(id, currentUser.Id);
-        return Ok(dto);
+        return await ExecuteAsync(() => _chatAppService.GetChatByIdAsync(id, currentUser.Id));
     }
 
     [HttpPost("create-chat")]
@@ -52,9 +45,7 @@ public sealed class ChatController : AuthControllerBase
     public async Task<IActionResult> CreateChat([FromBody] CreateChatDto dto)
     {
         var currentUser = await GetCurrentUserAsync();
-        var chat = await _chatAppService.CreateChatAsync(dto, currentUser.Id);
-
-        return Ok(chat);
+        return await ExecuteAsync(() => _chatAppService.CreateChatAsync(dto, currentUser.Id));
     }
 
     [HttpPut("assign-group-users")]
@@ -64,8 +55,6 @@ public sealed class ChatController : AuthControllerBase
     public async Task<IActionResult> AssignGroupUsers([FromBody] AssignGroupChatUsersDto dto)
     {
         var currentUser = await GetCurrentUserAsync();
-        var result = await _chatAppService.AssignUsersToGroupChatAsync(dto, currentUser.Id);
-
-        return result.GetResponse(true);
+        return await ExecuteAsync(() => _chatAppService.AssignUsersToGroupChatAsync(dto, currentUser.Id));
     }
 }

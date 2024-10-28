@@ -1,39 +1,36 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SocialSite.API.Extensions;
+using SocialSite.API.Controllers.Base;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Account;
+using SocialSite.Domain.Models;
 using System.Net;
 
 namespace SocialSite.API.Controllers;
 
-[ApiController]
 [Route("account")]
-public sealed class AccountController : ControllerBase
+public sealed class AccountController : ApiControllerBase
 {
     private readonly AccountAppService _accountAppService;
 
-    public AccountController(AccountAppService accountAppService)
+    public AccountController(AccountAppService accountAppService, UserManager<User> userManager) : base(userManager)
     {
         _accountAppService = accountAppService;
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
-    public async Task<IActionResult> Register([FromBody] RegisterDto model)
-    {
-        var result = await _accountAppService.RegisterAsync(model);
+    public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+        => await ExecuteAsync(() => _accountAppService.RegisterAsync(dto));
 
-        return result.GetResponse(true);
-    }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(TokenDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
-    public async Task<IActionResult> Login([FromBody] LoginDto model)
-    {
-        var result = await _accountAppService.LoginAsync(model);
-
-        return Ok(result);
-    }
+    public async Task<IActionResult> Login([FromBody] LoginDto dto)
+         => await ExecuteAsync(() => _accountAppService.LoginAsync(dto));
 }

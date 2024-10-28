@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SocialSite.API.Controllers.Base;
 using SocialSite.Application.AppServices;
@@ -9,10 +8,8 @@ using System.Net;
 
 namespace SocialSite.API.Controllers;
 
-[ApiController]
-[Authorize]
 [Route("message")]
-public sealed class MessageController : AuthControllerBase
+public sealed class MessageController : ApiControllerBase
 {
     private readonly MessageAppService _messageAppService;
 
@@ -28,8 +25,6 @@ public sealed class MessageController : AuthControllerBase
     public async Task<IActionResult> SendDirect(CreateMessageDto dto)
     {
         var currentUser = await GetCurrentUserAsync();
-        var result = await _messageAppService.SendMessageAsync(dto, currentUser);
-
-        return NoContent();
+        return await ExecuteAsync(() => _messageAppService.SendMessageAsync(dto, currentUser));
     }
 }
