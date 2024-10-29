@@ -4,6 +4,7 @@ using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
 using SocialSite.Domain.Utilities;
 using System.Security.Claims;
+using SocialSite.Core.Exceptions;
 
 namespace SocialSite.Core.Services;
 
@@ -21,35 +22,34 @@ public sealed class AccountService : IAccountService
         throw new NotImplementedException();
     }
 
-    public async Task<Result<IEnumerable<Claim>>> LoginAsync(string userName, string password)
+    public async Task<IEnumerable<Claim>> LoginAsync(string userName, string password)
     {
         var user = await _userManager.FindByNameAsync(userName);
         if (user is null)
-            return Result<IEnumerable<Claim>>.Fail(ResultErrors.NotValid, "Invalid credentials.");
+            throw new NotValidException("Invalid credentials.");
 
         var passwordValid = await _userManager.CheckPasswordAsync(user, password);
         if (!passwordValid)
-            return Result<IEnumerable<Claim>>.Fail(ResultErrors.NotValid, "Invalid credentials.");
+            throw new NotValidException("Invalid credentials.");
 
         var userRoles = await _userManager.GetRolesAsync(user);
         var claims = userRoles.Select(e => new Claim(ClaimTypes.Role, e)).ToList();
 
-        claims.Add(new("fullname", user.Fullname));
+        claims.Add(new(AppClaimTypes.UserId, user.Id.ToString()));
+        claims.Add(new(AppClaimTypes.Fullname, user.Fullname));
 
-        return Result<IEnumerable<Claim>>.Success(claims);
+        return claims;
     }
 
-    public async Task<Result> RegisterAsync(User user, string password)
+    public async Task RegisterAsync(User user, string password)
     {
         var userExists = await _userManager.FindByNameAsync(user.UserName);
 
         if (userExists != null)
-            return Result.Fail(ResultErrors.NotValid, $"User with given username: '{user.UserName}' already exists.");
+            throw new NotValidException($"User with given username: '{user.UserName}' already exists.");
 
         var result = await _userManager.CreateAsync(user, password);
         if (!result.Succeeded)
-            return Result.Fail(ResultErrors.NotValid, result.Errors.Select(e => e.Description));
-
-        return Result.Success();
+            throw new NotValidException(string.Join(", ", result.Errors.Select(e => e.Description)));
     }
 }

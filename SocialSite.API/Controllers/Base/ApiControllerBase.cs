@@ -5,6 +5,7 @@ using SocialSite.Core.Exceptions;
 using SocialSite.Domain.Models;
 using System.Net;
 using System.Security.Claims;
+using SocialSite.Core.Constants;
 
 namespace SocialSite.API.Controllers.Base;
 
@@ -33,10 +34,11 @@ public abstract class ApiControllerBase : ControllerBase
             return NoContent();
         });
 
-    protected async Task<User> GetCurrentUserAsync()
+    protected int GetCurrentUserId()
     {
-        var userName = User.FindFirstValue(ClaimTypes.Name) ?? "";
-        return await _userManager.FindByNameAsync(userName) ?? throw new NotAuthorizedException("Unable to retrieve User from Claims");
+        var userIdRaw = User.FindFirstValue(AppClaimTypes.UserId) 
+               ?? throw new ArgumentNullException(nameof(AppClaimTypes.UserId), "UserId claim not found");
+        return int.Parse(userIdRaw);
     }
 
     private async Task<IActionResult> HandleRequestWithErrorHandling(Func<Task<IActionResult>> func)

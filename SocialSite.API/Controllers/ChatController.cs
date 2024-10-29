@@ -23,38 +23,26 @@ public sealed class ChatController : ApiControllerBase
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> GetAllChats()
-    {
-        var currentUser = await GetCurrentUserAsync();
-        return await ExecuteAsync(() => _chatAppService.GetAllChatsAsync(currentUser.Id));
-    }
-
+        => await ExecuteAsync(() => _chatAppService.GetAllChatsAsync(GetCurrentUserId()));
+    
     [HttpGet("get-chat")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ChatDto))]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> GetChat(int id)
-    {
-        var currentUser = await GetCurrentUserAsync();
-        return await ExecuteAsync(() => _chatAppService.GetChatByIdAsync(id, currentUser.Id));
-    }
+        => await ExecuteAsync(() => _chatAppService.GetChatByIdAsync(id, GetCurrentUserId()));
 
     [HttpPost("create-chat")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ChatDto))]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> CreateChat([FromBody] CreateChatDto dto)
-    {
-        var currentUser = await GetCurrentUserAsync();
-        return await ExecuteAsync(() => _chatAppService.CreateChatAsync(dto, currentUser.Id));
-    }
+        => await ExecuteAsync(() => _chatAppService.CreateChatAsync(dto, GetCurrentUserId()));
 
     [HttpPut("assign-group-users")]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> AssignGroupUsers([FromBody] AssignGroupChatUsersDto dto)
-    {
-        var currentUser = await GetCurrentUserAsync();
-        return await ExecuteAsync(() => _chatAppService.AssignUsersToGroupChatAsync(dto, currentUser.Id));
-    }
+        => await ExecuteAsync(() => _chatAppService.AssignUsersToGroupChatAsync(dto, GetCurrentUserId()));
 }

@@ -19,14 +19,19 @@ public sealed class AccountController : ApiControllerBase
         _accountAppService = accountAppService;
     }
 
+    [HttpPost("profile")]
+    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(TokenDto))]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
+    public async Task<IActionResult> GetProfile() 
+        => await ExecuteAsync(() => _accountAppService.GetUserInfoAsync(GetCurrentUserId()));
+    
     [AllowAnonymous]
     [HttpPost("register")]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
-        => await ExecuteAsync(() => _accountAppService.RegisterAsync(dto));
-
-
+        => await ExecuteWithoutContentAsync(() => _accountAppService.RegisterAsync(dto));
+    
     [AllowAnonymous]
     [HttpPost("login")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(TokenDto))]

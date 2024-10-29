@@ -8,6 +8,6 @@ namespace SocialSite.Domain.Services;
 public interface IAccountService
 {
     Task<User> GetUserByIdAsync(int currentUserId);
-    Task<Result> RegisterAsync(User user, string password);
-    Task<Result<IEnumerable<Claim>>> LoginAsync(string userName, string password);
+    Task RegisterAsync(User user, string password);
+    Task<IEnumerable<Claim>> LoginAsync(string userName, string password);
 }

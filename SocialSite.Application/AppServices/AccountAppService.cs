@@ -25,23 +25,24 @@ public sealed class AccountAppService
         _accountService = accountService;
     }
 
-    public async Task<Result> RegisterAsync(RegisterDto dto)
+    public async Task<UserProfileDto> GetUserInfoAsync(int currentUserId)
+    {
+        return new();
+    }
+    
+    public async Task RegisterAsync(RegisterDto dto)
     {
         var user = dto.Map();
-        return await _accountService.RegisterAsync(user, dto.Password);
+        await _accountService.RegisterAsync(user, dto.Password);
     }
 
     public async Task<TokenDto> LoginAsync(LoginDto dto)
     {
-        var result = await _accountService.LoginAsync(dto.UserName, dto.Password);
-
-        if (!result.IsSuccess)
-            throw new NotValidException("Invalid credentials");
+        var claims = await _accountService.LoginAsync(dto.UserName, dto.Password);
 
         var token = GetToken([
-            new(ClaimTypes.Name, dto.UserName),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            ..result.Entity ]);
+            ..claims ]);
 
         return new()
         {
