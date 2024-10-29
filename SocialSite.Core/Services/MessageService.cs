@@ -20,8 +20,6 @@ public sealed class MessageService : IMessageService
 
     public async Task SendMessageAsync(Message message)
     {
-        message.SentAt = _dateTimeProvider.GetDateTime();
-
         var chat = await _context.Chats.AsNoTracking()
             .Include(e => e.ChatUsers)
             .SingleOrDefaultAsync(e => e.Id == message.ChatId);
@@ -32,6 +30,8 @@ public sealed class MessageService : IMessageService
         if (chat.ChatUsers.All(e => e.UserId != message.SenderId))
             throw new NotValidException("Sender is not part of Chat");
 
+        message.SentAt = _dateTimeProvider.GetDateTime();
+        
         _context.Messages.Add(message);
         await _context.SaveChangesAsync();
     }

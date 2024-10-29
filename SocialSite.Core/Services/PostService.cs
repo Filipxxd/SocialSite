@@ -50,6 +50,8 @@ public sealed class PostService
         if (post is null)
             throw new NotFoundException("Post was not found");
 
+        comment.SentAt = _dateTimeProvider.GetDateTime();
+        
         _context.Coments.Add(comment);
         await _context.SaveChangesAsync();
 
