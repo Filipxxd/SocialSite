@@ -11,6 +11,7 @@ using SocialSite.Domain.Utilities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using SocialSite.Application.Utilities;
 
 namespace SocialSite.Application.AppServices;
 

@@ -1,4 +1,4 @@
-﻿namespace SocialSite.Core.Utilities;
+﻿namespace SocialSite.Application.Utilities;
 
 public sealed class JwtSetup
 {

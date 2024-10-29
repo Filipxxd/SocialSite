@@ -1,4 +1,5 @@
 using SocialSite.API;
+using SocialSite.Application.Utilities;
 using SocialSite.Core.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
