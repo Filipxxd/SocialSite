@@ -15,7 +15,7 @@ public class DataContext(DbContextOptions<DataContext> options) : IdentityDbCont
     public DbSet<Chat> Chats { get; set; }
     public DbSet<Post> Posts { get; set; }
     public DbSet<Image> Reports { get; set; }
-    public DbSet<Comment> Coments { get; set; }
+    public DbSet<Comment> Comments { get; set; }
     public DbSet<ChatUser> GroupUsers { get; set; }
     public DbSet<Image> Images { get; set; }
 

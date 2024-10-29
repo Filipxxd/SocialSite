@@ -52,7 +52,7 @@ public sealed class PostService
 
         comment.SentAt = _dateTimeProvider.GetDateTime();
         
-        _context.Coments.Add(comment);
+        _context.Comments.Add(comment);
         await _context.SaveChangesAsync();
 
         return comment;
