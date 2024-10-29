@@ -44,5 +44,5 @@ public sealed class ChatController : ApiControllerBase
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> AssignGroupUsers([FromBody] AssignGroupChatUsersDto dto)
-        => await ExecuteAsync(() => _chatAppService.AssignUsersToGroupChatAsync(dto, GetCurrentUserId()));
+        => await ExecuteWithoutContentAsync(() => _chatAppService.AssignUsersToGroupChatAsync(dto, GetCurrentUserId()));
 }

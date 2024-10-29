@@ -5,5 +5,5 @@ namespace SocialSite.Domain.Services;
 
 public interface IMessageService
 {
-    Task<Result> SendMessageAsync(Message message);
+    Task SendMessageAsync(Message message);
 }

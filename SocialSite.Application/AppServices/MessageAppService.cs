@@ -15,10 +15,10 @@ public sealed class MessageAppService
         _messageService = messageService;
     }
 
-    public async Task<Result> SendMessageAsync(CreateMessageDto dto, int currentUserId)
+    public async Task SendMessageAsync(CreateMessageDto dto, int currentUserId)
     {
         var message = dto.Map(currentUserId);
 
-        return await _messageService.SendMessageAsync(message);
+        await _messageService.SendMessageAsync(message);
     }
 }

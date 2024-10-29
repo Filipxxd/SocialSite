@@ -23,5 +23,5 @@ public sealed class MessageController : ApiControllerBase
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> SendDirect(CreateMessageDto dto)
-        => await ExecuteAsync(() => _messageAppService.SendMessageAsync(dto, GetCurrentUserId()));
+        => await ExecuteWithoutContentAsync(() => _messageAppService.SendMessageAsync(dto, GetCurrentUserId()));
 }

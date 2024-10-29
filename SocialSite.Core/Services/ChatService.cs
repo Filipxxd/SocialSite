@@ -41,10 +41,13 @@ public sealed class ChatService : IChatService
             ?? throw new NotFoundException("Chat was not found");
     }
 
-    public async Task<Chat> CreateChatAsync(Chat chat)
+    public async Task<Chat> CreateChatAsync(Chat chat, int currentUserId)
     {
-        var userIds = chat.ChatUsers.Select(cu => cu.UserId);
-
+        var userIds = chat.ChatUsers.Select(cu => cu.UserId).ToList();
+        
+        if (userIds.All(id => id != currentUserId))
+            throw new NotValidException("Cannot create chats without current user participating in it");
+        
         var chatExists = await _context.Chats
             .AsNoTracking()
             .AnyAsync(c => c.OwnerId == null && c.ChatUsers.All(cu => userIds.Contains(cu.UserId)));
@@ -63,17 +66,17 @@ public sealed class ChatService : IChatService
                     .SingleAsync(c => c.Id == chat.Id);
     }
 
-    public async Task<Result> AssignUsersToGroupChatAsync(int groupChatId, IEnumerable<int> userIds, int currentUserId)
+    public async Task AssignUsersToGroupChatAsync(int groupChatId, IList<int> userIds, int currentUserId)
     {
         var groupChat = await _context.Chats
             .Include(gc => gc.ChatUsers)
             .SingleOrDefaultAsync(gc => gc.Id == groupChatId);
 
         if (groupChat is null)
-            return Result.Fail(ResultErrors.NotFound, "Group chat was not found.");
+            throw new NotValidException("Group chat was not found.");
 
-        if (groupChat.OwnerId != currentUserId)
-            return Result.Fail(ResultErrors.NotAuthorized, "Only the owner can modify users in the group chat.");
+        if (groupChat.OwnerId != currentUserId)            
+            throw new NotValidException("Only the owner can modify users in the group chat.");
 
         var currentGroupUserIds = groupChat.ChatUsers.Select(gu => gu.UserId).ToList();
         var usersToAdd = userIds.Except(currentGroupUserIds).ToList();
@@ -86,7 +89,7 @@ public sealed class ChatService : IChatService
                 .SingleOrDefaultAsync(u => u.Id == userId);
 
             if (user is null)
-                return Result.Fail(ResultErrors.NotFound, $"User with ID {userId} was not found.");
+                throw new NotValidException( $"User with ID {userId} was not found.");
 
             groupChat.ChatUsers.Add(new()
             {
@@ -94,20 +97,11 @@ public sealed class ChatService : IChatService
             });
         }
 
-        foreach (var userId in usersToRemove)
+        foreach (var groupUser in usersToRemove.Select(userId => groupChat.ChatUsers.FirstOrDefault(gu => gu.UserId == userId)).OfType<ChatUser>())
         {
-            var groupUser = groupChat.ChatUsers.FirstOrDefault(gu => gu.UserId == userId);
-
-            if (groupUser != null)
-            {
-                groupChat.ChatUsers.Remove(groupUser);
-            }
+            groupChat.ChatUsers.Remove(groupUser);
         }
 
         await _context.SaveChangesAsync();
-
-        return Result.Success();
     }
-
-
 }
