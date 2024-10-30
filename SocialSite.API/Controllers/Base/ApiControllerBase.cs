@@ -49,19 +49,39 @@ public abstract class ApiControllerBase : ControllerBase
         }
         catch (NotValidException ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(new ValidationProblemDetails
+            {
+                Title = "Validation Error",
+                Status = (int)HttpStatusCode.BadRequest,
+                Detail = ex.Message
+            });
         }
         catch (NotFoundException ex)
         {
-            return NotFound(ex.Message);
+            return NotFound(new ProblemDetails
+            {
+                Title = "Not Found",
+                Status = (int)HttpStatusCode.NotFound,
+                Detail = ex.Message
+            });
         }
         catch (NotAuthorizedException ex)
         {
-            return Unauthorized(ex.Message);
+            return Unauthorized(new ProblemDetails
+            {
+                Title = "Unauthorized",
+                Status = (int)HttpStatusCode.Unauthorized,
+                Detail = ex.Message
+            });
         }
         catch (Exception)
         {
-            return StatusCode((int)HttpStatusCode.InternalServerError, "An unexpected error occurred.");
+            return StatusCode((int)HttpStatusCode.InternalServerError, new ProblemDetails
+            {
+                Title = "Internal Server Error",
+                Status = (int)HttpStatusCode.InternalServerError,
+                Detail = "An unexpected error occurred."
+            });
         }
     }
 }
