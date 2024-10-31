@@ -11,6 +11,7 @@ namespace SocialSite.API.Controllers.Base;
 
 [Authorize]
 [ApiController]
+[Produces("application/json")]
 public abstract class ApiControllerBase : ControllerBase
 {
     private readonly UserManager<User> _userManager;
