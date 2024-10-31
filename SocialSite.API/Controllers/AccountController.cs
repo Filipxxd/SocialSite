@@ -19,11 +19,19 @@ public sealed class AccountController : ApiControllerBase
         _accountAppService = accountAppService;
     }
 
-    [HttpPost("profile")]
-    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(TokenDto))]
+    [HttpGet("profile")]
+    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]
+    [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> GetProfile() 
-        => await ExecuteAsync(() => _accountAppService.GetUserInfoAsync(GetCurrentUserId()));
+        => await ExecuteAsync(() => _accountAppService.GetProfileInfoAsync(GetCurrentUserId()));
+    
+    [HttpPut("update-profile")]
+    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]
+    [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
+    public async Task<IActionResult> UpdateProfile(UpdateUserProfileDto dto) 
+        => await ExecuteAsync(() => _accountAppService.UpdateProfileInfoAsync(dto, GetCurrentUserId()));
     
     [AllowAnonymous]
     [HttpPost("register")]

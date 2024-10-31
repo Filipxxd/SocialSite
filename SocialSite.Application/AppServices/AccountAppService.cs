@@ -26,9 +26,16 @@ public sealed class AccountAppService
         _accountService = accountService;
     }
 
-    public async Task<UserProfileDto> GetUserInfoAsync(int currentUserId)
+    public async Task<UserProfileDto> GetProfileInfoAsync(int currentUserId)
     {
-        return new();
+        var user = await _accountService.GetProfileInfoAsync(currentUserId);
+        return user.Map();
+    }
+    
+    public async Task<UserProfileDto> UpdateProfileInfoAsync(UpdateUserProfileDto dto, int currentUserId)
+    {
+        var user = await _accountService.UpdateProfileInfoAsync(dto.Map(currentUserId));
+        return user.Map();
     }
     
     public async Task RegisterAsync(RegisterDto dto)

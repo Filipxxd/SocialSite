@@ -4,24 +4,49 @@ using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
 using SocialSite.Domain.Utilities;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using SocialSite.Core.Exceptions;
+using SocialSite.Data.EF;
+using SocialSite.Data.EF.Extensions;
 
 namespace SocialSite.Core.Services;
 
 public sealed class AccountService : IAccountService
 {
     private readonly UserManager<User> _userManager;
-
-    public AccountService(UserManager<User> userManager)
+    private readonly DataContext _context;
+    
+    public AccountService(UserManager<User> userManager, DataContext context)
     {
         _userManager = userManager;
+        _context = context;
     }
 
-    public async Task<User> GetUserByIdAsync(int currentUserId)
+    public async Task<User> GetProfileInfoAsync(int userId)
     {
-        throw new NotImplementedException();
+        return await _context.Users.AsNoTracking()
+                   .IncludeProfileImage()
+                   .SingleOrDefaultAsync(u => u.Id == userId)
+               ?? throw new NotFoundException("User was not found.");
     }
 
+    public async Task<User> UpdateProfileInfoAsync(User user)
+    {
+        var currentUser = await _context.Users.FindAsync(user.Id)
+                          ?? throw new NotFoundException("User was not found.");
+
+        currentUser.FirstName = user.FirstName;
+        currentUser.LastName = user.LastName;
+        currentUser.Bio = user.Bio;
+        currentUser.AllowNonFriendChatAdd = user.AllowNonFriendChatAdd;
+        currentUser.FriendRequestSettingState = user.FriendRequestSettingState;
+        currentUser.PostVisibility = user.PostVisibility;
+
+        await _context.SaveChangesAsync();
+
+        return currentUser;
+    }
+    
     public async Task<IEnumerable<Claim>> LoginAsync(string userName, string password)
     {
         var user = await _userManager.FindByNameAsync(userName);
@@ -46,7 +71,7 @@ public sealed class AccountService : IAccountService
         var userExists = await _userManager.FindByNameAsync(user.UserName);
 
         if (userExists != null)
-            throw new NotValidException($"User with given username: '{user.UserName}' already exists.");
+            throw new NotValidException($"User with given username already exists.");
 
         var result = await _userManager.CreateAsync(user, password);
         if (!result.Succeeded)
