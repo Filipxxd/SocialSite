@@ -9,12 +9,10 @@ namespace SocialSite.Application.AppServices;
 public sealed class ChatAppService
 {
     private readonly IChatService _chatService;
-    private readonly IMessageService _messageService;
 
-    public ChatAppService(IChatService chatService, IMessageService messageService)
+    public ChatAppService(IChatService chatService)
     {
         _chatService = chatService;
-        _messageService = messageService;
     }
 
     public async Task<IEnumerable<ChatInfoDto>> GetAllChatsAsync(int currentUserId)
@@ -31,13 +29,20 @@ public sealed class ChatAppService
         return chat.Map(currentUserId);
     }
 
-    public async Task<ChatDto> CreateChatAsync(CreateChatDto dto, int currentUserId)
+    public async Task<ChatDto> CreateDirectChatAsync(CreateDirectChatDto dto, int currentUserId)
     {
         var chat = await _chatService.CreateChatAsync(dto.Map(currentUserId), currentUserId);
 
         return chat.Map(currentUserId);
     }
 
+    public async Task<ChatDto> CreateGroupChatAsync(CreateGroupChatDto dto, int currentUserId)
+    {
+        var chat = await _chatService.CreateChatAsync(dto.Map(currentUserId), currentUserId);
+
+        return chat.Map(currentUserId);
+    }
+    
     public async Task AssignUsersToGroupChatAsync(AssignGroupChatUsersDto dto, int currentUserId)
     {
         await _chatService.AssignUsersToGroupChatAsync(dto.GroupChatId, dto.UserIds.ToList(), currentUserId);

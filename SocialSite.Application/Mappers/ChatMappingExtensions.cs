@@ -25,14 +25,30 @@ internal static class ChatMappingExtensions
         })
     };
 
-    public static Chat Map(this CreateChatDto input, int currentUserId) => new()
+    public static Chat Map(this CreateDirectChatDto input, int currentUserId) => new()
+    {
+        Name = null,
+        OwnerId = null,
+        ChatUsers = [new()
+        {
+            UserId = input.RecipientUserId
+        }, new()
+        {
+            UserId = currentUserId
+        }]
+    };
+
+    public static Chat Map(this CreateGroupChatDto input, int currentUserId) => new()
     {
         Name = input.Name,
-        OwnerId = input.IsDirect ? null : currentUserId,
-        ChatUsers = input.UserIds.Select(userId => new ChatUser
+        OwnerId = currentUserId,
+        ChatUsers = [..input.RecipientUserIds.Select(userId => new ChatUser
         {
             UserId = userId,
-        }).ToList()
+        }).ToList(), new ChatUser()
+        {
+            UserId = currentUserId,
+        }]
     };
 
     public static IEnumerable<ChatInfoDto> Map(this IEnumerable<Chat> input, int currentUserId) => input.Select(chat => new ChatInfoDto
