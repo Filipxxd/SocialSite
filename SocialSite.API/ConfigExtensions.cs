@@ -116,7 +116,7 @@ internal static class ConfigExtensions
              };
          });
 
-        builder.Services.AddValidatorsFromAssemblyContaining<CreateChatDtoValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<CreateDirectChatDtoValidator>();
         builder.Services.AddFluentValidationAutoValidation();
 
         return builder;

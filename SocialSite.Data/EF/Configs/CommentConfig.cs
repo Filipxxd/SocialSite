@@ -12,6 +12,8 @@ internal class CommentConfig : IEntityTypeConfiguration<Comment>
 
         builder.HasKey(c => c.Id);
 
+        builder.Property(e => e.Content).HasMaxLength(500);
+        
         builder.HasOne(c => c.User)
             .WithMany()
             .HasForeignKey(c => c.UserId)

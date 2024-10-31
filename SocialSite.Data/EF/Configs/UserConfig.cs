@@ -11,17 +11,12 @@ internal sealed class UserConfig : IEntityTypeConfiguration<User>
     {
         builder.ToTable(Tables.Users);
 
-        builder.HasIndex(e => e.FirstName);
-        builder.HasIndex(e => e.LastName);
+        builder.HasIndex(e => new { e.FirstName, e.LastName });
 
-        builder.Property(e => e.FirstName)
-            .HasMaxLength(50);
-
-        builder.Property(e => e.LastName)
-            .HasMaxLength(50);
-
-        builder.Property(e => e.Email)
-            .HasMaxLength(254);
+        builder.Property(e => e.FirstName).HasMaxLength(50);
+        builder.Property(e => e.LastName).HasMaxLength(50);
+        builder.Property(e => e.Email).HasMaxLength(254);
+        builder.Property(e => e.Bio).HasMaxLength(500);
 
         builder.Property(e => e.FriendRequestSettingState)
             .HasMaxLength(20)

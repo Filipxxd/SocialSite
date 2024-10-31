@@ -12,6 +12,8 @@ internal class PostConfig : IEntityTypeConfiguration<Post>
 
         builder.HasKey(p => p.Id);
 
+        builder.Property(e => e.Content).HasMaxLength(500);
+        
         builder.HasOne(p => p.User)
             .WithMany(p => p.Posts)
             .HasForeignKey(p => p.UserId)

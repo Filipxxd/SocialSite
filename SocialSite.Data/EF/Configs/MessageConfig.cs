@@ -14,6 +14,8 @@ internal sealed class MessageConfig : IEntityTypeConfiguration<Message>
 
         builder.HasIndex(e => e.SentAt);
 
+        builder.Property(e => e.Content).HasMaxLength(500);
+        
         builder.HasOne(e => e.Sender)
             .WithMany()
             .HasForeignKey(e => e.SenderId)
