@@ -10,6 +10,8 @@ public class Chat
 
     public virtual Image? Image { get; set; }
 
+    public bool IsDirect => OwnerId is null;
+    
     public virtual ICollection<ChatUser> ChatUsers { get; set; } = [];
     public virtual ICollection<Message> Messages { get; set; } = [];
 }

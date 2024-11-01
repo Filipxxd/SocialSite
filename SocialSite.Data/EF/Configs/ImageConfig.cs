@@ -22,6 +22,6 @@ internal class ImageConfig : IEntityTypeConfiguration<Image>
             .HasMaxLength(20)
             .HasConversion(
                 v => v.ToString(),
-                v => (EntityName)Enum.Parse(typeof(EntityName), v));
+                v => (EntityType)Enum.Parse(typeof(EntityType), v));
     }
 }

@@ -12,6 +12,6 @@ public class UserProfileDto
     public string? Bio  { get; set; }
     
     public bool AllowNonFriendChatAdd { get; set; }
-    public FriendRequestSettingState FriendRequestSettingState { get; set; }
+    public FriendRequestSetting FriendRequestSetting { get; set; }
     public PostVisibility PostVisibility { get; set; }
 }

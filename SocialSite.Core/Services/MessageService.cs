@@ -30,7 +30,7 @@ public sealed class MessageService : IMessageService
         if (chat.ChatUsers.All(e => e.UserId != message.SenderId))
             throw new NotValidException("Sender is not part of Chat");
 
-        message.SentAt = _dateTimeProvider.GetDateTime();
+        message.DateCreated = _dateTimeProvider.GetDateTime();
         
         _context.Messages.Add(message);
         await _context.SaveChangesAsync();

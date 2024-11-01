@@ -34,7 +34,7 @@ public sealed class ChatService : IChatService
             .Include(c => c.ChatUsers)
                 .ThenInclude(uc => uc.User)
             .Include(c => c.Owner)
-            .Include(c => c.Messages.OrderByDescending(m => m.SentAt))
+            .Include(c => c.Messages.OrderByDescending(m => m.DateCreated))
                 .ThenInclude(m => m.Sender)
             .Where(c => c.ChatUsers.Any(uc => uc.UserId == currentUserId))
             .SingleOrDefaultAsync(c => c.Id == chatId)
@@ -55,7 +55,7 @@ public sealed class ChatService : IChatService
         if (!allUsersAllowed)
             throw new NotValidException("One or more users are either not friend or have disabled non-friend messages.");
 
-        if (chat.OwnerId is null)
+        if (chat.IsDirect)
         {
             var chatExists = await _context.Chats
                 .AsNoTracking()

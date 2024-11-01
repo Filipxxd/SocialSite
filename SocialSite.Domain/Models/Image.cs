@@ -9,5 +9,5 @@ public class Image
     public string Path { get; set; } = default!;
 
     public int EntityId { get; set; }
-    public EntityName Entity { get; set; }
+    public EntityType Entity { get; set; }
 }

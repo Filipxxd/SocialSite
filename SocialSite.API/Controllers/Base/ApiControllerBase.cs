@@ -14,13 +14,6 @@ namespace SocialSite.API.Controllers.Base;
 [Produces("application/json")]
 public abstract class ApiControllerBase : ControllerBase
 {
-    private readonly UserManager<User> _userManager;
-
-    protected ApiControllerBase(UserManager<User> userManager)
-    {
-        _userManager = userManager;
-    }
-
     protected async Task<IActionResult> ExecuteAsync<T>(Func<Task<T>> func)
         => await HandleRequestWithErrorHandling(async () =>
         {

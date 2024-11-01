@@ -13,7 +13,7 @@ public sealed class ChatController : ApiControllerBase
 {
     private readonly ChatAppService _chatAppService;
 
-    public ChatController(UserManager<User> userManager, ChatAppService chatAppService) : base(userManager)
+    public ChatController(ChatAppService chatAppService)
     {
         _chatAppService = chatAppService;
     }
@@ -35,14 +35,14 @@ public sealed class ChatController : ApiControllerBase
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ChatDto))]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
-    public async Task<IActionResult> CreateChat([FromBody] CreateDirectChatDto dto)
+    public async Task<IActionResult> CreateChat(CreateDirectChatDto dto)
         => await ExecuteAsync(() => _chatAppService.CreateDirectChatAsync(dto, GetCurrentUserId()));
 
     [HttpPost("create-group")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ChatDto))]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
-    public async Task<IActionResult> CreateChat([FromBody] CreateGroupChatDto dto)
+    public async Task<IActionResult> CreateChat(CreateGroupChatDto dto)
         => await ExecuteAsync(() => _chatAppService.CreateGroupChatAsync(dto, GetCurrentUserId()));
     
     [HttpPut("assign-group-users")]
@@ -50,6 +50,6 @@ public sealed class ChatController : ApiControllerBase
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> AssignGroupUsers([FromBody] AssignGroupChatUsersDto dto)
+    public async Task<IActionResult> AssignGroupUsers(AssignGroupChatUsersDto dto)
         => await ExecuteWithoutContentAsync(() => _chatAppService.AssignUsersToGroupChatAsync(dto, GetCurrentUserId()));
 }

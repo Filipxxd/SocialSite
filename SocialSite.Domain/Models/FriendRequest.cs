@@ -6,10 +6,9 @@ public class FriendRequest
 {
     public int Id { get; set; }
 
-    public FriendRequestStatus Status { get; set; }
+    public FriendRequestState State { get; set; }
 
-    public DateTime RequestDate { get; set; }
-    public DateTime? ResponseDate { get; set; }
+    public DateTime DateCreated { get; set; }
 
     public int SenderId { get; set; }
     public virtual User? Sender { get; set; }

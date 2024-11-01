@@ -21,12 +21,10 @@ builder.Services.AddCors(options =>
 });
 
 if (builder.Environment.IsDevelopment())
-{
     builder.Services.AddSwagger();
-}
+
 
 var app = builder.Build();
-
 
 app.UseCors("AllowSpecificOrigin");
 
@@ -44,6 +42,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 
 app.Run();

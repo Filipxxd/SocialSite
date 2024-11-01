@@ -29,17 +29,17 @@ public sealed class PostService
     {
         return await _context.Posts.AsNoTracking()
             .IncludePostImages()
-            .Include(p => p.Comments.OrderByDescending(c => c.SentAt))
+            .Include(p => p.Comments.OrderByDescending(c => c.DateCreated))
             .Include(p => p.User)
             .Where(p =>
-                (p.User!.PostVisibility == PostVisibility.Everyone) ||
-                (p.User.PostVisibility == PostVisibility.FriendsOnly &&
+                p.Visibility == PostVisibility.Everyone ||
+                (p.Visibility == PostVisibility.FriendsOnly &&
                     _context.Friendships
                         .Where(f => f.UserId == currentUserId || f.FriendId == currentUserId)
                         .Select(f => f.UserId == currentUserId ? f.FriendId : f.UserId)
                         .Contains(p.UserId))
             )
-            .OrderByDescending(p => p.CreatedDate)
+            .OrderByDescending(p => p.DateCreated)
             .ToListAsync();
     }
 
@@ -50,7 +50,7 @@ public sealed class PostService
         if (post is null)
             throw new NotFoundException("Post was not found");
 
-        comment.SentAt = _dateTimeProvider.GetDateTime();
+        comment.DateCreated = _dateTimeProvider.GetDateTime();
         
         _context.Comments.Add(comment);
         await _context.SaveChangesAsync();

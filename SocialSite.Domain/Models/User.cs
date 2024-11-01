@@ -12,8 +12,7 @@ public class User : IdentityUser<int>
     public string? Bio { get; set; }
 
     public bool AllowNonFriendChatAdd { get; set; } = true;
-    public FriendRequestSettingState FriendRequestSettingState { get; set; }
-    public PostVisibility PostVisibility { get; set; }
+    public FriendRequestSetting FriendRequestSetting { get; set; }
 
     public string Fullname => $"{FirstName} {LastName}";
 

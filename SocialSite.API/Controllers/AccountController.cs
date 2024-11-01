@@ -14,12 +14,12 @@ public sealed class AccountController : ApiControllerBase
 {
     private readonly AccountAppService _accountAppService;
 
-    public AccountController(AccountAppService accountAppService, UserManager<User> userManager) : base(userManager)
+    public AccountController(AccountAppService accountAppService)
     {
         _accountAppService = accountAppService;
     }
 
-    [HttpGet("profile")]
+    [HttpGet("get-profile")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
@@ -30,20 +30,20 @@ public sealed class AccountController : ApiControllerBase
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
-    public async Task<IActionResult> UpdateProfile(UpdateUserProfileDto dto) 
+    public async Task<IActionResult> UpdateProfile(UpdateProfileDto dto) 
         => await ExecuteAsync(() => _accountAppService.UpdateProfileInfoAsync(dto, GetCurrentUserId()));
     
     [AllowAnonymous]
     [HttpPost("register")]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
-    public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+    public async Task<IActionResult> Register(RegisterDto dto)
         => await ExecuteWithoutContentAsync(() => _accountAppService.RegisterAsync(dto));
     
     [AllowAnonymous]
     [HttpPost("login")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(TokenDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
-    public async Task<IActionResult> Login([FromBody] LoginDto dto)
+    public async Task<IActionResult> Login(LoginDto dto)
          => await ExecuteAsync(() => _accountAppService.LoginAsync(dto));
 }

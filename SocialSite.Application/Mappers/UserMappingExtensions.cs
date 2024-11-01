@@ -5,15 +5,14 @@ namespace SocialSite.Application.Mappers;
 
 public static class UserMappingExtensions
 {
-    public static User Map(this UpdateUserProfileDto input, int currentUserId) => new()
+    public static User Map(this UpdateProfileDto input, int currentUserId) => new()
     {
         Id = currentUserId,
         FirstName = input.FirstName,
         LastName = input.LastName,
         Bio = input.Bio,
         AllowNonFriendChatAdd = input.AllowNonFriendChatAdd,
-        FriendRequestSettingState = input.FriendRequestSettingState,
-        PostVisibility = input.PostVisibility
+        FriendRequestSetting = input.FriendRequestSetting,
     };
     
     public static User Map(this RegisterDto input) => new()
@@ -33,7 +32,6 @@ public static class UserMappingExtensions
         ProfilePicturePath = input.ProfileImage?.Path,
         Bio = input.Bio,
         AllowNonFriendChatAdd = input.AllowNonFriendChatAdd,
-        FriendRequestSettingState = input.FriendRequestSettingState,
-        PostVisibility = input.PostVisibility
+        FriendRequestSetting = input.FriendRequestSetting,
     };
 }

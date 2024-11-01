@@ -39,8 +39,7 @@ public sealed class AccountService : IAccountService
         currentUser.LastName = user.LastName;
         currentUser.Bio = user.Bio;
         currentUser.AllowNonFriendChatAdd = user.AllowNonFriendChatAdd;
-        currentUser.FriendRequestSettingState = user.FriendRequestSettingState;
-        currentUser.PostVisibility = user.PostVisibility;
+        currentUser.FriendRequestSetting = user.FriendRequestSetting;
 
         await _context.SaveChangesAsync();
 

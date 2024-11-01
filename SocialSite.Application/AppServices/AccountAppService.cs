@@ -20,7 +20,7 @@ public sealed class AccountAppService
     private readonly IAccountService _accountService;
     private readonly IOptions<JwtSetup> _options;
 
-    public AccountAppService(UserManager<User> userManager, IOptions<JwtSetup> options, IAccountService accountService)
+    public AccountAppService(IOptions<JwtSetup> options, IAccountService accountService)
     {
         _options = options;
         _accountService = accountService;
@@ -32,7 +32,7 @@ public sealed class AccountAppService
         return user.Map();
     }
     
-    public async Task<UserProfileDto> UpdateProfileInfoAsync(UpdateUserProfileDto dto, int currentUserId)
+    public async Task<UserProfileDto> UpdateProfileInfoAsync(UpdateProfileDto dto, int currentUserId)
     {
         var user = await _accountService.UpdateProfileInfoAsync(dto.Map(currentUserId));
         return user.Map();
