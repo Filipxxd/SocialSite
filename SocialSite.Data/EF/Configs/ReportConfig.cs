@@ -13,6 +13,12 @@ internal sealed class ReportConfig : IEntityTypeConfiguration<Report>
 
         builder.HasKey(p => p.Id);
 
+        builder.HasIndex(p => p.DateCreated);
+        builder.HasIndex(p => p.State);
+        builder.HasIndex(p => p.Type);
+        
+        builder.Property(e => e.Content).HasMaxLength(500);
+        
         builder.Property(e => e.State)
             .HasMaxLength(20)
             .HasConversion(

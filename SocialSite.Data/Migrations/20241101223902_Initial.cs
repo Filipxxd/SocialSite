@@ -35,10 +35,9 @@ namespace SocialSite.Data.Migrations
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AllowNonFriendMessages = table.Column<bool>(type: "bit", nullable: false),
-                    FriendRequestSettingState = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    PostVisibility = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Bio = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    AllowNonFriendChatAdd = table.Column<bool>(type: "bit", nullable: false),
+                    FriendRequestSetting = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(254)", maxLength: 254, nullable: true),
                     NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -56,8 +55,7 @@ namespace SocialSite.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
-                    table.CheckConstraint("CK_Users_FriendRequestSettingState", "[FriendRequestSettingState] IN ('AnyOne','FriendsOfFriends','NoOne')");
-                    table.CheckConstraint("CK_Users_PostVisibility", "[PostVisibility] IN ('Everyone','FriendsOnly','Private')");
+                    table.CheckConstraint("CK_Users_FriendRequestSetting", "[FriendRequestSetting] IN ('AnyOne','FriendsOfFriends','NoOne')");
                 });
 
             migrationBuilder.CreateTable(
@@ -172,16 +170,15 @@ namespace SocialSite.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    RequestDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ResponseDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    State = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SenderId = table.Column<int>(type: "int", nullable: false),
                     ReceiverId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_FriendRequests", x => x.Id);
-                    table.CheckConstraint("CK_FriendRequests_Status", "[Status] IN ('Sent','Rejected','Accepted')");
+                    table.CheckConstraint("CK_FriendRequests_State", "[State] IN ('Sent','Rejected','Accepted')");
                     table.ForeignKey(
                         name: "FK_FriendRequests_Users_ReceiverId",
                         column: x => x.ReceiverId,
@@ -202,7 +199,7 @@ namespace SocialSite.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FriendsSince = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     FriendId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -229,7 +226,7 @@ namespace SocialSite.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     OwnerId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -249,13 +246,15 @@ namespace SocialSite.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Visibility = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Posts", x => x.Id);
+                    table.CheckConstraint("CK_Posts_Visibility", "[Visibility] IN ('Everyone','FriendsOnly','Private')");
                     table.ForeignKey(
                         name: "FK_Posts_Users_UserId",
                         column: x => x.UserId,
@@ -296,8 +295,8 @@ namespace SocialSite.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SentAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SenderId = table.Column<int>(type: "int", nullable: false),
                     ChatId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -324,8 +323,8 @@ namespace SocialSite.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SentAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     PostId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -352,7 +351,8 @@ namespace SocialSite.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     State = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
@@ -383,8 +383,8 @@ namespace SocialSite.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Path = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    Path = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     EntityId = table.Column<int>(type: "int", nullable: false),
                     Entity = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
                 },
@@ -446,6 +446,11 @@ namespace SocialSite.Data.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Comments_DateCreated",
+                table: "Comments",
+                column: "DateCreated");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Comments_PostId",
                 table: "Comments",
                 column: "PostId");
@@ -456,6 +461,11 @@ namespace SocialSite.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_FriendRequests_DateCreated",
+                table: "FriendRequests",
+                column: "DateCreated");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FriendRequests_ReceiverId",
                 table: "FriendRequests",
                 column: "ReceiverId");
@@ -464,6 +474,11 @@ namespace SocialSite.Data.Migrations
                 name: "IX_FriendRequests_SenderId",
                 table: "FriendRequests",
                 column: "SenderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Friendships_DateCreated",
+                table: "Friendships",
+                column: "DateCreated");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Friendships_FriendId",
@@ -502,6 +517,11 @@ namespace SocialSite.Data.Migrations
                 columns: new[] { "EntityId", "Entity" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Messages_DateCreated",
+                table: "Messages",
+                column: "DateCreated");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Messages_ChatId",
                 table: "Messages",
                 column: "ChatId");
@@ -512,9 +532,9 @@ namespace SocialSite.Data.Migrations
                 column: "SenderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Messages_SentAt",
-                table: "Messages",
-                column: "SentAt");
+                name: "IX_Posts_DateCreated",
+                table: "Posts",
+                column: "DateCreated");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Posts_UserId",
@@ -522,9 +542,29 @@ namespace SocialSite.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Posts_Visibility",
+                table: "Posts",
+                column: "Visibility");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reports_DateCreated",
+                table: "Reports",
+                column: "DateCreated");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Reports_PostId",
                 table: "Reports",
                 column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reports_State",
+                table: "Reports",
+                column: "State");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reports_Type",
+                table: "Reports",
+                column: "Type");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reports_UserId",
@@ -537,14 +577,14 @@ namespace SocialSite.Data.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_FirstName",
+                name: "IX_Users_FirstName_LastName",
                 table: "Users",
-                column: "FirstName");
+                columns: new[] { "FirstName", "LastName" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_LastName",
+                name: "IX_Users_FriendRequestSetting",
                 table: "Users",
-                column: "LastName");
+                column: "FriendRequestSetting");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",

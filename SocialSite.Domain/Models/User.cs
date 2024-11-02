@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SocialSite.Domain.Models.Enums;
+#pragma warning disable CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
 
 namespace SocialSite.Domain.Models;
 
@@ -10,9 +11,8 @@ public class User : IdentityUser<int>
     public string LastName { get; set; } = default!;
     public string? Bio { get; set; }
 
-    public bool AllowNonFriendMessages { get; set; } = true;
-    public FriendRequestSettingState FriendRequestSettingState { get; set; }
-    public PostVisibility PostVisibility { get; set; }
+    public bool AllowNonFriendChatAdd { get; set; } = true;
+    public FriendRequestSetting FriendRequestSetting { get; set; }
 
     public string Fullname => $"{FirstName} {LastName}";
 

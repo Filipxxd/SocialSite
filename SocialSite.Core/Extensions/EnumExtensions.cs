@@ -9,19 +9,14 @@ public static class EnumExtensions
         var type = value.GetType();
         var name = Enum.GetName(type, value);
 
-        if (name != null)
-        {
-            var field = type.GetField(name);
+        if (name is null) 
+            return value.ToString();
 
-            if (field != null)
-            {
-                if (Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) is DescriptionAttribute attribute)
-                {
-                    return attribute.Description;
-                }
-            }
-        }
+        var field = type.GetField(name);
+        if (field is null) 
+            return name;
 
-        return name ?? value.ToString();
+        var attribute = Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) as DescriptionAttribute;
+        return attribute?.Description ?? name;
     }
 }

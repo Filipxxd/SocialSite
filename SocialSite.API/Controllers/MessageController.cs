@@ -13,7 +13,7 @@ public sealed class MessageController : ApiControllerBase
 {
     private readonly MessageAppService _messageAppService;
 
-    public MessageController(MessageAppService messageAppService, UserManager<User> userManager) : base(userManager)
+    public MessageController(MessageAppService messageAppService)
     {
         _messageAppService = messageAppService;
     }
@@ -23,8 +23,5 @@ public sealed class MessageController : ApiControllerBase
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> SendDirect(CreateMessageDto dto)
-    {
-        var currentUser = await GetCurrentUserAsync();
-        return await ExecuteAsync(() => _messageAppService.SendMessageAsync(dto, currentUser));
-    }
+        => await ExecuteWithoutContentAsync(() => _messageAppService.SendMessageAsync(dto, GetCurrentUserId()));
 }

@@ -1,4 +1,5 @@
 using SocialSite.API;
+using SocialSite.Application.Utilities;
 using SocialSite.Core.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,12 +21,10 @@ builder.Services.AddCors(options =>
 });
 
 if (builder.Environment.IsDevelopment())
-{
     builder.Services.AddSwagger();
-}
+
 
 var app = builder.Build();
-
 
 app.UseCors("AllowSpecificOrigin");
 
@@ -43,6 +42,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 
 app.Run();

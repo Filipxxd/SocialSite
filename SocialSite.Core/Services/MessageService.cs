@@ -18,10 +18,8 @@ public sealed class MessageService : IMessageService
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<Result> SendMessageAsync(Message message)
+    public async Task SendMessageAsync(Message message)
     {
-        message.SentAt = _dateTimeProvider.GetDateTime();
-
         var chat = await _context.Chats.AsNoTracking()
             .Include(e => e.ChatUsers)
             .SingleOrDefaultAsync(e => e.Id == message.ChatId);
@@ -29,12 +27,12 @@ public sealed class MessageService : IMessageService
         if (chat is null)
             throw new NotFoundException("Chat was not found");
 
-        if (!chat.ChatUsers.Any(e => e.UserId == message.SenderId))
+        if (chat.ChatUsers.All(e => e.UserId != message.SenderId))
             throw new NotValidException("Sender is not part of Chat");
 
+        message.DateCreated = _dateTimeProvider.GetDateTime();
+        
         _context.Messages.Add(message);
         await _context.SaveChangesAsync();
-
-        return Result.Success();
     }
 }

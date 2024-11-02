@@ -11,29 +11,19 @@ internal sealed class UserConfig : IEntityTypeConfiguration<User>
     {
         builder.ToTable(Tables.Users);
 
-        builder.HasIndex(e => e.FirstName);
-        builder.HasIndex(e => e.LastName);
+        builder.HasIndex(e => new { e.FirstName, e.LastName });
+        builder.HasIndex(e => e.FriendRequestSetting);
 
-        builder.Property(e => e.FirstName)
-            .HasMaxLength(50);
+        builder.Property(e => e.FirstName).HasMaxLength(50);
+        builder.Property(e => e.LastName).HasMaxLength(50);
+        builder.Property(e => e.Email).HasMaxLength(254);
+        builder.Property(e => e.Bio).HasMaxLength(500);
 
-        builder.Property(e => e.LastName)
-            .HasMaxLength(50);
-
-        builder.Property(e => e.Email)
-            .HasMaxLength(254);
-
-        builder.Property(e => e.FriendRequestSettingState)
+        builder.Property(e => e.FriendRequestSetting)
             .HasMaxLength(20)
             .HasConversion(
                 v => v.ToString(),
-                v => (FriendRequestSettingState)Enum.Parse(typeof(FriendRequestSettingState), v));
-
-        builder.Property(e => e.PostVisibility)
-            .HasMaxLength(20)
-            .HasConversion(
-                v => v.ToString(),
-                v => (PostVisibility)Enum.Parse(typeof(PostVisibility), v));
+                v => (FriendRequestSetting)Enum.Parse(typeof(FriendRequestSetting), v));
 
         builder.HasMany(e => e.UserChats)
             .WithOne(e => e.User)

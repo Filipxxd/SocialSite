@@ -13,8 +13,8 @@ internal class ImageConfig : IEntityTypeConfiguration<Image>
 
         builder.HasKey(e => e.Id);
 
-        builder.Property(e => e.Name)
-            .HasMaxLength(100);
+        builder.Property(e => e.Name).HasMaxLength(128);
+        builder.Property(e => e.Path).HasMaxLength(100);
 
         builder.HasIndex(e => new { e.EntityId, e.Entity });
 
@@ -22,6 +22,6 @@ internal class ImageConfig : IEntityTypeConfiguration<Image>
             .HasMaxLength(20)
             .HasConversion(
                 v => v.ToString(),
-                v => (EntityName)Enum.Parse(typeof(EntityName), v));
+                v => (EntityType)Enum.Parse(typeof(EntityType), v));
     }
 }

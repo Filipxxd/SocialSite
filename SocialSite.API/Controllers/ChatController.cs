@@ -13,7 +13,7 @@ public sealed class ChatController : ApiControllerBase
 {
     private readonly ChatAppService _chatAppService;
 
-    public ChatController(UserManager<User> userManager, ChatAppService chatAppService) : base(userManager)
+    public ChatController(ChatAppService chatAppService)
     {
         _chatAppService = chatAppService;
     }
@@ -21,40 +21,35 @@ public sealed class ChatController : ApiControllerBase
     [HttpGet("get-all")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<ChatInfoDto>))]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> GetAllChats()
-    {
-        var currentUser = await GetCurrentUserAsync();
-        return await ExecuteAsync(() => _chatAppService.GetAllChatsAsync(currentUser.Id));
-    }
-
+        => await ExecuteAsync(() => _chatAppService.GetAllChatsAsync(GetCurrentUserId()));
+    
     [HttpGet("get-chat")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ChatDto))]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
     public async Task<IActionResult> GetChat(int id)
-    {
-        var currentUser = await GetCurrentUserAsync();
-        return await ExecuteAsync(() => _chatAppService.GetChatByIdAsync(id, currentUser.Id));
-    }
+        => await ExecuteAsync(() => _chatAppService.GetChatByIdAsync(id, GetCurrentUserId()));
 
-    [HttpPost("create-chat")]
+    [HttpPost("create-direct")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ChatDto))]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
-    public async Task<IActionResult> CreateChat([FromBody] CreateChatDto dto)
-    {
-        var currentUser = await GetCurrentUserAsync();
-        return await ExecuteAsync(() => _chatAppService.CreateChatAsync(dto, currentUser.Id));
-    }
+    public async Task<IActionResult> CreateChat(CreateDirectChatDto dto)
+        => await ExecuteAsync(() => _chatAppService.CreateDirectChatAsync(dto, GetCurrentUserId()));
 
+    [HttpPost("create-group")]
+    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ChatDto))]
+    [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
+    public async Task<IActionResult> CreateChat(CreateGroupChatDto dto)
+        => await ExecuteAsync(() => _chatAppService.CreateGroupChatAsync(dto, GetCurrentUserId()));
+    
     [HttpPut("assign-group-users")]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
-    public async Task<IActionResult> AssignGroupUsers([FromBody] AssignGroupChatUsersDto dto)
-    {
-        var currentUser = await GetCurrentUserAsync();
-        return await ExecuteAsync(() => _chatAppService.AssignUsersToGroupChatAsync(dto, currentUser.Id));
-    }
+    [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
+    public async Task<IActionResult> AssignGroupUsers(AssignGroupChatUsersDto dto)
+        => await ExecuteWithoutContentAsync(() => _chatAppService.AssignUsersToGroupChatAsync(dto, GetCurrentUserId()));
 }

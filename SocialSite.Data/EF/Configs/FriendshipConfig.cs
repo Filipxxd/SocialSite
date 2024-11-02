@@ -12,6 +12,8 @@ internal sealed class FriendshipConfig : IEntityTypeConfiguration<Friendship>
 
         builder.HasKey(f => f.Id);
 
+        builder.HasIndex(c => c.DateCreated);
+        
         builder.HasOne(f => f.User)
             .WithMany(f => f.Friendships)
             .HasForeignKey(f => f.UserId)

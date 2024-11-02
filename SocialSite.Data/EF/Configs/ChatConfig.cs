@@ -12,6 +12,8 @@ internal sealed class ChatConfig : IEntityTypeConfiguration<Chat>
 
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.Name).HasMaxLength(50);
+        
         builder.HasOne(e => e.Owner)
             .WithMany()
             .HasForeignKey(e => e.OwnerId)

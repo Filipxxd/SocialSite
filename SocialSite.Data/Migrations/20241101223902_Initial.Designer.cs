@@ -12,7 +12,7 @@ using SocialSite.Data.EF;
 namespace SocialSite.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20241027163625_Initial")]
+    [Migration("20241101223902_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -167,7 +167,8 @@ namespace SocialSite.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int?>("OwnerId")
                         .HasColumnType("int");
@@ -212,18 +213,21 @@ namespace SocialSite.Data.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("PostId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DateCreated");
 
                     b.HasIndex("PostId");
 
@@ -240,22 +244,23 @@ namespace SocialSite.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("ReceiverId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("RequestDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ResponseDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("SenderId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DateCreated");
 
                     b.HasIndex("ReceiverId");
 
@@ -263,7 +268,7 @@ namespace SocialSite.Data.Migrations
 
                     b.ToTable("FriendRequests", null, t =>
                         {
-                            t.HasCheckConstraint("CK_FriendRequests_Status", "[Status] IN ('Sent','Rejected','Accepted')");
+                            t.HasCheckConstraint("CK_FriendRequests_State", "[State] IN ('Sent','Rejected','Accepted')");
                         });
                 });
 
@@ -275,16 +280,18 @@ namespace SocialSite.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("FriendId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("FriendsSince")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DateCreated");
 
                     b.HasIndex("FriendId");
 
@@ -311,12 +318,13 @@ namespace SocialSite.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Path")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -344,21 +352,22 @@ namespace SocialSite.Data.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("SenderId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ChatId");
 
-                    b.HasIndex("SenderId");
+                    b.HasIndex("DateCreated");
 
-                    b.HasIndex("SentAt");
+                    b.HasIndex("SenderId");
 
                     b.ToTable("Messages", (string)null);
                 });
@@ -372,19 +381,32 @@ namespace SocialSite.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Visibility")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("DateCreated");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Posts", (string)null);
+                    b.HasIndex("Visibility");
+
+                    b.ToTable("Posts", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Posts_Visibility", "[Visibility] IN ('Everyone','FriendsOnly','Private')");
+                        });
                 });
 
             modelBuilder.Entity("SocialSite.Domain.Models.Report", b =>
@@ -397,7 +419,11 @@ namespace SocialSite.Data.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("PostId")
                         .HasColumnType("int");
@@ -417,7 +443,13 @@ namespace SocialSite.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DateCreated");
+
                     b.HasIndex("PostId");
+
+                    b.HasIndex("State");
+
+                    b.HasIndex("Type");
 
                     b.HasIndex("UserId");
 
@@ -440,11 +472,12 @@ namespace SocialSite.Data.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<bool>("AllowNonFriendMessages")
+                    b.Property<bool>("AllowNonFriendChatAdd")
                         .HasColumnType("bit");
 
                     b.Property<string>("Bio")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -462,7 +495,7 @@ namespace SocialSite.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("FriendRequestSettingState")
+                    b.Property<string>("FriendRequestSetting")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
@@ -495,11 +528,6 @@ namespace SocialSite.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("PostVisibility")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -513,9 +541,7 @@ namespace SocialSite.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FirstName");
-
-                    b.HasIndex("LastName");
+                    b.HasIndex("FriendRequestSetting");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -525,11 +551,11 @@ namespace SocialSite.Data.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
+                    b.HasIndex("FirstName", "LastName");
+
                     b.ToTable("Users", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Users_FriendRequestSettingState", "[FriendRequestSettingState] IN ('AnyOne','FriendsOfFriends','NoOne')");
-
-                            t.HasCheckConstraint("CK_Users_PostVisibility", "[PostVisibility] IN ('Everyone','FriendsOnly','Private')");
+                            t.HasCheckConstraint("CK_Users_FriendRequestSetting", "[FriendRequestSetting] IN ('AnyOne','FriendsOfFriends','NoOne')");
                         });
                 });
 

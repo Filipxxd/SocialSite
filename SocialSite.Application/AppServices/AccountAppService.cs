@@ -11,6 +11,7 @@ using SocialSite.Domain.Utilities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using SocialSite.Application.Utilities;
 
 namespace SocialSite.Application.AppServices;
 
@@ -19,29 +20,37 @@ public sealed class AccountAppService
     private readonly IAccountService _accountService;
     private readonly IOptions<JwtSetup> _options;
 
-    public AccountAppService(UserManager<User> userManager, IOptions<JwtSetup> options, IAccountService accountService)
+    public AccountAppService(IOptions<JwtSetup> options, IAccountService accountService)
     {
         _options = options;
         _accountService = accountService;
     }
 
-    public async Task<Result> RegisterAsync(RegisterDto dto)
+    public async Task<UserProfileDto> GetProfileInfoAsync(int currentUserId)
+    {
+        var user = await _accountService.GetProfileInfoAsync(currentUserId);
+        return user.Map();
+    }
+    
+    public async Task<UserProfileDto> UpdateProfileInfoAsync(UpdateProfileDto dto, int currentUserId)
+    {
+        var user = await _accountService.UpdateProfileInfoAsync(dto.Map(currentUserId));
+        return user.Map();
+    }
+    
+    public async Task RegisterAsync(RegisterDto dto)
     {
         var user = dto.Map();
-        return await _accountService.RegisterAsync(user, dto.Password);
+        await _accountService.RegisterAsync(user, dto.Password);
     }
 
     public async Task<TokenDto> LoginAsync(LoginDto dto)
     {
-        var result = await _accountService.LoginAsync(dto.UserName, dto.Password);
-
-        if (!result.IsSuccess)
-            throw new NotValidException("Invalid credentials");
+        var claims = await _accountService.LoginAsync(dto.UserName, dto.Password);
 
         var token = GetToken([
-            new(ClaimTypes.Name, dto.UserName),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            ..result.Entity ]);
+            ..claims ]);
 
         return new()
         {

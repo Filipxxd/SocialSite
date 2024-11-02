@@ -1,6 +1,6 @@
 ﻿namespace SocialSite.Domain.Models.Enums;
 
-public enum FriendRequestStatus
+public enum FriendRequestState
 {
     Sent,
     Rejected,

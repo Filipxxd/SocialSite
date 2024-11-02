@@ -1,11 +1,14 @@
-﻿namespace SocialSite.Domain.Models;
+﻿using SocialSite.Domain.Models.Enums;
+
+namespace SocialSite.Domain.Models;
 
 public class Post
 {
     public int Id { get; set; }
     public string? Content { get; set; }
-    public DateTime CreatedDate { get; set; }
-
+    public DateTime DateCreated { get; set; }
+    public PostVisibility Visibility { get; set; }
+    
     public int UserId { get; set; }
     public virtual User? User { get; set; }
 

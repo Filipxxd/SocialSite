@@ -5,20 +5,15 @@ using SocialSite.Core.Exceptions;
 using SocialSite.Domain.Models;
 using System.Net;
 using System.Security.Claims;
+using SocialSite.Core.Constants;
 
 namespace SocialSite.API.Controllers.Base;
 
 [Authorize]
 [ApiController]
+[Produces("application/json")]
 public abstract class ApiControllerBase : ControllerBase
 {
-    private readonly UserManager<User> _userManager;
-
-    protected ApiControllerBase(UserManager<User> userManager)
-    {
-        _userManager = userManager;
-    }
-
     protected async Task<IActionResult> ExecuteAsync<T>(Func<Task<T>> func)
         => await HandleRequestWithErrorHandling(async () =>
         {
@@ -33,10 +28,11 @@ public abstract class ApiControllerBase : ControllerBase
             return NoContent();
         });
 
-    protected async Task<User> GetCurrentUserAsync()
+    protected int GetCurrentUserId()
     {
-        var userName = User.FindFirstValue(ClaimTypes.Name) ?? "";
-        return await _userManager.FindByNameAsync(userName) ?? throw new NotAuthorizedException("Unable to retrieve User from Claims");
+        var userIdRaw = User.FindFirstValue(AppClaimTypes.UserId) 
+               ?? throw new ArgumentNullException(nameof(AppClaimTypes.UserId), "UserId claim not found");
+        return int.Parse(userIdRaw);
     }
 
     private async Task<IActionResult> HandleRequestWithErrorHandling(Func<Task<IActionResult>> func)
@@ -47,19 +43,39 @@ public abstract class ApiControllerBase : ControllerBase
         }
         catch (NotValidException ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(new ValidationProblemDetails
+            {
+                Title = "Validation Error",
+                Status = (int)HttpStatusCode.BadRequest,
+                Detail = ex.Message
+            });
         }
         catch (NotFoundException ex)
         {
-            return NotFound(ex.Message);
+            return NotFound(new ProblemDetails
+            {
+                Title = "Not Found",
+                Status = (int)HttpStatusCode.NotFound,
+                Detail = ex.Message
+            });
         }
         catch (NotAuthorizedException ex)
         {
-            return Unauthorized(ex.Message);
+            return Unauthorized(new ProblemDetails
+            {
+                Title = "Unauthorized",
+                Status = (int)HttpStatusCode.Unauthorized,
+                Detail = ex.Message
+            });
         }
         catch (Exception)
         {
-            return StatusCode((int)HttpStatusCode.InternalServerError, "An unexpected error occurred.");
+            return StatusCode((int)HttpStatusCode.InternalServerError, new ProblemDetails
+            {
+                Title = "Internal Server Error",
+                Status = (int)HttpStatusCode.InternalServerError,
+                Detail = "An unexpected error occurred."
+            });
         }
     }
 }

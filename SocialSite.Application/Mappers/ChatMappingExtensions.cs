@@ -9,14 +9,14 @@ internal static class ChatMappingExtensions
     {
         Id = input.Id,
         Name = input.Name ?? input.ChatUsers.Select(e => e.User).First(e => e!.Id != currentUserId)!.Fullname,
-        IsDirect = input.OwnerId == null,
+        IsDirect = input.IsDirect,
         Messages = input.Messages.Select(message => new ChatMessageDto
         {
             Id = message.Id,
             SenderFullname = message.Sender!.Fullname,
             Content = message.Content,
             IsSentByCurrentUser = message.SenderId == currentUserId,
-            SentAt = message.SentAt,
+            SentAt = message.DateCreated,
         }),
         Users = input.ChatUsers.Select(chatUser => new ChatUserDto
         {
@@ -25,14 +25,31 @@ internal static class ChatMappingExtensions
         })
     };
 
-    public static Chat Map(this CreateChatDto input, int currentUserId) => new()
+    public static Chat Map(this CreateDirectChatDto input, int currentUserId) => new()
+    {
+        Name = null,
+        OwnerId = null,
+        ChatUsers = [
+            new()
+        {
+            UserId = input.RecipientUserId
+        }, new()
+        {
+            UserId = currentUserId
+        }]
+    };
+
+    public static Chat Map(this CreateGroupChatDto input, int currentUserId) => new()
     {
         Name = input.Name,
-        OwnerId = input.IsDirect ? null : currentUserId,
-        ChatUsers = input.UserIds.Select(userId => new ChatUser
+        OwnerId = currentUserId,
+        ChatUsers = [..input.RecipientUserIds.Select(userId => new ChatUser
         {
             UserId = userId,
-        }).ToList()
+        }), new ChatUser()
+        {
+            UserId = currentUserId,
+        }]
     };
 
     public static IEnumerable<ChatInfoDto> Map(this IEnumerable<Chat> input, int currentUserId) => input.Select(chat => new ChatInfoDto
