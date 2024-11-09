@@ -1,13 +1,15 @@
+using System.Text.Json.Serialization;
 using SocialSite.API;
 using SocialSite.Application.Utilities;
-using SocialSite.Core.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddContextWithIdentity(builder.Configuration, builder.Environment);
 builder.Services.AddServices();
 builder.Services.AddAuthentication(builder.Configuration);
-builder.Services.AddControllers().AddEndpointValidation();
+builder.Services.AddControllers()
+	.AddJsonOptions(opt => opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+	.AddEndpointValidation();
 
 builder.Services.Configure<JwtSetup>(builder.Configuration.GetSection("JWT"));
 
