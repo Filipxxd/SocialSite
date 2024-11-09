@@ -1,4 +1,4 @@
-﻿namespace SocialSite.Domain.Services.Filters;
+﻿namespace SocialSite.Domain.Filters;
 
 public class PaginationInfo(int recordsCount, int pageSize)
 {

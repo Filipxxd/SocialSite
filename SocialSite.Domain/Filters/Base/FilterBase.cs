@@ -1,4 +1,4 @@
-﻿namespace SocialSite.Domain.Services.Filters.Base;
+﻿namespace SocialSite.Domain.Filters.Base;
 
 public class FilterBase
 {
