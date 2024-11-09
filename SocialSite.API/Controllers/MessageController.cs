@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using SocialSite.API.Controllers.Base;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Messages;
-using SocialSite.Domain.Models;
-using System.Net;
 
 namespace SocialSite.API.Controllers;
 
@@ -22,6 +20,7 @@ public sealed class MessageController : ApiControllerBase
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
-    public async Task<IActionResult> SendDirect(CreateMessageDto dto)
+    [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
+    public async Task<IActionResult> SendMessage(CreateMessageDto dto)
         => await ExecuteWithoutContentAsync(() => _messageAppService.SendMessageAsync(dto, GetCurrentUserId()));
 }
