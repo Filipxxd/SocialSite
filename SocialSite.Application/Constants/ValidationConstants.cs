@@ -1,6 +1,6 @@
 namespace SocialSite.Application.Constants;
 
-public static class ValidationConstants
+internal static class ValidationConstants
 {
     public const string CzechAlphabetRegex = @"^[a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s]*$";
     public const string AlphaNumericRegex = "^[a-zA-Z0-9]*$";

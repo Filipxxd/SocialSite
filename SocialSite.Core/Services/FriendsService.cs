@@ -8,7 +8,7 @@ using SocialSite.Domain.Utilities;
 
 namespace SocialSite.Core.Services;
 
-public class FriendsService : IFriendsService
+public sealed class FriendsService : IFriendsService
 {
     private readonly DataContext _context;
     private readonly IDateTimeProvider _dateTimeProvider;

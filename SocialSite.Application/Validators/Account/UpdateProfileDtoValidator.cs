@@ -4,7 +4,7 @@ using SocialSite.Application.Dtos.Account;
 
 namespace SocialSite.Application.Validators.Account;
 
-public class UpdateProfileDtoValidator: AbstractValidator<UpdateProfileDto>
+public sealed class UpdateProfileDtoValidator: AbstractValidator<UpdateProfileDto>
 {
     public UpdateProfileDtoValidator()
     {
