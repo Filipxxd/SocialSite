@@ -1,6 +1,6 @@
 using SocialSite.Domain.Models.Enums;
 
-namespace SocialSite.Application.Dtos.Account;
+namespace SocialSite.Application.Dtos.Users;
 
 public class UpdateProfileDto
 {

@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Reflection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SocialSite.Data.EF.Extensions;
 using SocialSite.Domain.Models;
-using System.Reflection;
 
 namespace SocialSite.Data.EF;
 
@@ -18,6 +18,7 @@ public class DataContext(DbContextOptions<DataContext> options) : IdentityDbCont
     public DbSet<Comment> Comments { get; set; }
     public DbSet<ChatUser> GroupUsers { get; set; }
     public DbSet<Image> Images { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

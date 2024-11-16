@@ -1,11 +1,9 @@
+using System.Net;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SocialSite.API.Controllers.Base;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Account;
-using SocialSite.Domain.Models;
-using System.Net;
 
 namespace SocialSite.API.Controllers;
 
@@ -16,22 +14,8 @@ public sealed class AccountController : ApiControllerBase
 
     public AccountController(AccountAppService accountAppService)
     {
-        _accountAppService = accountAppService;
+	    _accountAppService = accountAppService;
     }
-
-    [HttpGet("get-profile")]
-    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]
-    [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
-    public async Task<IActionResult> GetProfile() 
-        => await ExecuteAsync(() => _accountAppService.GetProfileInfoAsync(GetCurrentUserId()));
-    
-    [HttpPut("update-profile")]
-    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]
-    [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
-    public async Task<IActionResult> UpdateProfile(UpdateProfileDto dto) 
-        => await ExecuteAsync(() => _accountAppService.UpdateProfileInfoAsync(dto, GetCurrentUserId()));
     
     [AllowAnonymous]
     [HttpPost("register")]
@@ -42,8 +26,22 @@ public sealed class AccountController : ApiControllerBase
     
     [AllowAnonymous]
     [HttpPost("login")]
-    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(TokenDto))]
+    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(AuthTokensDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> Login(LoginDto dto)
          => await ExecuteAsync(() => _accountAppService.LoginAsync(dto));
+
+    [AllowAnonymous]
+    [HttpPost("refresh-token")]
+    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(AuthTokensDto))]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
+    public async Task<IActionResult> RefreshToken(RefreshTokenDto dto)
+	    => await ExecuteAsync(() => _accountAppService.RefreshTokenAsync(dto));
+    
+    [HttpDelete("logout")]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ProblemDetails))]
+    public async Task<IActionResult> Logout(RefreshTokenDto dto)
+	    => await ExecuteWithoutContentAsync(() => _accountAppService.LogoutAsync(dto));
 }

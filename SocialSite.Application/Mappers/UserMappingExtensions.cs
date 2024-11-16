@@ -1,9 +1,9 @@
-﻿using SocialSite.Application.Dtos.Account;
+﻿using SocialSite.Application.Dtos.Users;
 using SocialSite.Domain.Models;
 
 namespace SocialSite.Application.Mappers;
 
-public static class UserMappingExtensions
+internal static class UserMappingExtensions
 {
     public static User Map(this UpdateProfileDto input, int currentUserId) => new()
     {
@@ -13,14 +13,6 @@ public static class UserMappingExtensions
         Bio = input.Bio,
         AllowNonFriendChatAdd = input.AllowNonFriendChatAdd,
         FriendRequestSetting = input.FriendRequestSetting,
-    };
-    
-    public static User Map(this RegisterDto input) => new()
-    {
-        UserName = input.UserName,
-        FirstName = input.FirstName,
-        LastName = input.LastName,
-        SecurityStamp = Guid.NewGuid().ToString()
     };
     
     public static UserProfileDto Map(this User input) => new()

@@ -1,6 +1,6 @@
 using FluentValidation;
 using SocialSite.Application.Constants;
-using SocialSite.Application.Dtos.Account;
+using SocialSite.Application.Dtos.Users;
 
 namespace SocialSite.Application.Validators.Account;
 

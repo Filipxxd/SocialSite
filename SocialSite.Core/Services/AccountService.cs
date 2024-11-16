@@ -1,79 +1,58 @@
-﻿using Microsoft.AspNetCore.Identity;
-using SocialSite.Core.Constants;
-using SocialSite.Domain.Models;
-using SocialSite.Domain.Services;
-using SocialSite.Domain.Utilities;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SocialSite.Core.Constants;
 using SocialSite.Core.Exceptions;
 using SocialSite.Data.EF;
-using SocialSite.Data.EF.Extensions;
+using SocialSite.Domain.Models;
+using SocialSite.Domain.Services;
 
 namespace SocialSite.Core.Services;
 
 public sealed class AccountService : IAccountService
 {
-    private readonly UserManager<User> _userManager;
-    private readonly DataContext _context;
-    
-    public AccountService(UserManager<User> userManager, DataContext context)
-    {
-        _userManager = userManager;
-        _context = context;
-    }
+	private readonly DataContext _dataContext;
+	private readonly UserManager<User> _userManager;
 
-    public async Task<User> GetProfileInfoAsync(int userId)
-    {
-        return await _context.Users.AsNoTracking()
-                   .IncludeProfileImage()
-                   .SingleOrDefaultAsync(u => u.Id == userId)
-               ?? throw new NotFoundException("User was not found.");
-    }
+	public AccountService(DataContext dataContext, UserManager<User> userManager)
+	{
+		_dataContext = dataContext;
+		_userManager = userManager;
+	}
 
-    public async Task<User> UpdateProfileInfoAsync(User user)
-    {
-        var currentUser = await _context.Users.FindAsync(user.Id)
-                          ?? throw new NotFoundException("User was not found.");
+	public async Task<IEnumerable<Claim>> GetUserClaimsAsync(int userId)
+	{
+		var user = await _userManager.FindByIdAsync(userId.ToString())
+		    ?? throw new NotFoundException("User was not found.");
 
-        currentUser.FirstName = user.FirstName;
-        currentUser.LastName = user.LastName;
-        currentUser.Bio = user.Bio;
-        currentUser.AllowNonFriendChatAdd = user.AllowNonFriendChatAdd;
-        currentUser.FriendRequestSetting = user.FriendRequestSetting;
+		var userRoles = await _userManager.GetRolesAsync(user);
+		var claims = userRoles.Select(e => new Claim(ClaimTypes.Role, e)).ToList();
 
-        await _context.SaveChangesAsync();
+		claims.Add(new(AppClaimTypes.UserId, user.Id.ToString()));
+		claims.Add(new(AppClaimTypes.Fullname, user.Fullname));
 
-        return currentUser;
-    }
-    
-    public async Task<IEnumerable<Claim>> LoginAsync(string userName, string password)
-    {
-        var user = await _userManager.FindByNameAsync(userName);
-        if (user is null)
-            throw new NotValidException("Invalid credentials.");
+		return claims;
+	}
+	
+	public async Task CreateRefreshTokenAsync(RefreshToken refreshToken)
+	{
+		await _dataContext.RefreshTokens.AddAsync(refreshToken);
+		await _dataContext.SaveChangesAsync();
+	}
+	
+	public async Task<RefreshToken?> GetRefreshTokenAsync(string token)
+	{
+		return await _dataContext.RefreshTokens.SingleOrDefaultAsync(rt => rt.Token == token);
+	}
+	
+	public async Task DeleteRefreshTokenAsync(int tokenId)
+	{
+		var refreshToken = await _dataContext.RefreshTokens.FindAsync(tokenId);
 
-        var passwordValid = await _userManager.CheckPasswordAsync(user, password);
-        if (!passwordValid)
-            throw new NotValidException("Invalid credentials.");
-
-        var userRoles = await _userManager.GetRolesAsync(user);
-        var claims = userRoles.Select(e => new Claim(ClaimTypes.Role, e)).ToList();
-
-        claims.Add(new(AppClaimTypes.UserId, user.Id.ToString()));
-        claims.Add(new(AppClaimTypes.Fullname, user.Fullname));
-
-        return claims;
-    }
-
-    public async Task RegisterAsync(User user, string password)
-    {
-        var userExists = await _userManager.FindByNameAsync(user.UserName);
-
-        if (userExists != null)
-            throw new NotValidException($"User with given username already exists.");
-
-        var result = await _userManager.CreateAsync(user, password);
-        if (!result.Succeeded)
-            throw new NotValidException(string.Join(", ", result.Errors.Select(e => e.Description)));
-    }
+		if (refreshToken != null)
+		{
+			_dataContext.RefreshTokens.Remove(refreshToken);
+			await _dataContext.SaveChangesAsync();
+		}
+	}
 }

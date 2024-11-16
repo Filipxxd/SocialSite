@@ -3,7 +3,7 @@ using SocialSite.Domain.Models;
 
 namespace SocialSite.Application.Mappers;
 
-public static class FriendMappingExtensions
+internal static class FriendMappingExtensions
 {
     public static FriendRequest Map(this CreateFriendRequestDto input, int currentUserId)
     {

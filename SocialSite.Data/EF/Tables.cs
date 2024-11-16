@@ -3,6 +3,7 @@
 internal static class Tables
 {
     public const string Users = nameof(Users);
+    public const string RefreshTokens = nameof(RefreshTokens);
     public const string Posts = nameof(Posts);
     public const string Reports = nameof(Reports);
     public const string Comments = nameof(Comments);
