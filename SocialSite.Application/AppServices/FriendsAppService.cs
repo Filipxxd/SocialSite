@@ -40,8 +40,8 @@ public sealed class FriendsAppService
 		    await _friendsService.DeclineFriendRequestAsync(input.Id, currentUserId);
     }
 
-    public async Task RemoveFriendAsync(FriendshipDto input, int currentUserId)
+    public async Task RemoveFriendAsync(int friendId, int currentUserId)
     {
-	    await _friendsService.RemoveFriendAsync(input.FriendId, currentUserId);
+	    await _friendsService.RemoveFriendAsync(friendId, currentUserId);
     }
 }

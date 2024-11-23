@@ -43,11 +43,11 @@ public class FriendsController : ApiControllerBase
     public async Task<IActionResult> ResolveFriendRequest(ResolveFriendRequestDto dto)
 	    => await ExecuteWithoutContentAsync(() => _friendsAppService.ResolveFriendRequestAsync(dto, GetCurrentUserId()));
     
-    [HttpDelete("remove-friend")]
+    [HttpDelete("remove-friend/{friendId:int}")]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> RemoveFriend(FriendshipDto dto)
-	    => await ExecuteWithoutContentAsync(() => _friendsAppService.RemoveFriendAsync(dto, GetCurrentUserId()));
+    public async Task<IActionResult> RemoveFriend(int friendId)
+	    => await ExecuteWithoutContentAsync(() => _friendsAppService.RemoveFriendAsync(friendId, GetCurrentUserId()));
 }

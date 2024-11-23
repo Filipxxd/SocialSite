@@ -32,8 +32,8 @@ public sealed class FriendsService : IFriendsService
     {
 	    return await _context.FriendRequests.AsNoTracking()
 		    .Include(e => e.Sender)
-		    .Include(e => e.ReceiverId)
-		    .Where(e => e.ReceiverId == currentUserId)
+		    .Include(e => e.Receiver)
+		    .Where(e => e.ReceiverId == currentUserId && e.State == FriendRequestState.Sent)
 		    .ToListAsync();
     }
     
