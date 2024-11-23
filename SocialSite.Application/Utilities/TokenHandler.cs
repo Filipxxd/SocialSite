@@ -65,7 +65,12 @@ public sealed class TokenHandler
 
 	public async Task InvalidateRefreshTokenAsync(string refreshToken)
 	{
-		var storedRefreshToken = await RetrieveAndValidateRefreshTokenAsync(refreshToken);
+		var hashedToken = Hash(refreshToken);
+		var storedRefreshToken = await _accountService.GetRefreshTokenAsync(hashedToken);
+
+		if (storedRefreshToken is null)
+			throw new NotFoundException("Refresh Token not found");
+			
 		await _accountService.DeleteRefreshTokenAsync(storedRefreshToken.Id);
 	}
 
