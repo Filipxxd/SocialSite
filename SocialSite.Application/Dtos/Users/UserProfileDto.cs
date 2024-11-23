@@ -13,5 +13,4 @@ public class UserProfileDto
     
     public bool AllowNonFriendChatAdd { get; set; }
     public FriendRequestSetting FriendRequestSetting { get; set; }
-    public PostVisibility PostVisibility { get; set; }
 }
