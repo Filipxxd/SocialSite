@@ -8,9 +8,9 @@ public sealed class UpdateProfileDtoValidator: AbstractValidator<UpdateProfileDt
 {
     public UpdateProfileDtoValidator()
     {
-        RuleFor(e => e.FirstName).NotEmpty()
+        RuleFor(e => e.Firstname).NotEmpty()
             .Matches(ValidationConstants.CzechAlphabetRegex).WithMessage("'Firstname' must contain only characters from czech alphabet");
-        RuleFor(e => e.LastName).NotEmpty()
+        RuleFor(e => e.Lastname).NotEmpty()
             .Matches(ValidationConstants.CzechAlphabetRegex).WithMessage("'Lastname' must contain only characters from czech alphabet");
         RuleFor(e => e.Bio).MaximumLength(500)
             .Matches(ValidationConstants.CzechAlphabetRegex).WithMessage("'Lastname' must contain only characters from czech alphabet");

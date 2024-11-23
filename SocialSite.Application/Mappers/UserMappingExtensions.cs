@@ -8,8 +8,8 @@ internal static class UserMappingExtensions
     public static User Map(this UpdateProfileDto input, int currentUserId) => new()
     {
         Id = currentUserId,
-        FirstName = input.FirstName,
-        LastName = input.LastName,
+        FirstName = input.Firstname,
+        LastName = input.Lastname,
         Bio = input.Bio,
         AllowNonFriendChatAdd = input.AllowNonFriendChatAdd,
         FriendRequestSetting = input.FriendRequestSetting,
