@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialSite.API.Controllers.Base;
 using SocialSite.Application.AppServices;
@@ -6,6 +7,7 @@ using SocialSite.Application.Dtos.Users;
 
 namespace SocialSite.API.Controllers;
 
+[Authorize]
 [Route("user")]
 public sealed class UserController : ApiControllerBase
 {
