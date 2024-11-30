@@ -36,19 +36,12 @@ internal static class ConfigExtensions
 
         services.AddIdentity<User, IdentityRole<int>>(options =>
             {
-	            if (environment.IsDevelopment())
-	            {
-		            options.Password.RequireDigit = false;
-		            options.Password.RequireLowercase = false;
-		            options.Password.RequireUppercase = false;
-		            options.Password.RequireNonAlphanumeric = false;
-		            options.Password.RequiredLength = 2;
-		            options.Password.RequiredUniqueChars = 0;
-	            }
-	            else
-	            {
-		            options.Password.RequiredLength = 8;
-	            }
+	            options.Password.RequireDigit = false;
+	            options.Password.RequireLowercase = false;
+	            options.Password.RequireUppercase = false;
+	            options.Password.RequireNonAlphanumeric = false;
+	            options.Password.RequiredLength = 2;
+	            options.Password.RequiredUniqueChars = 0;
             })
             .AddEntityFrameworkStores<DataContext>()
             .AddDefaultTokenProviders();
