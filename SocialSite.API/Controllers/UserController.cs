@@ -20,11 +20,11 @@ public sealed class UserController : ApiControllerBase
 		_userAppService = userAppService;
 	}
 
-	[HttpGet("search-users")]
-	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedData<UserSearchDto>))]
-	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
-	public async Task<IActionResult> GetFilteredUsers(UserFilter userFilter, PageFilter pageFilter) 
-		=> await ExecuteAsync(() => _userAppService.GetFilteredUsersAsync(userFilter, pageFilter, GetCurrentUserId()));
+	 [HttpGet("search-users")]
+	 [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedData<UserSearchDto>))]
+	 [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+	 public async Task<IActionResult> GetFilteredUsers(UserFilter userFilter) 
+	 	=> await ExecuteAsync(() => _userAppService.GetFilteredUsersAsync(userFilter, GetCurrentUserId()));
 	
 	[HttpGet("get-profile")]
 	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]

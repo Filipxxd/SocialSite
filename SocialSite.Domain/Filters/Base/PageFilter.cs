@@ -1,6 +1,6 @@
-﻿namespace SocialSite.Domain.Filters;
+﻿namespace SocialSite.Domain.Filters.Base;
 
-public class PageFilter
+public abstract class PageFilter
 {
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 16;

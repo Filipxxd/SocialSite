@@ -20,21 +20,21 @@ public sealed class UserService : IUserService
         _context = context;
     }
 
-    public async Task<IEnumerable<User>> GetUsersAsync(UserFilter filter, PageFilter pageFilter)
+    public async Task<IEnumerable<User>> GetUsersAsync(UserFilter filter)
     {
 	    var query = GetFilteredUsersQuery(filter);
 
-	    query = query.Skip((pageFilter.PageNumber - 1) * pageFilter.PageSize).Take(pageFilter.PageSize);
+	    query = query.Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize);
 
 		return await query.ToListAsync();
 	}
 
-	public async Task<PaginationInfo> GetUsersPaginationInfoAsync(UserFilter filter, PageFilter pageFilter)
+	public async Task<PaginationInfo> GetUsersPaginationInfoAsync(UserFilter filter)
 	{
 		var query = GetFilteredUsersQuery(filter);
 		var totalItems = await query.CountAsync();
 
-		return new(totalItems, pageFilter.PageSize);
+		return new(totalItems, filter.PageSize);
 	}
 	
     public async Task<User> GetProfileInfoAsync(int userId)
