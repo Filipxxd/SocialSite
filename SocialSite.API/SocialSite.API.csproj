@@ -18,4 +18,8 @@
         <ProjectReference Include="..\SocialSite.Application\SocialSite.Application.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Folder Include="wwwroot\"/>
+    </ItemGroup>
+
 </Project>
