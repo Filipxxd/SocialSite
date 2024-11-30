@@ -8,23 +8,23 @@ namespace SocialSite.Application.AppServices;
 public sealed class AccountAppService
 {
 	private readonly TokenHandler _tokenHandler;
-	private readonly IUserService _userService;
+	private readonly IAccountService _accountService;
 	
-	public AccountAppService(TokenHandler tokenHandler, IUserService userService)
+	public AccountAppService(TokenHandler tokenHandler, IAccountService accountService)
 	{
 		_tokenHandler = tokenHandler;
-		_userService = userService;
+		_accountService = accountService;
 	}
     
 	public async Task RegisterAsync(RegisterDto dto)
 	{
 		var user = dto.Map();
-		await _userService.RegisterAsync(user, dto.Password);
+		await _accountService.RegisterAsync(user, dto.Password);
 	}
 
 	public async Task<AuthTokensDto> LoginAsync(LoginDto dto)
 	{
-		var userId = await _userService.LoginAsync(dto.UserName, dto.Password);
+		var userId = await _accountService.LoginAsync(dto.UserName, dto.Password);
         
 		return await _tokenHandler.CreateAuthTokens(userId, dto.RememberMe);
 	}

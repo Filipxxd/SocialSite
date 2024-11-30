@@ -76,31 +76,6 @@ public sealed class UserService : IUserService
         return currentUser;
     }
     
-    public async Task<int> LoginAsync(string userName, string password)
-    {
-        var user = await _userManager.FindByNameAsync(userName);
-        if (user is null)
-            throw new NotValidException("Invalid credentials.");
-
-        var passwordValid = await _userManager.CheckPasswordAsync(user, password);
-        if (!passwordValid)
-            throw new NotValidException("Invalid credentials.");
-
-        return user.Id;
-    }
-
-    public async Task RegisterAsync(User user, string password)
-    {
-        var userExists = await _userManager.FindByNameAsync(user.UserName);
-
-        if (userExists != null)
-            throw new NotValidException("User with given username already exists.");
-
-        var result = await _userManager.CreateAsync(user, password);
-        if (!result.Succeeded)
-            throw new NotValidException(string.Join(", ", result.Errors.Select(e => e.Description)));
-    }
-    
     private IQueryable<User> GetFilteredUsersQuery(UserFilter filter)
     {
 	    var query = _context.Users
