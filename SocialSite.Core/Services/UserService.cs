@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SocialSite.Core.Exceptions;
 using SocialSite.Data.EF;
+using SocialSite.Domain.Filters;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Models.Enums;
 using SocialSite.Domain.Services;
@@ -19,6 +20,23 @@ public sealed class UserService : IUserService
         _context = context;
     }
 
+    public async Task<IEnumerable<User>> GetUsersAsync(UserFilter filter, PageFilter pageFilter)
+    {
+	    var query = GetFilteredUsersQuery(filter);
+
+	    query = query.Skip((pageFilter.PageNumber - 1) * pageFilter.PageSize).Take(pageFilter.PageSize);
+
+		return await query.ToListAsync();
+	}
+
+	public async Task<PaginationInfo> GetUsersPaginationInfoAsync(UserFilter filter, PageFilter pageFilter)
+	{
+		var query = GetFilteredUsersQuery(filter);
+		var totalItems = await query.CountAsync();
+
+		return new(totalItems, pageFilter.PageSize);
+	}
+	
     public async Task<User> GetProfileInfoAsync(int userId)
     {
 	    var result = await (from user in _context.Users
@@ -81,5 +99,18 @@ public sealed class UserService : IUserService
         var result = await _userManager.CreateAsync(user, password);
         if (!result.Succeeded)
             throw new NotValidException(string.Join(", ", result.Errors.Select(e => e.Description)));
+    }
+    
+    private IQueryable<User> GetFilteredUsersQuery(UserFilter filter)
+    {
+	    var query = _context.Users
+		    .Where(u => u.Id != filter.CurrentUserId)
+		    .OrderBy(u => u.UserName)
+		    .AsNoTracking();
+
+	    if (!string.IsNullOrEmpty(filter.SearchTerm))
+		    query = query.Where(u => $"{u.FirstName} {u.LastName}".Contains(filter.SearchTerm));
+		
+	    return query;
     }
 }

@@ -1,5 +1,7 @@
 ﻿using SocialSite.Application.Dtos.Users;
 using SocialSite.Application.Mappers;
+using SocialSite.Application.Utilities;
+using SocialSite.Domain.Filters;
 using SocialSite.Domain.Services;
 
 namespace SocialSite.Application.AppServices;
@@ -13,6 +15,15 @@ public sealed class UserAppService
 		_userService = userService;
 	}
 
+	public async Task<PagedData<UserSearchDto>> GetFilteredUsersAsync(UserFilter filter, PageFilter pageFilter, int currentUserId)
+	{
+		filter.CurrentUserId = currentUserId;
+		var paginationInfo = await _userService.GetUsersPaginationInfoAsync(filter, pageFilter);
+		var users = await _userService.GetUsersAsync(filter, pageFilter);
+
+		return new(users.Map(), paginationInfo.RecordsCount, paginationInfo.TotalPages);
+	}
+    
     public async Task<UserProfileDto> GetProfileInfoAsync(int currentUserId)
     {
         var user = await _userService.GetProfileInfoAsync(currentUserId);

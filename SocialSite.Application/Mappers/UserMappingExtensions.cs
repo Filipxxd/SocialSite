@@ -5,6 +5,14 @@ namespace SocialSite.Application.Mappers;
 
 internal static class UserMappingExtensions
 {
+	public static IEnumerable<UserSearchDto> Map(this IEnumerable<User> input)
+		=> input.Select(user => new UserSearchDto
+		{
+			UserId = user.Id,
+			Fullname = user.Fullname,
+			ProfilePicturePath = "placeholder"
+		});
+	
     public static User Map(this UpdateProfileDto input, int currentUserId) => new()
     {
         Id = currentUserId,
