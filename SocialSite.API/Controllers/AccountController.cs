@@ -39,7 +39,7 @@ public sealed class AccountController : ApiControllerBase
     public async Task<IActionResult> RefreshToken(RefreshTokenDto dto)
 	    => await ExecuteAsync(() => _accountAppService.RefreshTokenAsync(dto));
     
-    [HttpDelete("logout")]
+    [HttpPost("logout")]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ProblemDetails))]
     public async Task<IActionResult> Logout(RefreshTokenDto dto)
