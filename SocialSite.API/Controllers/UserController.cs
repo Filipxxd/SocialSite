@@ -25,7 +25,7 @@ public sealed class UserController : ApiControllerBase
 	 public async Task<IActionResult> GetFilteredUsers(string searchTerm) 
 	 	=> await ExecuteAsync(() => _userAppService.GetFilteredUsersAsync(searchTerm, GetCurrentUserId()));
 	
-	[HttpGet("get-profile")]
+	[HttpGet("my-profile")]
 	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]
 	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]

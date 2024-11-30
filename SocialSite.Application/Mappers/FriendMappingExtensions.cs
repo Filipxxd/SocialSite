@@ -25,7 +25,7 @@ internal static class FriendMappingExtensions
     public static IEnumerable<FriendRequestDto> Map(this IEnumerable<FriendRequest> input) 
 	    => input.Select(friendRequest => new FriendRequestDto
 	    {
-		    Id = friendRequest.Id,
+		    FriendRequestId = friendRequest.Id,
 		    SenderFullname = friendRequest.Sender!.Fullname,
 		    SentAt = friendRequest.DateCreated
 	    });
