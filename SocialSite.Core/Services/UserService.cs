@@ -84,7 +84,7 @@ public sealed class UserService : IUserService
 		    .AsNoTracking();
 
 	    if (!string.IsNullOrEmpty(filter.SearchTerm))
-		    query = query.Where(u => $"{u.FirstName} {u.LastName}".Contains(filter.SearchTerm));
+		    query = query.Where(u => (u.FirstName+ " " + u.LastName).Contains(filter.SearchTerm));
 		
 	    return query;
     }

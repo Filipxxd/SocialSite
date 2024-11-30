@@ -5,7 +5,6 @@ using SocialSite.API.Controllers.Base;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Users;
 using SocialSite.Application.Utilities;
-using SocialSite.Domain.Filters;
 
 namespace SocialSite.API.Controllers;
 
@@ -23,8 +22,8 @@ public sealed class UserController : ApiControllerBase
 	 [HttpGet("search-users")]
 	 [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedData<UserSearchDto>))]
 	 [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
-	 public async Task<IActionResult> GetFilteredUsers(UserFilter userFilter) 
-	 	=> await ExecuteAsync(() => _userAppService.GetFilteredUsersAsync(userFilter, GetCurrentUserId()));
+	 public async Task<IActionResult> GetFilteredUsers(string searchTerm) 
+	 	=> await ExecuteAsync(() => _userAppService.GetFilteredUsersAsync(searchTerm, GetCurrentUserId()));
 	
 	[HttpGet("get-profile")]
 	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]

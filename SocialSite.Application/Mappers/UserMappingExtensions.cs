@@ -8,7 +8,7 @@ internal static class UserMappingExtensions
 	public static IEnumerable<UserSearchDto> Map(this IEnumerable<User> input)
 		=> input.Select(user => new UserSearchDto
 		{
-			UserId = user.Id,
+			Username = user.UserName,
 			Fullname = user.Fullname,
 			ProfilePicturePath = "placeholder"
 		});

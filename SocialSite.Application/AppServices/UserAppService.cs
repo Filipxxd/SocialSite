@@ -15,9 +15,14 @@ public sealed class UserAppService
 		_userService = userService;
 	}
 
-	public async Task<PagedData<UserSearchDto>> GetFilteredUsersAsync(UserFilter filter, int currentUserId)
+	public async Task<PagedData<UserSearchDto>> GetFilteredUsersAsync(string searchTerm, int currentUserId)
 	{
-		filter.CurrentUserId = currentUserId;
+		var filter = new UserFilter
+		{
+			SearchTerm = searchTerm,
+			CurrentUserId = currentUserId
+		};
+
 		var paginationInfo = await _userService.GetUsersPaginationInfoAsync(filter);
 		var users = await _userService.GetUsersAsync(filter);
 
