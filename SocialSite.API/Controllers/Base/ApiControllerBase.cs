@@ -6,6 +6,8 @@ using SocialSite.Domain.Models;
 using System.Net;
 using System.Security.Claims;
 using SocialSite.Core.Constants;
+using SocialSite.Domain.Utilities;
+using ILogger = SocialSite.Domain.Utilities.ILogger;
 
 namespace SocialSite.API.Controllers.Base;
 
@@ -14,6 +16,13 @@ namespace SocialSite.API.Controllers.Base;
 [Produces("application/json")]
 public abstract class ApiControllerBase : ControllerBase
 {
+    private readonly ILogger _logger;
+
+    protected ApiControllerBase(ILogger logger)
+    {
+        _logger = logger;
+    }
+
     protected async Task<IActionResult> ExecuteAsync<T>(Func<Task<T>> func)
         => await HandleRequestWithErrorHandling(async () =>
         {
@@ -68,8 +77,15 @@ public abstract class ApiControllerBase : ControllerBase
                 Detail = ex.Message
             });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            await _logger.Log(
+                ex.ToString(),
+                ex.InnerException?.Message ?? ex.Message,
+                HttpContext.Request.Path + HttpContext.Request.QueryString,
+                HttpContext.User?.Identity?.Name
+            );
+
             return StatusCode((int)HttpStatusCode.InternalServerError, new ProblemDetails
             {
                 Title = "Internal Server Error",

@@ -5,7 +5,7 @@ using SocialSite.Core.Utilities;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddContextWithIdentity(builder.Configuration, builder.Environment);
-builder.Services.AddServices();
+builder.Services.AddServices(builder.Configuration);
 builder.Services.AddAuthentication(builder.Configuration);
 builder.Services.AddControllers().AddEndpointValidation();
 

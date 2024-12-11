@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SocialSite.API;
@@ -20,11 +21,13 @@ namespace SocialSite.API;
 
 internal static class ConfigExtensions
 {
+    private static readonly string DbConnectionString = "Default";
+
     public static IServiceCollection AddContextWithIdentity(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
         services.AddDbContext<DataContext>(options =>
         {
-            options.UseSqlServer(configuration.GetConnectionString("Default"));
+            options.UseSqlServer(configuration.GetConnectionString(DbConnectionString));
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
 
             if (environment.IsDevelopment())
@@ -75,7 +78,7 @@ internal static class ConfigExtensions
         return services;
     }
 
-    public static IServiceCollection AddServices(this IServiceCollection services)
+    public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
@@ -91,6 +94,9 @@ internal static class ConfigExtensions
                 .AsSelf()
                 .WithScopedLifetime();
         });
+
+        services.AddScoped<Domain.Utilities.ILogger>(provider =>
+                new DbLogger(provider.GetRequiredService<IDateTimeProvider>(), configuration.GetConnectionString("Default")));
 
         return services;
     }

@@ -5,6 +5,7 @@ using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Messages;
 using SocialSite.Domain.Models;
 using System.Net;
+using ILogger = SocialSite.Domain.Utilities.ILogger;
 
 namespace SocialSite.API.Controllers;
 
@@ -13,7 +14,7 @@ public sealed class MessageController : ApiControllerBase
 {
     private readonly MessageAppService _messageAppService;
 
-    public MessageController(MessageAppService messageAppService)
+    public MessageController(MessageAppService messageAppService, ILogger logger) : base(logger)
     {
         _messageAppService = messageAppService;
     }
