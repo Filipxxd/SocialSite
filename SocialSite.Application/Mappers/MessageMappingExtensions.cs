@@ -3,7 +3,7 @@ using SocialSite.Domain.Models;
 
 namespace SocialSite.Application.Mappers;
 
-public static class MessageMappingExtensions
+internal static class MessageMappingExtensions
 {
     public static Message Map(this CreateMessageDto input, int currentUserId) => new()
     {

@@ -1,6 +1,6 @@
-﻿using SocialSite.Domain.Services.Filters.Enums;
+﻿using SocialSite.Domain.Filters.Enums;
 
-namespace SocialSite.Domain.Services.Filters.Base;
+namespace SocialSite.Domain.Filters.Base;
 
 public interface ISortable
 {

@@ -1,4 +1,4 @@
-﻿namespace SocialSite.Domain.Services.Filters.Enums;
+﻿namespace SocialSite.Domain.Filters.Enums;
 
 public enum SortOrder
 {

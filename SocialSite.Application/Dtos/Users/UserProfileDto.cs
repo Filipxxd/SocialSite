@@ -1,6 +1,6 @@
 using SocialSite.Domain.Models.Enums;
 
-namespace SocialSite.Application.Dtos.Account;
+namespace SocialSite.Application.Dtos.Users;
 
 public class UserProfileDto
 {
@@ -13,5 +13,4 @@ public class UserProfileDto
     
     public bool AllowNonFriendChatAdd { get; set; }
     public FriendRequestSetting FriendRequestSetting { get; set; }
-    public PostVisibility PostVisibility { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System.Text;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -6,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using SocialSite.API;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Validators.Chats;
 using SocialSite.Core.Services;
@@ -14,7 +14,7 @@ using SocialSite.Core.Utilities;
 using SocialSite.Data.EF;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Utilities;
-using System.Text;
+using TokenHandler = SocialSite.Application.Utilities.TokenHandler;
 
 namespace SocialSite.API;
 
@@ -36,13 +36,12 @@ internal static class ConfigExtensions
 
         services.AddIdentity<User, IdentityRole<int>>(options =>
             {
-                // TODO: Setup realistically
-                options.Password.RequireDigit = false;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequiredLength = 2;
-                options.Password.RequiredUniqueChars = 0;
+	            options.Password.RequireDigit = false;
+	            options.Password.RequireLowercase = false;
+	            options.Password.RequireUppercase = false;
+	            options.Password.RequireNonAlphanumeric = false;
+	            options.Password.RequiredLength = 2;
+	            options.Password.RequiredUniqueChars = 0;
             })
             .AddEntityFrameworkStores<DataContext>()
             .AddDefaultTokenProviders();
@@ -62,13 +61,11 @@ internal static class ConfigExtensions
         {
             options.SaveToken = true;
             options.RequireHttpsMetadata = false;
-            options.TokenValidationParameters = new TokenValidationParameters()
+            options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = true,
-                ValidateAudience = true,
                 ValidAudience = configuration["JWT:ValidAudience"],
                 ValidIssuer = configuration["JWT:ValidIssuer"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"] ?? ""))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:AccessSecret"] ?? ""))
             };
         });
 
@@ -78,15 +75,16 @@ internal static class ConfigExtensions
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        services.AddScoped<TokenHandler>();
 
         services.Scan(scan =>
         {
-            scan.FromAssembliesOf(typeof(AccountService))
+            scan.FromAssembliesOf(typeof(UserService))
                 .AddClasses(classes => classes.Where(type => type.IsClass && type.Name.EndsWith("Service")))
                 .AsImplementedInterfaces()
                 .WithScopedLifetime();
 
-            scan.FromAssembliesOf(typeof(AccountAppService))
+            scan.FromAssembliesOf(typeof(UserAppService))
                 .AddClasses(classes => classes.Where(type => type.IsClass && type.Name.EndsWith("AppService")))
                 .AsSelf()
                 .WithScopedLifetime();

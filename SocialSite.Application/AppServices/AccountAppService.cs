@@ -1,73 +1,41 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using SocialSite.Application.Dtos.Account;
 using SocialSite.Application.Mappers;
-using SocialSite.Core.Exceptions;
-using SocialSite.Core.Utilities;
-using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
-using SocialSite.Domain.Utilities;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using SocialSite.Application.Utilities;
+using TokenHandler = SocialSite.Application.Utilities.TokenHandler;
 
 namespace SocialSite.Application.AppServices;
 
 public sealed class AccountAppService
 {
-    private readonly IAccountService _accountService;
-    private readonly IOptions<JwtSetup> _options;
-
-    public AccountAppService(IOptions<JwtSetup> options, IAccountService accountService)
-    {
-        _options = options;
-        _accountService = accountService;
-    }
-
-    public async Task<UserProfileDto> GetProfileInfoAsync(int currentUserId)
-    {
-        var user = await _accountService.GetProfileInfoAsync(currentUserId);
-        return user.Map();
-    }
+	private readonly TokenHandler _tokenHandler;
+	private readonly IAccountService _accountService;
+	
+	public AccountAppService(TokenHandler tokenHandler, IAccountService accountService)
+	{
+		_tokenHandler = tokenHandler;
+		_accountService = accountService;
+	}
     
-    public async Task<UserProfileDto> UpdateProfileInfoAsync(UpdateProfileDto dto, int currentUserId)
-    {
-        var user = await _accountService.UpdateProfileInfoAsync(dto.Map(currentUserId));
-        return user.Map();
-    }
-    
-    public async Task RegisterAsync(RegisterDto dto)
-    {
-        var user = dto.Map();
-        await _accountService.RegisterAsync(user, dto.Password);
-    }
+	public async Task RegisterAsync(RegisterDto dto)
+	{
+		var user = dto.Map();
+		await _accountService.RegisterAsync(user, dto.Password);
+	}
 
-    public async Task<TokenDto> LoginAsync(LoginDto dto)
-    {
-        var claims = await _accountService.LoginAsync(dto.UserName, dto.Password);
+	public async Task<AuthTokensDto> LoginAsync(LoginDto dto)
+	{
+		var userId = await _accountService.LoginAsync(dto.UserName, dto.Password);
+        
+		return await _tokenHandler.CreateAuthTokens(userId, dto.RememberMe);
+	}
 
-        var token = GetToken([
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            ..claims ]);
+	public async Task<AuthTokensDto> RefreshTokenAsync(RefreshTokenDto dto)
+	{
+		return await _tokenHandler.CreateAuthTokensFromRefreshToken(dto.Token);
+	}
 
-        return new()
-        {
-            Token = new JwtSecurityTokenHandler().WriteToken(token),
-            Expiration = token.ValidTo
-        };
-    }
-
-    private JwtSecurityToken GetToken(IEnumerable<Claim> authClaims)
-    {
-        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.Secret));
-
-        return new JwtSecurityToken(
-            issuer: _options.Value.ValidIssuer,
-            audience: _options.Value.ValidAudience,
-            expires: DateTime.Now.AddHours(_options.Value.ValidHours),
-            claims: authClaims,
-            signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
-    }
+	public async Task LogoutAsync(RefreshTokenDto dto)
+	{
+		await _tokenHandler.InvalidateRefreshTokenAsync(dto.Token);
+	}
 }

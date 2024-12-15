@@ -1,26 +1,26 @@
-﻿using SocialSite.Application.Dtos.Account;
+﻿using SocialSite.Application.Dtos.Users;
 using SocialSite.Domain.Models;
 
 namespace SocialSite.Application.Mappers;
 
-public static class UserMappingExtensions
+internal static class UserMappingExtensions
 {
+	public static IEnumerable<UserSearchDto> Map(this IEnumerable<User> input)
+		=> input.Select(user => new UserSearchDto
+		{
+			Username = user.UserName,
+			Fullname = user.Fullname,
+			ProfilePicturePath = "placeholder"
+		});
+	
     public static User Map(this UpdateProfileDto input, int currentUserId) => new()
     {
         Id = currentUserId,
-        FirstName = input.FirstName,
-        LastName = input.LastName,
+        FirstName = input.Firstname,
+        LastName = input.Lastname,
         Bio = input.Bio,
         AllowNonFriendChatAdd = input.AllowNonFriendChatAdd,
         FriendRequestSetting = input.FriendRequestSetting,
-    };
-    
-    public static User Map(this RegisterDto input) => new()
-    {
-        UserName = input.UserName,
-        FirstName = input.FirstName,
-        LastName = input.LastName,
-        SecurityStamp = Guid.NewGuid().ToString()
     };
     
     public static UserProfileDto Map(this User input) => new()

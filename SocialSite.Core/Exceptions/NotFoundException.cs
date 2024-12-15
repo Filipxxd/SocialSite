@@ -1,3 +1,3 @@
 ﻿namespace SocialSite.Core.Exceptions;
 
-public class NotFoundException(string message) : Exception(message) { }
+public sealed class NotFoundException(string message) : Exception(message) { }
