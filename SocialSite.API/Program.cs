@@ -10,6 +10,7 @@ builder.Services.AddAuthentication(builder.Configuration);
 builder.Services.AddControllers()
 	.AddJsonOptions(opt => opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
 	.AddEndpointValidation();
+builder.Services.AddSignalR();
 
 builder.Services.Configure<JwtSetup>(builder.Configuration.GetSection("JWT"));
 
@@ -44,5 +45,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHubs();
 
 app.Run();

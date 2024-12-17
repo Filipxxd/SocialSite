@@ -1,9 +1,11 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -165,5 +167,39 @@ internal static class ConfigExtensions
         });
 
         return services;
+    }
+    
+    public static IEndpointRouteBuilder MapHubs(this WebApplication app)
+    {
+	    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+	    {
+		    var hubTypes = assembly.GetTypes()
+			    .Where(t => typeof(Hub).IsAssignableFrom(t) && !t.IsAbstract && t.IsClass);
+
+		    foreach (var hub in hubTypes)
+		    {
+			    var routeAttribute = hub.GetCustomAttribute<RouteAttribute>();
+			    if (routeAttribute == null || string.IsNullOrWhiteSpace(routeAttribute.Template))
+				    continue;
+
+			    var areaAttribute = hub.GetCustomAttribute<AreaAttribute>();
+			    var areaPrefix = areaAttribute?.RouteValue ?? string.Empty;
+
+			    var route = routeAttribute.Template.Replace("[area]/", string.Empty);
+			    var fullRouteTemplate = string.IsNullOrWhiteSpace(areaPrefix) ? route : $"{areaPrefix}/{route}";
+
+			    // Use reflection to invoke the MapHub<T> method
+			    var mapHubMethod = typeof(HubEndpointRouteBuilderExtensions)
+				    .GetMethods(BindingFlags.Static | BindingFlags.Public)
+				    .FirstOrDefault(m => m.Name == "MapHub" && m.IsGenericMethod);
+
+			    if (mapHubMethod != null)
+			    {
+				    var genericMethod = mapHubMethod.MakeGenericMethod(hub);
+				    genericMethod.Invoke(null, new object[] { app, fullRouteTemplate });
+			    }
+		    }
+	    }
+	    return app;
     }
 }
