@@ -1,12 +1,12 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
-using SocialSite.API.Controllers.Base;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Friends;
 
-namespace SocialSite.API.Controllers;
+namespace SocialSite.API.Areas.User;
 
-[Route("friends")]
+[Area("user")]
+[Route("api/[area]/friends")]
 public class FriendsController : ApiControllerBase
 {
 	private readonly FriendsAppService _friendsAppService;

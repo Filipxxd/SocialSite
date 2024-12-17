@@ -1,15 +1,13 @@
 using System.Net;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SocialSite.API.Controllers.Base;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Users;
 using SocialSite.Application.Utilities;
 
-namespace SocialSite.API.Controllers;
+namespace SocialSite.API.Areas.User;
 
-[Authorize]
-[Route("user")]
+[Area("user")]
+[Route("api/[area]/users")]
 public sealed class UserController : ApiControllerBase
 {
 	private readonly UserAppService _userAppService;
@@ -19,7 +17,7 @@ public sealed class UserController : ApiControllerBase
 		_userAppService = userAppService;
 	}
 
-	 [HttpGet("search-users")]
+	 [HttpGet("search")]
 	 [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedData<UserSearchDto>))]
 	 [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
 	 public async Task<IActionResult> GetFilteredUsers(string searchTerm) 

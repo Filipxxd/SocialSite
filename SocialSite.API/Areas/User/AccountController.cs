@@ -1,13 +1,13 @@
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SocialSite.API.Controllers.Base;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Dtos.Account;
 
-namespace SocialSite.API.Controllers;
+namespace SocialSite.API.Areas.User;
 
-[Route("account")]
+[Area("user")]
+[Route("api/[area]/account")]
 public sealed class AccountController : ApiControllerBase
 {
     private readonly AccountAppService _accountAppService;
