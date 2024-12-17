@@ -20,6 +20,19 @@ public sealed class UserService : IUserService
         _context = context;
     }
 
+    public async Task<User> GetUserProfileAsync(string username)
+    {
+	    var query = _context.Users
+		    .AsNoTracking()
+		    .Include(u => u.Posts)
+		    .Include(u => u.Friendships)
+		    .Include(u => u.ReceivedFriendRequests)
+		    .Include(u => u.SentFriendRequests);
+
+	    return await query.SingleOrDefaultAsync(u => u.UserName == username)
+		    ?? throw new NotFoundException("User was not found.");
+    }
+	
     public async Task<IEnumerable<User>> GetUsersAsync(UserFilter filter)
     {
 	    var query = GetFilteredUsersQuery(filter);

@@ -25,8 +25,15 @@ public sealed class UserController : ApiControllerBase
 	 public async Task<IActionResult> GetFilteredUsers(string searchTerm) 
 	 	=> await ExecuteAsync(() => _userAppService.GetFilteredUsersAsync(searchTerm, GetCurrentUserId()));
 	
+	 [HttpGet("profile/{username}")]
+	 [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]
+	 [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+	 [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
+	 public async Task<IActionResult> GetUserProfile(string username) 
+		 => await ExecuteAsync(() => _userAppService.GetUserProfileAsync(username, GetCurrentUserId()));
+	 
 	[HttpGet("my-profile")]
-	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]
+	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(MyProfileDto))]
 	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
@@ -34,7 +41,7 @@ public sealed class UserController : ApiControllerBase
 		=> await ExecuteAsync(() => _userAppService.GetProfileInfoAsync(GetCurrentUserId()));
     
 	[HttpPut("update-profile")]
-	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]
+	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(MyProfileDto))]
 	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]

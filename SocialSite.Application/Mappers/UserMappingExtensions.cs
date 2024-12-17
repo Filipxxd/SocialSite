@@ -5,13 +5,22 @@ namespace SocialSite.Application.Mappers;
 
 internal static class UserMappingExtensions
 {
-	public static IEnumerable<UserSearchDto> Map(this IEnumerable<User> input)
-		=> input.Select(user => new UserSearchDto
+	public static IEnumerable<UserSearchDto> Map(this IEnumerable<User> input) => input.Select(user => new UserSearchDto
 		{
 			Username = user.UserName,
 			Fullname = user.Fullname,
 			ProfilePicturePath = "placeholder"
 		});
+	
+	public static UserProfileDto Map(this User input, int currentUserId) => new()
+	{
+		UserId = input.Id,
+		Fullname = input.Fullname,
+		ProfilePicturePath = input.ProfileImage?.Path,
+		Bio = input.Bio,
+		CanSendMessage = input.AllowNonFriendChatAdd 
+		                 || input.Friendships.Any(x => x.FriendId == currentUserId || x.UserId == currentUserId),
+	};
 	
     public static User Map(this UpdateProfileDto input, int currentUserId) => new()
     {
@@ -23,7 +32,7 @@ internal static class UserMappingExtensions
         FriendRequestSetting = input.FriendRequestSetting,
     };
     
-    public static UserProfileDto Map(this User input) => new()
+    public static MyProfileDto Map(this User input) => new()
     {
         UserId = input.Id,
         Username = input.UserName,

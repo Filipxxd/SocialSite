@@ -32,6 +32,11 @@ public sealed class FriendsAppService
         await _friendsService.SendFriendRequestAsync(input.Map(currentUserId));
     }
     
+    public async Task RevokeFriendRequestAsync(int receiverId, int currentUserId)
+    {
+	    await _friendsService.RevokeFriendRequestAsync(receiverId, currentUserId);
+    }
+    
     public async Task ResolveFriendRequestAsync(ResolveFriendRequestDto input, int currentUserId)
     {
 	    if (input.IsAccepted)
