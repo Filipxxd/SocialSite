@@ -25,5 +25,7 @@ public class DataContext(DbContextOptions<DataContext> options) : IdentityDbCont
         base.OnModelCreating(builder);
         builder.ApplyConfigurations(Assembly.GetExecutingAssembly());
         builder.SetEnumConstraints();
+        
+        builder.SeedData();
     }
 }

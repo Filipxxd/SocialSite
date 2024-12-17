@@ -1,13 +1,11 @@
 ﻿using System.Net;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialSite.Core.Constants;
 using SocialSite.Core.Exceptions;
 
-namespace SocialSite.API.Areas;
+namespace SocialSite.API.Areas.Api;
 
-[Authorize]
 [ApiController]
 [Produces("application/json")]
 public abstract class ApiControllerBase : ControllerBase

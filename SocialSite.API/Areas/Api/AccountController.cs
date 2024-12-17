@@ -2,12 +2,14 @@ using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialSite.Application.AppServices;
+using SocialSite.Application.Constants;
 using SocialSite.Application.Dtos.Account;
 
-namespace SocialSite.API.Areas.User;
+namespace SocialSite.API.Areas.Api;
 
-[Area("user")]
-[Route("api/[area]/account")]
+[Area("api")]
+[Route("[area]/account")]
+[Authorize(Policy = AuthPolicies.RegularUsers)]
 public sealed class AccountController : ApiControllerBase
 {
     private readonly AccountAppService _accountAppService;

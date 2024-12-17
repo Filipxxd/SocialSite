@@ -8,10 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SocialSite.Application.AppServices;
+using SocialSite.Application.Constants;
 using SocialSite.Application.Validators.Chats;
 using SocialSite.Core.Services;
 using SocialSite.Core.Utilities;
 using SocialSite.Data.EF;
+using SocialSite.Domain.Constants;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Utilities;
 using TokenHandler = SocialSite.Application.Utilities.TokenHandler;
@@ -68,7 +70,17 @@ internal static class ConfigExtensions
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:AccessSecret"] ?? ""))
             };
         });
-
+		
+        services.AddAuthorization(options =>
+        {
+	        options.AddPolicy(AuthPolicies.ElevatedUsers, policy => policy.RequireRole(Roles.Admin));
+	        options.AddPolicy(AuthPolicies.RegularUsers, policy =>
+	        {
+		        policy.RequireAssertion(context =>
+			        context.User.IsInRole(Roles.User) || context.User.IsInRole(Roles.Admin));
+	        });
+        });
+        
         return services;
     }
 

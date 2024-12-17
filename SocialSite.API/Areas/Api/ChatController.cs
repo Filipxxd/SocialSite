@@ -1,12 +1,15 @@
 ﻿using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialSite.Application.AppServices;
+using SocialSite.Application.Constants;
 using SocialSite.Application.Dtos.Chats;
 
-namespace SocialSite.API.Areas.User;
+namespace SocialSite.API.Areas.Api;
 
-[Area("user")]
-[Route("api/[area]/chats")]
+[Area("api")]
+[Route("[area]/chats")]
+[Authorize(Policy = AuthPolicies.RegularUsers)]
 public sealed class ChatController : ApiControllerBase
 {
     private readonly ChatAppService _chatAppService;

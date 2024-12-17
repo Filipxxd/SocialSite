@@ -1,13 +1,16 @@
 using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialSite.Application.AppServices;
+using SocialSite.Application.Constants;
 using SocialSite.Application.Dtos.Users;
 using SocialSite.Application.Utilities;
 
-namespace SocialSite.API.Areas.User;
+namespace SocialSite.API.Areas.Api;
 
-[Area("user")]
-[Route("api/[area]/users")]
+[Area("api")]
+[Route("[area]/users")]
+[Authorize(Policy = AuthPolicies.RegularUsers)]
 public sealed class UserController : ApiControllerBase
 {
 	private readonly UserAppService _userAppService;
