@@ -90,6 +90,7 @@ internal static class ConfigExtensions
     {
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddScoped<TokenHandler>();
+        services.AddScoped<IFileHandler, FileHandler>();
 
         services.Scan(scan =>
         {

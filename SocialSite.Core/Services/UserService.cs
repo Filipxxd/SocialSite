@@ -4,7 +4,6 @@ using SocialSite.Core.Exceptions;
 using SocialSite.Data.EF;
 using SocialSite.Domain.Filters;
 using SocialSite.Domain.Models;
-using SocialSite.Domain.Models.Enums;
 using SocialSite.Domain.Services;
 
 namespace SocialSite.Core.Services;
@@ -52,25 +51,10 @@ public sealed class UserService : IUserService
 	
     public async Task<User> GetProfileInfoAsync(int userId)
     {
-	    var result = await (from user in _context.Users
-			    join image in _context.Images
-				    on new { user.Id, Type = EntityType.Profile } 
-				    equals new { Id = image.EntityId, Type = image.Entity } into imageGroup
-			    from profileImage in imageGroup.DefaultIfEmpty()
-			    where user.Id == userId
-			    select new 
-			    {
-				    User = user,
-				    ProfileImage = profileImage
-			    })
-		    .AsNoTracking()
-		    .SingleOrDefaultAsync();
+	    var user = await _context.Users.FindAsync(userId)
+	               ?? throw new NotFoundException("User was not found.");
 	    
-	    if (result is null)
-		    throw new NotFoundException("User was not found.");
-
-	    result.User.ProfileImage = result.ProfileImage;
-	    return result.User;
+	    return user;
     }
 
     public async Task<User> UpdateProfileInfoAsync(User user)
@@ -88,6 +72,16 @@ public sealed class UserService : IUserService
 
         return currentUser;
     }
+
+    public async Task UpdateProfileImageAsync(string imagePath, int currentUserId)
+    {
+	    var user = await _context.Users.SingleOrDefaultAsync(u => u.Id == currentUserId)
+	               ?? throw new NotFoundException("User was not found.");
+
+	    user.ProfilePicturePath = imagePath;
+	    
+		await _context.SaveChangesAsync();
+	}
     
     private IQueryable<User> GetFilteredUsersQuery(UserFilter filter)
     {

@@ -48,4 +48,12 @@ public sealed class UserController : ApiControllerBase
 	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
 	public async Task<IActionResult> UpdateProfile(UpdateProfileDto dto) 
 		=> await ExecuteAsync(() => _userAppService.UpdateProfileInfoAsync(dto, GetCurrentUserId()));
+	
+	[HttpPatch("update-profile-picture")]
+	[ProducesResponseType((int)HttpStatusCode.NoContent)]
+	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
+	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
+	public async Task<IActionResult> UpdateProfileImage(UpdateProfileImageDto dto) 
+		=> await ExecuteWithoutContentAsync(() => _userAppService.UpdateProfileImageAsync(dto, GetCurrentUserId()));
 }

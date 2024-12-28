@@ -16,7 +16,7 @@ internal static class UserMappingExtensions
 	{
 		UserId = input.Id,
 		Fullname = input.Fullname,
-		ProfilePicturePath = input.ProfileImage?.Path,
+		ProfilePicturePath = input.ProfilePicturePath,
 		Bio = input.Bio,
 		CanSendMessage = input.AllowNonFriendChatAdd 
 		                 || input.Friendships.Any(x => x.FriendId == currentUserId || x.UserId == currentUserId),
@@ -38,7 +38,7 @@ internal static class UserMappingExtensions
         Username = input.UserName,
         Firstname = input.FirstName,
         Lastname = input.LastName,
-        ProfilePicturePath = input.ProfileImage?.Path,
+        ProfilePicturePath = input.ProfilePicturePath,
         Bio = input.Bio,
         AllowNonFriendChatAdd = input.AllowNonFriendChatAdd,
         FriendRequestSetting = input.FriendRequestSetting,

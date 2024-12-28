@@ -1,6 +1,6 @@
 # App files
-SocialSite.API/wwwroot/app_images
-SocialSite.API/private_images
+SocialSite.API/wwwroot/public_files
+SocialSite.API/private_files
 
 # Build results
 bin/
