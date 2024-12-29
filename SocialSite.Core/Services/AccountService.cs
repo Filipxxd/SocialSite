@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SocialSite.Core.Constants;
 using SocialSite.Core.Exceptions;
 using SocialSite.Data.EF;
+using SocialSite.Domain.Constants;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
 
@@ -43,6 +44,8 @@ public sealed class AccountService : IAccountService
 		var result = await _userManager.CreateAsync(user, password);
 		if (!result.Succeeded)
 			throw new NotValidException(string.Join(", ", result.Errors.Select(e => e.Description)));
+
+		await _userManager.AddToRoleAsync(user, Roles.User);
 	}
 	
 	public async Task<IEnumerable<Claim>> GetUserClaimsAsync(int userId)
@@ -54,7 +57,7 @@ public sealed class AccountService : IAccountService
 		var claims = userRoles.Select(e => new Claim(ClaimTypes.Role, e)).ToList();
 
 		claims.Add(new(AppClaimTypes.UserId, user.Id.ToString()));
-		claims.Add(new(AppClaimTypes.Fullname, user.Fullname));
+		claims.Add(new(AppClaimTypes.Username, user.UserName));
 
 		return claims;
 	}

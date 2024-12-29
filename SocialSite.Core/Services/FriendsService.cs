@@ -63,6 +63,19 @@ public sealed class FriendsService : IFriendsService
         await _context.SaveChangesAsync();
     }
 
+    public async Task RevokeFriendRequestAsync(int receiverId, int currentUserId)
+    {
+	    var friendRequest = await _context.FriendRequests
+		    .SingleOrDefaultAsync(fr => fr.ReceiverId == receiverId && fr.SenderId == currentUserId && fr.State == FriendRequestState.Sent);
+	    
+	    if (friendRequest is null)
+		    throw new NotFoundException("FriendRequest not found.");
+
+	    _context.FriendRequests.Remove(friendRequest);
+
+	    await _context.SaveChangesAsync();
+    }
+
     public async Task AcceptFriendRequestAsync(int requestId, int currentUserId)
     {
 		var request = await _context.FriendRequests
@@ -123,5 +136,37 @@ public sealed class FriendsService : IFriendsService
 	    
 	    _context.Friendships.Remove(friendship);
 	    await _context.SaveChangesAsync();
+	}
+
+	public async Task<bool> CanSendFriendRequestAsync(int senderId, int receiverId)
+	{
+		var sender = await _context.Users.AsNoTracking()
+			.Include(x => x.SentFriendRequests)
+			.SingleOrDefaultAsync(u => u.Id == senderId);
+		
+		var receiver = await _context.Users.AsNoTracking()
+			.Include(x => x.Friendships)
+			.SingleOrDefaultAsync(u => u.Id == receiverId);
+		
+		if (sender is null || receiver is null)
+			throw new NotFoundException("Sender or receiver does not exist.");
+		
+		var requestAlreadySent = sender.SentFriendRequests.Any(fr => 
+			fr.ReceiverId == receiverId && fr.State == FriendRequestState.Sent);
+
+		if (requestAlreadySent)
+			return false;
+
+		var friendshipExists = sender.Friendships.Any(fs =>
+			fs.FriendId == receiverId || fs.UserId == receiverId);
+
+		if (friendshipExists)
+			return false;
+		
+		var eligibleToSent = receiver.FriendRequestSetting == FriendRequestSetting.AnyOne ||
+			(receiver.FriendRequestSetting == FriendRequestSetting.FriendsOfFriends &&
+			 receiver.Friendships.Any(fs => fs.FriendId == senderId || fs.UserId == senderId));
+		
+		return eligibleToSent;
 	}
 }

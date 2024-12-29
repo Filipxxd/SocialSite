@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SocialSite.Domain.Models.Enums;
+
 #pragma warning disable CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
 
 namespace SocialSite.Domain.Models;
@@ -23,5 +24,5 @@ public class User : IdentityUser<int>
     public virtual ICollection<Post> Posts { get; set; } = [];
     public virtual ICollection<Report> Reports { get; set; } = [];
 
-    public virtual Image? ProfileImage { get; set; }
+    public virtual string? ProfilePicturePath { get; set; }
 }

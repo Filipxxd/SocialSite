@@ -1,15 +1,16 @@
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SocialSite.API.Controllers.Base;
 using SocialSite.Application.AppServices;
+using SocialSite.Application.Constants;
 using SocialSite.Application.Dtos.Users;
 using SocialSite.Application.Utilities;
 
-namespace SocialSite.API.Controllers;
+namespace SocialSite.API.Areas.Api;
 
-[Authorize]
-[Route("user")]
+[Area("api")]
+[Route("[area]/users")]
+[Authorize(Policy = AuthPolicies.RegularUsers)]
 public sealed class UserController : ApiControllerBase
 {
 	private readonly UserAppService _userAppService;
@@ -19,14 +20,21 @@ public sealed class UserController : ApiControllerBase
 		_userAppService = userAppService;
 	}
 
-	 [HttpGet("search-users")]
+	 [HttpGet("search")]
 	 [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedData<UserSearchDto>))]
 	 [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
 	 public async Task<IActionResult> GetFilteredUsers(string searchTerm) 
 	 	=> await ExecuteAsync(() => _userAppService.GetFilteredUsersAsync(searchTerm, GetCurrentUserId()));
 	
+	 [HttpGet("profile/{username}")]
+	 [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]
+	 [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+	 [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
+	 public async Task<IActionResult> GetUserProfile(string username) 
+		 => await ExecuteAsync(() => _userAppService.GetUserProfileAsync(username, GetCurrentUserId()));
+	 
 	[HttpGet("my-profile")]
-	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]
+	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(MyProfileDto))]
 	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
@@ -34,10 +42,18 @@ public sealed class UserController : ApiControllerBase
 		=> await ExecuteAsync(() => _userAppService.GetProfileInfoAsync(GetCurrentUserId()));
     
 	[HttpPut("update-profile")]
-	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]
+	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(MyProfileDto))]
 	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
 	public async Task<IActionResult> UpdateProfile(UpdateProfileDto dto) 
 		=> await ExecuteAsync(() => _userAppService.UpdateProfileInfoAsync(dto, GetCurrentUserId()));
+	
+	[HttpPatch("update-profile-picture")]
+	[ProducesResponseType((int)HttpStatusCode.NoContent)]
+	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
+	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
+	public async Task<IActionResult> UpdateProfileImage(UpdateProfileImageDto dto) 
+		=> await ExecuteWithoutContentAsync(() => _userAppService.UpdateProfileImageAsync(dto, GetCurrentUserId()));
 }

@@ -1,17 +1,20 @@
 ﻿using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SocialSite.API.Controllers.Base;
 using SocialSite.Application.AppServices;
+using SocialSite.Application.Constants;
 using SocialSite.Application.Dtos.Messages;
 
-namespace SocialSite.API.Controllers;
+namespace SocialSite.API.Areas.Api;
 
-[Route("message")]
-public sealed class MessageController : ApiControllerBase
+[Area("api")]
+[Route("[area]/messages")]
+[Authorize(Policy = AuthPolicies.RegularUsers)]
+public sealed class MessagesController : ApiControllerBase
 {
     private readonly MessageAppService _messageAppService;
 
-    public MessageController(MessageAppService messageAppService)
+    public MessagesController(MessageAppService messageAppService)
     {
         _messageAppService = messageAppService;
     }

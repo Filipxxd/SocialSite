@@ -17,7 +17,7 @@ namespace SocialSite.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -50,6 +50,20 @@ namespace SocialSite.Data.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 2,
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = 1,
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -555,6 +569,9 @@ namespace SocialSite.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("ProfilePicturePath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -742,12 +759,6 @@ namespace SocialSite.Data.Migrations
                         .HasForeignKey("EntityId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("SocialSite.Domain.Models.User", null)
-                        .WithOne("ProfileImage")
-                        .HasForeignKey("SocialSite.Domain.Models.Image", "EntityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("SocialSite.Domain.Models.Message", b =>
@@ -825,8 +836,6 @@ namespace SocialSite.Data.Migrations
                     b.Navigation("Friendships");
 
                     b.Navigation("Posts");
-
-                    b.Navigation("ProfileImage");
 
                     b.Navigation("ReceivedFriendRequests");
 

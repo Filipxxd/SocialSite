@@ -1,3 +1,7 @@
+# App files
+SocialSite.API/wwwroot/public_files
+SocialSite.API/private_files
+
 # Build results
 bin/
 obj/

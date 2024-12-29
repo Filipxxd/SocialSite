@@ -1,17 +1,21 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SocialSite.Application.AppServices;
+using SocialSite.Application.Constants;
 using SocialSite.Application.Validators.Chats;
 using SocialSite.Core.Services;
 using SocialSite.Core.Utilities;
 using SocialSite.Data.EF;
+using SocialSite.Domain.Constants;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Utilities;
 using TokenHandler = SocialSite.Application.Utilities.TokenHandler;
@@ -68,7 +72,17 @@ internal static class ConfigExtensions
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:AccessSecret"] ?? ""))
             };
         });
-
+		
+        services.AddAuthorization(options =>
+        {
+	        options.AddPolicy(AuthPolicies.ElevatedUsers, policy => policy.RequireRole(Roles.Admin));
+	        options.AddPolicy(AuthPolicies.RegularUsers, policy =>
+	        {
+		        policy.RequireAssertion(context =>
+			        context.User.IsInRole(Roles.User) || context.User.IsInRole(Roles.Admin));
+	        });
+        });
+        
         return services;
     }
 
@@ -76,6 +90,7 @@ internal static class ConfigExtensions
     {
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddScoped<TokenHandler>();
+        services.AddScoped<IFileHandler, FileHandler>();
 
         services.Scan(scan =>
         {
@@ -153,5 +168,39 @@ internal static class ConfigExtensions
         });
 
         return services;
+    }
+    
+    public static IEndpointRouteBuilder MapHubs(this WebApplication app)
+    {
+	    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+	    {
+		    var hubTypes = assembly.GetTypes()
+			    .Where(t => typeof(Hub).IsAssignableFrom(t) && !t.IsAbstract && t.IsClass);
+
+		    foreach (var hub in hubTypes)
+		    {
+			    var routeAttribute = hub.GetCustomAttribute<RouteAttribute>();
+			    if (routeAttribute == null || string.IsNullOrWhiteSpace(routeAttribute.Template))
+				    continue;
+
+			    var areaAttribute = hub.GetCustomAttribute<AreaAttribute>();
+			    var areaPrefix = areaAttribute?.RouteValue ?? string.Empty;
+
+			    var route = routeAttribute.Template.Replace("[area]/", string.Empty);
+			    var fullRouteTemplate = string.IsNullOrWhiteSpace(areaPrefix) ? route : $"{areaPrefix}/{route}";
+
+			    // Use reflection to invoke the MapHub<T> method
+			    var mapHubMethod = typeof(HubEndpointRouteBuilderExtensions)
+				    .GetMethods(BindingFlags.Static | BindingFlags.Public)
+				    .FirstOrDefault(m => m.Name == "MapHub" && m.IsGenericMethod);
+
+			    if (mapHubMethod != null)
+			    {
+				    var genericMethod = mapHubMethod.MakeGenericMethod(hub);
+				    genericMethod.Invoke(null, new object[] { app, fullRouteTemplate });
+			    }
+		    }
+	    }
+	    return app;
     }
 }
