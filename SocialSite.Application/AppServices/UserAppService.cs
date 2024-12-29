@@ -1,7 +1,7 @@
-﻿using SocialSite.Application.Dtos.Users;
+﻿using SocialSite.Application.Dtos;
+using SocialSite.Application.Dtos.Users;
 using SocialSite.Application.Dtos.Users.Enums;
 using SocialSite.Application.Mappers;
-using SocialSite.Application.Utilities;
 using SocialSite.Domain.Filters;
 using SocialSite.Domain.Services;
 using SocialSite.Domain.Utilities;
@@ -27,20 +27,21 @@ public sealed class UserAppService
 
 		var dto = user.Map(currentUserId);
 		
-		dto.FriendState = user.Friendships.Any(x => x.FriendId == currentUserId || x.UserId == currentUserId) ?
-			FriendState.Friends :
-			user.SentFriendRequests.Any(x => x.ReceiverId == currentUserId) ?
-				FriendState.RequestReceived :
-				user.ReceivedFriendRequests.Any(x => x.SenderId == currentUserId) ?
-					FriendState.RequestSent :
-					await _friendsService.CanSendFriendRequestAsync(user.Id, currentUserId) ?
-						FriendState.CanSendRequest :
-						FriendState.CannotSendRequest;
+		dto.FriendState = user.FriendshipsInitiatedByUser.Any(x => x.UserAcceptedId == currentUserId) ||
+		                  user.FriendshipsAcceptedByUser.Any(x => x.UserInitiatedId == currentUserId)
+			? FriendState.Friends
+			: user.SentFriendRequests.Any(x => x.ReceiverId == currentUserId)
+				? FriendState.RequestReceived
+				: user.ReceivedFriendRequests.Any(x => x.SenderId == currentUserId)
+					? FriendState.RequestSent
+					: await _friendsService.CanSendFriendRequestAsync(user.Id, currentUserId)
+						? FriendState.CanSendRequest
+						: FriendState.CannotSendRequest;
 
 		return dto;
 	}
     
-	public async Task<PagedData<UserSearchDto>> GetFilteredUsersAsync(string searchTerm, int currentUserId)
+	public async Task<PagedDto<UserSearchDto>> GetFilteredUsersAsync(string searchTerm, int currentUserId)
 	{
 		var filter = new UserFilter
 		{
@@ -51,7 +52,7 @@ public sealed class UserAppService
 		var paginationInfo = await _userService.GetUsersPaginationInfoAsync(filter);
 		var users = await _userService.GetUsersAsync(filter);
 
-		return new(users.Map(), paginationInfo.RecordsCount, paginationInfo.TotalPages);
+		return new(users.Map(), paginationInfo.RecordsCount);
 	}
     
     public async Task<MyProfileDto> GetProfileInfoAsync(int currentUserId)

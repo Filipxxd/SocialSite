@@ -19,7 +19,8 @@ internal static class UserMappingExtensions
 		ProfilePicturePath = input.ProfilePicturePath,
 		Bio = input.Bio,
 		CanSendMessage = input.AllowNonFriendChatAdd 
-		                 || input.Friendships.Any(x => x.FriendId == currentUserId || x.UserId == currentUserId),
+		                 || input.FriendshipsInitiatedByUser.Any(x => x.UserAcceptedId == currentUserId || x.UserInitiatedId == currentUserId)
+		                 || input.FriendshipsAcceptedByUser.Any(x => x.UserAcceptedId == currentUserId || x.UserInitiatedId == currentUserId),
 	};
 	
     public static User Map(this UpdateProfileDto input, int currentUserId) => new()

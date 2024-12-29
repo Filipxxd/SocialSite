@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SocialSite.Core.Constants;
 using SocialSite.Core.Exceptions;
 using SocialSite.Data.EF;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
-using SocialSite.Domain.Utilities;
 
 namespace SocialSite.Core.Services;
 
@@ -123,10 +121,15 @@ public sealed class ChatService : IChatService
     {
         return await _context.Users.AsNoTracking()
             .Where(u => u.AllowNonFriendChatAdd || 
-                        u.Friendships.Any(f => 
-                            (f.UserId == currentUserId && userIds.Contains(f.FriendId)) || 
-                            (f.FriendId == currentUserId && userIds.Contains(f.UserId))
-                        ))
+                        u.FriendshipsInitiatedByUser.Any(f => 
+	                        (f.UserInitiatedId == currentUserId && userIds.Contains(f.UserAcceptedId)) || 
+	                        (f.UserAcceptedId == currentUserId && userIds.Contains(f.UserInitiatedId))
+                        ) ||
+                        u.FriendshipsAcceptedByUser.Any(f => 
+	                        (f.UserInitiatedId == currentUserId && userIds.Contains(f.UserAcceptedId)) || 
+	                        (f.UserAcceptedId == currentUserId && userIds.Contains(f.UserInitiatedId))
+                        )
+                        )
             .Where(u => userIds.Contains(u.Id))
             .CountAsync() == userIds.Count;
     }

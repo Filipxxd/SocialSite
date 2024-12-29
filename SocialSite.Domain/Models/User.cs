@@ -20,7 +20,8 @@ public class User : IdentityUser<int>
     public virtual ICollection<ChatUser> UserChats { get; set; } = [];
     public virtual ICollection<FriendRequest> SentFriendRequests { get; set; } = [];
     public virtual ICollection<FriendRequest> ReceivedFriendRequests { get; set; } = [];
-    public virtual ICollection<Friendship> Friendships { get; set; } = [];
+    public virtual ICollection<Friendship> FriendshipsInitiatedByUser { get; set; } = [];
+    public virtual ICollection<Friendship> FriendshipsAcceptedByUser { get; set; } = [];
     public virtual ICollection<Post> Posts { get; set; } = [];
     public virtual ICollection<Report> Reports { get; set; } = [];
 

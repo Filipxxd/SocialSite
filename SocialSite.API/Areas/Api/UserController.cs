@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Constants;
+using SocialSite.Application.Dtos;
 using SocialSite.Application.Dtos.Users;
-using SocialSite.Application.Utilities;
 
 namespace SocialSite.API.Areas.Api;
 
@@ -21,7 +21,7 @@ public sealed class UserController : ApiControllerBase
 	}
 
 	 [HttpGet("search")]
-	 [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedData<UserSearchDto>))]
+	 [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedDto<UserSearchDto>))]
 	 [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
 	 public async Task<IActionResult> GetFilteredUsers(string searchTerm) 
 	 	=> await ExecuteAsync(() => _userAppService.GetFilteredUsersAsync(searchTerm, GetCurrentUserId()));

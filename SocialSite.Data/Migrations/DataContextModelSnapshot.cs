@@ -294,19 +294,19 @@ namespace SocialSite.Data.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("FriendId")
+                    b.Property<int>("UserAcceptedId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
+                    b.Property<int>("UserInitiatedId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DateCreated");
 
-                    b.HasIndex("FriendId");
+                    b.HasIndex("UserAcceptedId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserInitiatedId");
 
                     b.ToTable("Friendships", (string)null);
                 });
@@ -723,21 +723,21 @@ namespace SocialSite.Data.Migrations
 
             modelBuilder.Entity("SocialSite.Domain.Models.Friendship", b =>
                 {
-                    b.HasOne("SocialSite.Domain.Models.User", "Friend")
-                        .WithMany()
-                        .HasForeignKey("FriendId")
+                    b.HasOne("SocialSite.Domain.Models.User", "UserAccepted")
+                        .WithMany("FriendshipsAcceptedByUser")
+                        .HasForeignKey("UserAcceptedId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SocialSite.Domain.Models.User", "User")
-                        .WithMany("Friendships")
-                        .HasForeignKey("UserId")
+                    b.HasOne("SocialSite.Domain.Models.User", "UserInitiated")
+                        .WithMany("FriendshipsInitiatedByUser")
+                        .HasForeignKey("UserInitiatedId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Friend");
+                    b.Navigation("UserAccepted");
 
-                    b.Navigation("User");
+                    b.Navigation("UserInitiated");
                 });
 
             modelBuilder.Entity("SocialSite.Domain.Models.Image", b =>
@@ -833,7 +833,9 @@ namespace SocialSite.Data.Migrations
 
             modelBuilder.Entity("SocialSite.Domain.Models.User", b =>
                 {
-                    b.Navigation("Friendships");
+                    b.Navigation("FriendshipsAcceptedByUser");
+
+                    b.Navigation("FriendshipsInitiatedByUser");
 
                     b.Navigation("Posts");
 

@@ -219,21 +219,21 @@ namespace SocialSite.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    FriendId = table.Column<int>(type: "int", nullable: false)
+                    UserInitiatedId = table.Column<int>(type: "int", nullable: false),
+                    UserAcceptedId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Friendships", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Friendships_Users_FriendId",
-                        column: x => x.FriendId,
+                        name: "FK_Friendships_Users_UserAcceptedId",
+                        column: x => x.UserAcceptedId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Friendships_Users_UserId",
-                        column: x => x.UserId,
+                        name: "FK_Friendships_Users_UserInitiatedId",
+                        column: x => x.UserInitiatedId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -503,14 +503,14 @@ namespace SocialSite.Data.Migrations
                 column: "DateCreated");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Friendships_FriendId",
+                name: "IX_Friendships_UserAcceptedId",
                 table: "Friendships",
-                column: "FriendId");
+                column: "UserAcceptedId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Friendships_UserId",
+                name: "IX_Friendships_UserInitiatedId",
                 table: "Friendships",
-                column: "UserId");
+                column: "UserInitiatedId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GroupUsers_ChatId",

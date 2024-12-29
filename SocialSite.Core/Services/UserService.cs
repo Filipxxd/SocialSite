@@ -24,7 +24,8 @@ public sealed class UserService : IUserService
 	    var query = _context.Users
 		    .AsNoTracking()
 		    .Include(u => u.Posts)
-		    .Include(u => u.Friendships)
+		    .Include(u => u.FriendshipsInitiatedByUser)
+		    .Include(u => u.FriendshipsAcceptedByUser)
 		    .Include(u => u.ReceivedFriendRequests)
 		    .Include(u => u.SentFriendRequests);
 

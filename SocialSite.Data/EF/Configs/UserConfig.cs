@@ -39,10 +39,15 @@ internal sealed class UserConfig : IEntityTypeConfiguration<User>
             .HasForeignKey(e => e.ReceiverId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasMany(e => e.Friendships)
-            .WithOne(e => e.User)
-            .HasForeignKey(e => e.UserId)
+        builder.HasMany(e => e.FriendshipsAcceptedByUser)
+            .WithOne(e => e.UserAccepted)
+            .HasForeignKey(e => e.UserAcceptedId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasMany(e => e.FriendshipsInitiatedByUser)
+	        .WithOne(e => e.UserInitiated)
+	        .HasForeignKey(e => e.UserInitiatedId)
+	        .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(e => e.Posts)
             .WithOne(e => e.User)

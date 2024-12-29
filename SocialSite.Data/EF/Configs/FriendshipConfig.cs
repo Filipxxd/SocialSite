@@ -14,14 +14,14 @@ internal sealed class FriendshipConfig : IEntityTypeConfiguration<Friendship>
 
         builder.HasIndex(c => c.DateCreated);
         
-        builder.HasOne(f => f.User)
-            .WithMany(f => f.Friendships)
-            .HasForeignKey(f => f.UserId)
+        builder.HasOne(f => f.UserInitiated)
+            .WithMany(f => f.FriendshipsInitiatedByUser)
+            .HasForeignKey(f => f.UserInitiatedId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(f => f.Friend)
-            .WithMany()
-            .HasForeignKey(f => f.FriendId)
+        builder.HasOne(f => f.UserAccepted)
+            .WithMany(f => f.FriendshipsAcceptedByUser)
+            .HasForeignKey(f => f.UserAcceptedId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

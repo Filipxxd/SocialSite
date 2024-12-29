@@ -17,9 +17,9 @@ internal static class FriendMappingExtensions
     public static IEnumerable<FriendshipDto> Map(this IEnumerable<Friendship> input, int currentUserId)
 	    => input.Select(friendship => new FriendshipDto
 	    {
-		    FriendId = friendship.FriendId == currentUserId ? friendship.User!.Id : friendship.Friend!.Id,
-		    FriendFullname = friendship.FriendId == currentUserId ? friendship.User!.Fullname : friendship.Friend!.Fullname,
-		    ProfilePicturePath = friendship.FriendId == currentUserId ? friendship.User!.ProfilePicturePath : friendship.Friend!.ProfilePicturePath,
+		    FriendId = friendship.UserAcceptedId == currentUserId ? friendship.UserInitiated!.Id : friendship.UserAccepted!.Id,
+		    FriendFullname = friendship.UserAcceptedId == currentUserId ? friendship.UserInitiated!.Fullname : friendship.UserAccepted!.Fullname,
+		    ProfilePicturePath = friendship.UserAcceptedId == currentUserId ? friendship.UserInitiated!.ProfilePicturePath : friendship.UserAccepted!.ProfilePicturePath,
 		    FriendsSince = friendship.DateCreated
 	    });
     
