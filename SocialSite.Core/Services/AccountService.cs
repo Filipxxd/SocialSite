@@ -57,7 +57,7 @@ public sealed class AccountService : IAccountService
 		var claims = userRoles.Select(e => new Claim(ClaimTypes.Role, e)).ToList();
 
 		claims.Add(new(AppClaimTypes.UserId, user.Id.ToString()));
-		claims.Add(new(AppClaimTypes.Fullname, user.Fullname));
+		claims.Add(new(AppClaimTypes.Username, user.UserName));
 
 		return claims;
 	}
