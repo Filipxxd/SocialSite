@@ -9,7 +9,7 @@ internal static class UserMappingExtensions
 		{
 			Username = user.UserName,
 			Fullname = user.Fullname,
-			ProfilePicturePath = "placeholder"
+			ProfilePicturePath = user.ProfilePicturePath
 		});
 	
 	public static UserProfileDto Map(this User input, int currentUserId) => new()
