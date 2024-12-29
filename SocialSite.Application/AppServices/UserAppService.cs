@@ -69,11 +69,12 @@ public sealed class UserAppService
     public async Task UpdateProfileImageAsync(UpdateProfileImageDto dto, int currentUserId)
     {
 	    var user = await _userService.GetProfileInfoAsync(currentUserId);
+	    var oldPath = user.ProfilePicturePath;
 	    var path = await _fileHandler.SaveAsync(Convert.FromBase64String(dto.ImageData), dto.FileName);
 	    
 	    await _userService.UpdateProfileImageAsync(path, currentUserId);
 
-	    if (user.ProfilePicturePath != null)
-		    _fileHandler.Delete(user.ProfilePicturePath);
+	    if (oldPath != null)
+		    _fileHandler.Delete(oldPath);
     }
 }
