@@ -1,4 +1,5 @@
 ﻿using SocialSite.Application.Dtos;
+using SocialSite.Application.Dtos.Images;
 using SocialSite.Application.Dtos.Users;
 using SocialSite.Application.Dtos.Users.Enums;
 using SocialSite.Application.Mappers;
@@ -67,11 +68,11 @@ public sealed class UserAppService
         return user.Map();
     }
     
-    public async Task UpdateProfileImageAsync(UpdateProfileImageDto dto, int currentUserId)
+    public async Task UpdateProfileImageAsync(ImageDto dto, int currentUserId)
     {
 	    var user = await _userService.GetProfileInfoAsync(currentUserId);
 	    var oldPath = user.ProfilePicturePath;
-	    var path = await _fileHandler.SaveAsync(Convert.FromBase64String(dto.ImageData), dto.FileName);
+	    var path = await _fileHandler.SaveAsync(Convert.FromBase64String(dto.Base64), dto.Name);
 	    
 	    await _userService.UpdateProfileImageAsync(path, currentUserId);
 
