@@ -5,7 +5,7 @@ namespace SocialSite.Domain.Models;
 public class Post
 {
     public int Id { get; set; }
-    public string? Content { get; set; }
+    public string Content { get; set; } = default!;
     public DateTime DateCreated { get; set; }
     public PostVisibility Visibility { get; set; }
     

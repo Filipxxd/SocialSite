@@ -8,7 +8,7 @@ public sealed class CreatePostDtoValidator : AbstractValidator<CreatePostDto>
 {
 	public CreatePostDtoValidator(ImageDtoValidator imageDtoValidator)
 	{
-		RuleFor(e => e.Content).MaximumLength(500);
+		RuleFor(e => e.Content).NotEmpty().MaximumLength(500);
 		RuleFor(e => e.Images)
 			.Must(x => x.Count() <= 5).WithMessage("Maximum 5 images allowed");
 		RuleForEach(e => e.Images).SetValidator(imageDtoValidator);
