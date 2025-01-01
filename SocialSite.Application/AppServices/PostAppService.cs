@@ -28,7 +28,7 @@ public sealed class PostAppService
     
 		foreach (var post in posts)
 		{
-			var postDto = post.Map();
+			var postDto = post.Map(currentUserId);
 
 			foreach (var image in post.Images)
 				postDto.Images.Add(new ImageDto

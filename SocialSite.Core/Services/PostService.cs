@@ -102,6 +102,7 @@ public sealed class PostService : IPostService
 		    .Include(p => p.Images)
 		    .Include(p => p.User)
 		    .Include(p => p.Comments.OrderByDescending(c => c.DateCreated))
+				.ThenInclude(c => c.User)
 		    .AsQueryable();
 
 	    if (!filter.OnlyCurrentUser)

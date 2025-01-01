@@ -1,4 +1,3 @@
-using SocialSite.Application.Dtos.Comments;
 using SocialSite.Application.Dtos.Posts;
 using SocialSite.Domain.Models;
 
@@ -13,18 +12,13 @@ internal static class PostMappingExtensions
 		UserId = currentUserId
 	};
 	
-	public static PostDto Map(this Post input) => new()
+	public static PostDto Map(this Post input, int currentUserId) => new()
 	{
 		PostId = input.Id,
 		UserFullname = input.User!.Fullname,
 		UserProfilePicturePath = input.User.ProfilePicturePath,
 		Content = input.Content,
 		DateCreated = input.DateCreated,
-		Comments = input.Comments.Select(comment => new CommentDto
-		{
-			Id = comment.Id,
-			SenderFullname = comment.User!.Fullname,
-			Content = comment.Content
-		})
+		Comments = input.Comments.Select(comment => comment.Map(currentUserId))
 	};
 }

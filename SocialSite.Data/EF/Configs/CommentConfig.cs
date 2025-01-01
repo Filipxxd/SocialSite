@@ -14,7 +14,7 @@ internal class CommentConfig : IEntityTypeConfiguration<Comment>
 
         builder.HasIndex(c => c.DateCreated);
         
-        builder.Property(e => e.Content).HasMaxLength(500);
+        builder.Property(e => e.Content).HasMaxLength(256);
         
         builder.HasOne(c => c.User)
             .WithMany()
