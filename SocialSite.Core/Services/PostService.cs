@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialSite.Core.Exceptions;
 using SocialSite.Data.EF;
-using SocialSite.Data.EF.Extensions;
 using SocialSite.Domain.Filters;
 using SocialSite.Domain.Filters.Enums;
 using SocialSite.Domain.Models;
@@ -38,7 +37,7 @@ public sealed class PostService : IPostService
     public async Task<Post> GetPostByIdAsync(int postId, int currentUserId)
     {
 	    return await _context.Posts.AsNoTracking()
-		    .IncludePostImages()
+		    .Include(p => p.Images)
 		    .Include(p => p.User)
 		    .Include(p => p.Comments.OrderByDescending(c => c.DateCreated))
 		    .Where(p => 
@@ -100,6 +99,7 @@ public sealed class PostService : IPostService
     private IQueryable<Post> GetFilteredPosts(PostFilter filter, int currentUserId)
     {
 	    var query = _context.Posts.AsNoTracking()
+		    .Include(p => p.Images)
 		    .Include(p => p.User)
 		    .Include(p => p.Comments.OrderByDescending(c => c.DateCreated))
 		    .AsQueryable();

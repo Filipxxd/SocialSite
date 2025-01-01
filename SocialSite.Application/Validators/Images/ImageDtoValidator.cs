@@ -9,7 +9,7 @@ public sealed class ImageDtoValidator : AbstractValidator<ImageDto>
 	{
 		RuleFor(e => e.Name)
 			.NotEmpty()
-			.MaximumLength(100);
+			.MaximumLength(50);
 
 		RuleFor(e => e.Base64)
 			.NotEmpty()

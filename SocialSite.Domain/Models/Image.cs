@@ -1,6 +1,4 @@
-﻿using SocialSite.Domain.Models.Enums;
-
-namespace SocialSite.Domain.Models;
+﻿namespace SocialSite.Domain.Models;
 
 public class Image
 {
@@ -8,6 +6,6 @@ public class Image
     public string Name { get; set; } = default!;
     public string Path { get; set; } = default!;
 
-    public int EntityId { get; set; }
-    public EntityType Entity { get; set; }
+	public int? PostId { get; set; }
+	public Post? Post { get; set; }
 }

@@ -177,6 +177,9 @@ namespace SocialSite.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("ImageId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -185,6 +188,8 @@ namespace SocialSite.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ImageId");
 
                     b.HasIndex("OwnerId");
 
@@ -319,12 +324,7 @@ namespace SocialSite.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Entity")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("EntityId")
+                    b.Property<int?>("MessageId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -337,17 +337,16 @@ namespace SocialSite.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int?>("PostId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("EntityId")
-                        .IsUnique();
+                    b.HasIndex("MessageId");
 
-                    b.HasIndex("EntityId", "Entity");
+                    b.HasIndex("PostId");
 
-                    b.ToTable("Images", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_Images_Entity", "[Entity] IN ('Post','Message','Profile','GroupChat')");
-                        });
+                    b.ToTable("Images", (string)null);
                 });
 
             modelBuilder.Entity("SocialSite.Domain.Models.Message", b =>
@@ -656,10 +655,16 @@ namespace SocialSite.Data.Migrations
 
             modelBuilder.Entity("SocialSite.Domain.Models.Chat", b =>
                 {
+                    b.HasOne("SocialSite.Domain.Models.Image", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId");
+
                     b.HasOne("SocialSite.Domain.Models.User", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Image");
 
                     b.Navigation("Owner");
                 });
@@ -742,23 +747,16 @@ namespace SocialSite.Data.Migrations
 
             modelBuilder.Entity("SocialSite.Domain.Models.Image", b =>
                 {
-                    b.HasOne("SocialSite.Domain.Models.Chat", null)
-                        .WithOne("Image")
-                        .HasForeignKey("SocialSite.Domain.Models.Image", "EntityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SocialSite.Domain.Models.Message", null)
                         .WithMany("Images")
-                        .HasForeignKey("EntityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("MessageId");
 
-                    b.HasOne("SocialSite.Domain.Models.Post", null)
+                    b.HasOne("SocialSite.Domain.Models.Post", "Post")
                         .WithMany("Images")
-                        .HasForeignKey("EntityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Post");
                 });
 
             modelBuilder.Entity("SocialSite.Domain.Models.Message", b =>
@@ -813,8 +811,6 @@ namespace SocialSite.Data.Migrations
             modelBuilder.Entity("SocialSite.Domain.Models.Chat", b =>
                 {
                     b.Navigation("ChatUsers");
-
-                    b.Navigation("Image");
 
                     b.Navigation("Messages");
                 });

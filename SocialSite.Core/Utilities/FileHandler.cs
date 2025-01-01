@@ -48,9 +48,9 @@ namespace SocialSite.Core.Utilities;
 		Directory.CreateDirectory(folderPath);
 		await File.WriteAllBytesAsync(filePath, bytes);
 		
-		return '/' + (isPublic 
-		   ? Path.Combine(FileConstants.PublicPath, yearFolder, monthFolder, dayFolder, uniqueFileName)
-		   : Path.Combine(FileConstants.PrivatePath, yearFolder, monthFolder, dayFolder, uniqueFileName));
+		return isPublic 
+		   ? Path.Combine(Path.PathSeparator.ToString() ,FileConstants.PublicPath, yearFolder, monthFolder, dayFolder, uniqueFileName)
+		   : Path.Combine(FileConstants.PrivatePath, yearFolder, monthFolder, dayFolder, uniqueFileName);
     }
 
     public async Task<byte[]> GetAsync(string relativePath)

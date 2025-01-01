@@ -35,8 +35,8 @@ internal class PostConfig : IEntityTypeConfiguration<Post>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(p => p.Images)
-            .WithOne()
-            .HasForeignKey(p => p.EntityId)
+            .WithOne(i => i.Post)
+            .HasForeignKey(p => p.PostId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
