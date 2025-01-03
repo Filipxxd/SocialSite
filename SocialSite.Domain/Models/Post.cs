@@ -14,4 +14,5 @@ public class Post
 
     public virtual ICollection<Comment> Comments { get; set; } = [];
     public virtual ICollection<Image> Images { get; set; } = [];
+    public virtual ICollection<Report> Reports { get; set; } = [];
 }

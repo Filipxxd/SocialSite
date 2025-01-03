@@ -11,11 +11,11 @@ internal sealed class ReportConfig : IEntityTypeConfiguration<Report>
     {
         builder.ToTable(Tables.Reports);
 
-        builder.HasKey(p => p.Id);
+        builder.HasKey(r => r.Id);
 
-        builder.HasIndex(p => p.DateCreated);
-        builder.HasIndex(p => p.State);
-        builder.HasIndex(p => p.Type);
+        builder.HasIndex(r => r.DateCreated);
+        builder.HasIndex(r => r.State);
+        builder.HasIndex(r => r.Type);
         
         builder.Property(e => e.Content).HasMaxLength(500);
         
@@ -31,14 +31,14 @@ internal sealed class ReportConfig : IEntityTypeConfiguration<Report>
                 v => v.ToString(),
                 v => (ReportType)Enum.Parse(typeof(ReportType), v));
 
-        builder.HasOne(p => p.User)
-            .WithMany(p => p.Reports)
-            .HasForeignKey(p => p.UserId)
+        builder.HasOne(r => r.User)
+            .WithMany(u => u.Reports)
+            .HasForeignKey(r => r.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(p => p.Post)
-            .WithMany()
-            .HasForeignKey(p => p.PostId)
+        builder.HasOne(r => r.Post)
+            .WithMany(p => p.Reports)
+            .HasForeignKey(r => r.PostId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
