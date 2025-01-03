@@ -100,6 +100,7 @@ public sealed class PostService : IPostService
     {
 	    var query = _context.Posts.AsNoTracking()
 		    .Include(p => p.Images)
+		    .Include(p => p.Reports.Where(r => r.UserId == currentUserId))
 		    .Include(p => p.User)
 		    .Include(p => p.Comments.OrderByDescending(c => c.DateCreated))
 				.ThenInclude(c => c.User)
