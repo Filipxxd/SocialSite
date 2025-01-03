@@ -19,7 +19,7 @@ internal static class PostMappingExtensions
 		UserProfilePicturePath = input.User.ProfilePicturePath,
 		Content = input.Content,
 		DateCreated = input.DateCreated,
-		IsReportable = !input.Reports.Any(r => r.UserId == currentUserId),
+		IsReportable = input.Reports.All(r => r.UserId != currentUserId),
 		Comments = input.Comments.Select(comment => comment.Map(currentUserId))
 	};
 }
