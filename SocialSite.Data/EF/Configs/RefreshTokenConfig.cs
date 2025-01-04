@@ -14,5 +14,10 @@ internal sealed class RefreshTokenConfig : IEntityTypeConfiguration<RefreshToken
         builder.HasIndex(e => e.Token).IsUnique();
 
         builder.Property(e => e.Token).HasMaxLength(50);
+        
+        builder.HasOne(r => r.User)
+	        .WithMany(u => u.RefreshTokens)
+	        .HasForeignKey(r => r.UserId)
+	        .OnDelete(DeleteBehavior.Restrict);
     }
 }

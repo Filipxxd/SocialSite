@@ -12,7 +12,8 @@ public class User : IdentityUser<int>
     public string LastName { get; set; } = default!;
     public string? Bio { get; set; }
     public bool IsBanned { get; set; }
-
+    public string? ProfilePicturePath { get; set; }
+    
     public bool AllowNonFriendChatAdd { get; set; } = true;
     public FriendRequestSetting FriendRequestSetting { get; set; }
 
@@ -26,6 +27,5 @@ public class User : IdentityUser<int>
     public virtual ICollection<Post> Posts { get; set; } = [];
     public virtual ICollection<Report> Reports { get; set; } = [];
     public virtual ICollection<UserRole> UserRoles { get; set; } = [];
-
-    public virtual string? ProfilePicturePath { get; set; }
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 }

@@ -62,5 +62,9 @@ internal sealed class UserConfig : IEntityTypeConfiguration<User>
         builder.HasMany(e => e.UserRoles)
 	        .WithOne(e => e.User)
 	        .HasForeignKey(ur => ur.UserId);
+        
+        builder.HasMany(e => e.RefreshTokens)
+	        .WithOne(e => e.User)
+	        .HasForeignKey(ur => ur.UserId);
     }
 }

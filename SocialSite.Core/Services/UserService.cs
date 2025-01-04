@@ -134,11 +134,14 @@ public sealed class UserService : IUserService
 
     public async Task ToggleUserBanAsync(int userId, bool banned)
     {
-	    var user = await _context.Users.FindAsync(userId)
-	               ?? throw new NotFoundException("User was not found.");
+	    var user = await _context.Users
+           .Include(u => u.RefreshTokens)
+           .SingleOrDefaultAsync(u => u.Id == userId)
+	        ?? throw new NotFoundException("User was not found.");
 
 	    user.IsBanned = banned;
-
+		_context.RefreshTokens.RemoveRange(user.RefreshTokens);
+	    
 	    await _context.SaveChangesAsync();
     }
 
