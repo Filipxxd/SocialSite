@@ -38,7 +38,7 @@ internal static class ConfigExtensions
             }
         });
 
-        services.AddIdentity<User, IdentityRole<int>>(options =>
+        services.AddIdentity<User, Role>(options =>
             {
 	            options.Password.RequireDigit = false;
 	            options.Password.RequireLowercase = false;
@@ -75,11 +75,16 @@ internal static class ConfigExtensions
 		
         services.AddAuthorization(options =>
         {
-	        options.AddPolicy(AuthPolicies.ElevatedUsers, policy => policy.RequireRole(Roles.Admin));
+	        options.AddPolicy(AuthPolicies.SuperUsers, policy => policy.RequireRole(Roles.Admin));
+	        options.AddPolicy(AuthPolicies.ElevatedUsers, policy =>
+	        {
+		        policy.RequireAssertion(context =>
+			        context.User.IsInRole(Roles.Moderator) || context.User.IsInRole(Roles.Admin));
+	        });	        
 	        options.AddPolicy(AuthPolicies.RegularUsers, policy =>
 	        {
 		        policy.RequireAssertion(context =>
-			        context.User.IsInRole(Roles.User) || context.User.IsInRole(Roles.Admin));
+			        context.User.IsInRole(Roles.User) || context.User.IsInRole(Roles.Moderator) || context.User.IsInRole(Roles.Admin));
 	        });
         });
         

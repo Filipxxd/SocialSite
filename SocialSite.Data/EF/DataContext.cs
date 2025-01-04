@@ -7,7 +7,15 @@ using SocialSite.Domain.Models;
 
 namespace SocialSite.Data.EF;
 
-public class DataContext(DbContextOptions<DataContext> options) : IdentityDbContext<User, IdentityRole<int>, int>(options)
+public class DataContext(DbContextOptions<DataContext> options) : IdentityDbContext<
+	User, 
+	Role,
+	int,
+	IdentityUserClaim<int>,
+	UserRole,
+	IdentityUserLogin<int>,
+	IdentityRoleClaim<int>,
+	IdentityUserToken<int>>(options)
 {
     public DbSet<FriendRequest> FriendRequests { get; set; }
     public DbSet<Friendship> Friendships { get; set; }

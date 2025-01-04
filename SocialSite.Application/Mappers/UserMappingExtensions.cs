@@ -8,11 +8,14 @@ namespace SocialSite.Application.Mappers;
 internal static class UserMappingExtensions
 {
 	public static IEnumerable<UserSearchDto> Map(this IEnumerable<User> input) => input.Select(user => new UserSearchDto
-		{
-			Username = user.UserName,
-			Fullname = user.Fullname,
-			ProfilePicturePath = user.ProfilePicturePath
-		});
+	{
+		UserId = user.Id,
+		IsBanned = user.IsBanned,
+		Role = user.UserRoles.Select(r => r.Role.Name!).First(),
+		Username = user.UserName,
+		Fullname = user.Fullname,
+		ProfilePicturePath = user.ProfilePicturePath
+	});
 	
 	public static UserProfileDto Map(this User input, int currentUserId) => new()
 	{

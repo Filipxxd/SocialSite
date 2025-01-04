@@ -11,13 +11,11 @@ namespace SocialSite.Application.AppServices;
 public sealed class UserAppService
 {
     private readonly IUserService _userService;
-    private readonly IFriendsService _friendsService;
     private readonly IFileHandler _fileHandler;
 
-    public UserAppService(IUserService userService, IFriendsService friendsService, IFileHandler fileHandler)
+    public UserAppService(IUserService userService, IFileHandler fileHandler)
     {
 	    _userService = userService;
-	    _friendsService = friendsService;
 	    _fileHandler = fileHandler;
     }
 
@@ -28,13 +26,9 @@ public sealed class UserAppService
 		return user.Map(currentUserId);
 	}
     
-	public async Task<PagedDto<UserSearchDto>> GetFilteredUsersAsync(string searchTerm, int currentUserId)
+	public async Task<PagedDto<UserSearchDto>> GetFilteredUsersAsync(UserFilter filter, int currentUserId)
 	{
-		var filter = new UserFilter
-		{
-			SearchTerm = searchTerm,
-			CurrentUserId = currentUserId
-		};
+		filter.CurrentUserId = currentUserId;
 
 		var paginationInfo = await _userService.GetUsersPaginationInfoAsync(filter);
 		var users = await _userService.GetUsersAsync(filter);
@@ -65,4 +59,14 @@ public sealed class UserAppService
 	    if (oldPath != null)
 		    _fileHandler.Delete(oldPath);
     }
+
+    public async Task UpdateUserRoleAsync(string role, int currentUserId)
+    {
+	    await _userService.UpdateUserRoleAsync(currentUserId, role);
+    }
+    
+    public async Task ToggleUserBanAsync(int userId, bool banned)
+	{
+	    await _userService.ToggleUserBanAsync(userId, banned);
+	}
 }

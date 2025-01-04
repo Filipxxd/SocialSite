@@ -31,6 +31,9 @@ public sealed class AccountService : IAccountService
 		if (!passwordValid)
 			throw new NotValidException("Invalid credentials.");
 
+		if (user.IsBanned)
+			throw new NotValidException("Banned");
+			
 		return user.Id;
 	}
 

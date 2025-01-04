@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SocialSite.Core.Exceptions;
 using SocialSite.Data.EF;
+using SocialSite.Domain.Constants;
 using SocialSite.Domain.Filters;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
@@ -84,9 +85,37 @@ public sealed class UserService : IUserService
 		await _context.SaveChangesAsync();
 	}
     
+    public async Task UpdateUserRoleAsync(int userId, string newRole)
+    {
+	    if (Roles.AvailableRoles.All(r => r != newRole))
+		    throw new NotValidException("Role is not available.");
+	    
+	    var user = await _userManager.FindByIdAsync(userId.ToString());
+	    if (user is null)
+		    throw new NotFoundException("User was not found.");
+
+	    var currentRoles = await _userManager.GetRolesAsync(user);
+	    var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+	    
+	    if (!removeResult.Succeeded)
+	    {
+		    var errors = string.Join(", ", removeResult.Errors.Select(e => e.Description));
+		    throw new NotValidException($"Error removing user from roles: {errors}.");
+	    }
+
+	    var addResult = await _userManager.AddToRoleAsync(user, newRole.ToUpper());
+	    if (!addResult.Succeeded)
+	    {
+		    var errors = string.Join(", ", addResult.Errors.Select(e => e.Description));
+		    throw new NotValidException($"Error adding user to role '{newRole}': {errors}.");
+	    }
+    }
+    
     private IQueryable<User> GetFilteredUsersQuery(UserFilter filter)
     {
 	    var query = _context.Users
+		    .Include(u => u.UserRoles)
+				.ThenInclude(ur => ur.Role)
 		    .Where(u => u.Id != filter.CurrentUserId)
 		    .OrderBy(u => u.UserName)
 		    .AsNoTracking();
@@ -95,5 +124,15 @@ public sealed class UserService : IUserService
 		    query = query.Where(u => (u.FirstName+ " " + u.LastName).Contains(filter.SearchTerm));
 		
 	    return query;
+    }
+
+    public async Task ToggleUserBanAsync(int userId, bool banned)
+    {
+	    var user = await _context.Users.FindAsync(userId)
+	               ?? throw new NotFoundException("User was not found.");
+
+	    user.IsBanned = banned;
+
+	    await _context.SaveChangesAsync();
     }
 }

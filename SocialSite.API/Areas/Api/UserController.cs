@@ -6,6 +6,7 @@ using SocialSite.Application.Constants;
 using SocialSite.Application.Dtos;
 using SocialSite.Application.Dtos.Images;
 using SocialSite.Application.Dtos.Users;
+using SocialSite.Domain.Filters;
 
 namespace SocialSite.API.Areas.Api;
 
@@ -24,8 +25,8 @@ public sealed class UserController : ApiControllerBase
 	 [HttpGet("search")]
 	 [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedDto<UserSearchDto>))]
 	 [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
-	 public async Task<IActionResult> GetFilteredUsers(string searchTerm) 
-	 	=> await ExecuteAsync(() => _userAppService.GetFilteredUsersAsync(searchTerm, GetCurrentUserId()));
+	 public async Task<IActionResult> GetFilteredUsers([FromQuery] UserFilter filter) 
+	 	=> await ExecuteAsync(() => _userAppService.GetFilteredUsersAsync(filter, GetCurrentUserId()));
 	
 	 [HttpGet("profile/{username}")]
 	 [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserProfileDto))]
@@ -57,4 +58,22 @@ public sealed class UserController : ApiControllerBase
 	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
 	public async Task<IActionResult> UpdateProfileImage(ImageDto dto) 
 		=> await ExecuteWithoutContentAsync(() => _userAppService.UpdateProfileImageAsync(dto, GetCurrentUserId()));
+	
+	[HttpPatch("{userId:int}/role")]
+	[Authorize(Policy = AuthPolicies.SuperUsers)]
+	[ProducesResponseType((int)HttpStatusCode.NoContent)]
+	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
+	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
+	public async Task<IActionResult> UpdateProfileImage(int userId, string role) 
+		=> await ExecuteWithoutContentAsync(() => _userAppService.UpdateUserRoleAsync(role, userId));
+	
+	[HttpPatch("{userId:int}")]
+	[Authorize(Policy = AuthPolicies.SuperUsers)]
+	[ProducesResponseType((int)HttpStatusCode.NoContent)]
+	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
+	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
+	public async Task<IActionResult> UpdateProfileImage(int userId, bool banned) 
+		=> await ExecuteWithoutContentAsync(() => _userAppService.ToggleUserBanAsync(userId, banned));
 }
