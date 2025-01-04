@@ -5,6 +5,5 @@ public enum FriendState
 	Friends,
 	RequestSent,
 	RequestReceived,
-	CanSendRequest,
-	CannotSendRequest
+	CanSendRequest
 }

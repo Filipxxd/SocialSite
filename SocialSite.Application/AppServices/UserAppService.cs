@@ -1,7 +1,6 @@
 ﻿using SocialSite.Application.Dtos;
 using SocialSite.Application.Dtos.Images;
 using SocialSite.Application.Dtos.Users;
-using SocialSite.Application.Dtos.Users.Enums;
 using SocialSite.Application.Mappers;
 using SocialSite.Domain.Filters;
 using SocialSite.Domain.Services;
@@ -25,21 +24,8 @@ public sealed class UserAppService
 	public async Task<UserProfileDto> GetUserProfileAsync(string username, int currentUserId)
 	{
 		var user = await _userService.GetUserProfileAsync(username);
-
-		var dto = user.Map(currentUserId);
 		
-		dto.FriendState = user.FriendshipsInitiatedByUser.Any(x => x.UserAcceptedId == currentUserId) ||
-		                  user.FriendshipsAcceptedByUser.Any(x => x.UserInitiatedId == currentUserId)
-			? FriendState.Friends
-			: user.SentFriendRequests.Any(x => x.ReceiverId == currentUserId)
-				? FriendState.RequestReceived
-				: user.ReceivedFriendRequests.Any(x => x.SenderId == currentUserId)
-					? FriendState.RequestSent
-					: await _friendsService.CanSendFriendRequestAsync(user.Id, currentUserId)
-						? FriendState.CanSendRequest
-						: FriendState.CannotSendRequest;
-
-		return dto;
+		return user.Map(currentUserId);
 	}
     
 	public async Task<PagedDto<UserSearchDto>> GetFilteredUsersAsync(string searchTerm, int currentUserId)

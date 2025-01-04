@@ -1,5 +1,7 @@
 ﻿using SocialSite.Application.Dtos.Users;
+using SocialSite.Application.Dtos.Users.Enums;
 using SocialSite.Domain.Models;
+using SocialSite.Domain.Models.Enums;
 
 namespace SocialSite.Application.Mappers;
 
@@ -21,6 +23,15 @@ internal static class UserMappingExtensions
 		CanSendMessage = input.AllowNonFriendChatAdd 
 		                 || input.FriendshipsInitiatedByUser.Any(x => x.UserAcceptedId == currentUserId || x.UserInitiatedId == currentUserId)
 		                 || input.FriendshipsAcceptedByUser.Any(x => x.UserAcceptedId == currentUserId || x.UserInitiatedId == currentUserId),
+		FriendState = input.FriendshipsInitiatedByUser.Any(x => x.UserAcceptedId == currentUserId) ||
+		              input.FriendshipsAcceptedByUser.Any(x => x.UserInitiatedId == currentUserId)
+						? FriendState.Friends
+						: input.SentFriendRequests.Any(x => x.ReceiverId == currentUserId && x.State == FriendRequestState.Sent)
+							? FriendState.RequestReceived
+							: input.ReceivedFriendRequests.Any(
+								x => x.SenderId == currentUserId && x.State == FriendRequestState.Sent)
+								? FriendState.RequestSent
+								: FriendState.CanSendRequest
 	};
 	
     public static User Map(this UpdateProfileDto input, int currentUserId) => new()

@@ -40,9 +40,9 @@ public sealed class FriendsAppService
     public async Task ResolveFriendRequestAsync(ResolveFriendRequestDto input, int currentUserId)
     {
 	    if (input.IsAccepted)
-		    await _friendsService.AcceptFriendRequestAsync(input.Id, currentUserId);
+		    await _friendsService.AcceptFriendRequestAsync(input.FriendRequestId, currentUserId);
 	    else
-		    await _friendsService.DeclineFriendRequestAsync(input.Id, currentUserId);
+		    await _friendsService.DeclineFriendRequestAsync(input.FriendRequestId, currentUserId);
     }
 
     public async Task RemoveFriendAsync(int friendId, int currentUserId)
