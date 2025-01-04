@@ -59,14 +59,14 @@ public sealed class UserController : ApiControllerBase
 	public async Task<IActionResult> UpdateProfileImage(ImageDto dto) 
 		=> await ExecuteWithoutContentAsync(() => _userAppService.UpdateProfileImageAsync(dto, GetCurrentUserId()));
 	
-	[HttpPatch("{userId:int}/role")]
+	[HttpPatch("role")]
 	[Authorize(Policy = AuthPolicies.SuperUsers)]
 	[ProducesResponseType((int)HttpStatusCode.NoContent)]
 	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
-	public async Task<IActionResult> UpdateProfileImage(int userId, string role) 
-		=> await ExecuteWithoutContentAsync(() => _userAppService.UpdateUserRoleAsync(role, userId));
+	public async Task<IActionResult> UpdateProfileImage(ChangeUserRoleDto dto) 
+		=> await ExecuteWithoutContentAsync(() => _userAppService.UpdateUserRoleAsync(dto));
 	
 	[HttpPatch("{userId:int}")]
 	[Authorize(Policy = AuthPolicies.SuperUsers)]
@@ -74,6 +74,15 @@ public sealed class UserController : ApiControllerBase
 	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
-	public async Task<IActionResult> UpdateProfileImage(int userId, bool banned) 
+	public async Task<IActionResult> UpdateBanStatus(int userId, bool banned) 
 		=> await ExecuteWithoutContentAsync(() => _userAppService.ToggleUserBanAsync(userId, banned));
+	
+	[HttpPatch("username")]
+	[Authorize(Policy = AuthPolicies.SuperUsers)]
+	[ProducesResponseType((int)HttpStatusCode.NoContent)]
+	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
+	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
+	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
+	public async Task<IActionResult> UpdateUsername(ChangeUsernameDto dto) 
+		=> await ExecuteWithoutContentAsync(() => _userAppService.ChangeUsernameAsync(dto));
 }

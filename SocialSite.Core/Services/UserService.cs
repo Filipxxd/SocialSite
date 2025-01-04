@@ -122,7 +122,13 @@ public sealed class UserService : IUserService
 
 	    if (!string.IsNullOrEmpty(filter.SearchTerm))
 		    query = query.Where(u => (u.FirstName+ " " + u.LastName).Contains(filter.SearchTerm));
-		
+
+	    if (filter.IsBanned.HasValue)
+		    query = query.Where(u => u.IsBanned == filter.IsBanned);
+	        
+	    if (!string.IsNullOrEmpty(filter.Role))
+		    query = query.Where(u => u.UserRoles.Any(ur => ur.Role.Name == filter.Role!.ToUpper()));
+	    
 	    return query;
     }
 
@@ -133,6 +139,20 @@ public sealed class UserService : IUserService
 
 	    user.IsBanned = banned;
 
+	    await _context.SaveChangesAsync();
+    }
+
+    public async Task ChangeUsernameAsync(int userId, string newUsername)
+    {
+	    var usernameTaken = await _context.Users.AnyAsync(u => u.UserName == newUsername);
+	    
+	    if (usernameTaken)
+		    throw new NotValidException("Username is already taken.");
+	    
+	    var user = await _context.Users.FindAsync(userId)
+	               ?? throw new NotFoundException("User was not found.");
+	    
+	    user.UserName = newUsername;
 	    await _context.SaveChangesAsync();
     }
 }

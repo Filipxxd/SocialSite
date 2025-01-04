@@ -60,13 +60,18 @@ public sealed class UserAppService
 		    _fileHandler.Delete(oldPath);
     }
 
-    public async Task UpdateUserRoleAsync(string role, int currentUserId)
-    {
-	    await _userService.UpdateUserRoleAsync(currentUserId, role);
-    }
+    public async Task UpdateUserRoleAsync(ChangeUserRoleDto dto)
+	{
+	    await _userService.UpdateUserRoleAsync(dto.UserId, dto.Role);
+	}
     
     public async Task ToggleUserBanAsync(int userId, bool banned)
 	{
 	    await _userService.ToggleUserBanAsync(userId, banned);
+	}
+    
+	public async Task ChangeUsernameAsync(ChangeUsernameDto dto)
+	{
+		await _userService.ChangeUsernameAsync(dto.UserId, dto.NewUsername);
 	}
 }
