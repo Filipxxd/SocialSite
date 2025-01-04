@@ -11,6 +11,7 @@ public sealed class PostDto
 	public string Content { get; set; } = default!;
 	public DateTime DateCreated { get; set; }
 	public bool IsReportable { get; set; }
+	public bool IsDeletable { get; set; }
 	public IEnumerable<CommentDto> Comments { get; set; } = [];
 	public IList<ImageDto> Images { get; set; } = [];
 }

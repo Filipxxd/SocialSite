@@ -57,11 +57,6 @@ public sealed class PostAppService
 		await _postService.CreatePostAsync(post);
 	}
 	
-	public async Task UpdatePostAsync(CreatePostDto dto, int currentUserId)
-	{
-		throw new NotImplementedException();
-	}
-	
 	public async Task DeletePostAsync(int postId, int currentUserId)
 	{
 		await _postService.DeletePostAsync(postId, currentUserId);

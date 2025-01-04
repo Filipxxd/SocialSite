@@ -21,14 +21,14 @@ public sealed class PostsController : ApiControllerBase
 		_postAppService = postAppService;
 	}
 
-	[HttpGet("get-all")]
+	[HttpGet]
 	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagedDto<PostDto>))]
 	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
 	public async Task<IActionResult> GetAllPosts([FromQuery] PostFilter filter)
 		=> await ExecuteAsync(() => _postAppService.GetAllPostsAsync(filter, GetCurrentUserId()));
 
-	[HttpPost("create")]
+	[HttpPost]
 	[ProducesResponseType((int)HttpStatusCode.NoContent)]
 	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
@@ -36,7 +36,7 @@ public sealed class PostsController : ApiControllerBase
 	public async Task CreatePost(CreatePostDto dto)
 		=> await ExecuteWithoutContentAsync(() => _postAppService.CreatePostAsync(dto, GetCurrentUserId()));
 
-	[HttpDelete("delete")]
+	[HttpDelete]
 	[ProducesResponseType((int)HttpStatusCode.NoContent)]
 	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
 	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]

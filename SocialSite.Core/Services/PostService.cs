@@ -13,12 +13,14 @@ namespace SocialSite.Core.Services;
 public sealed class PostService : IPostService
 {
     private readonly DataContext _context;
+    private readonly IFileHandler _fileHandler;
     private readonly IDateTimeProvider _dateTimeProvider;
 
-    public PostService(DataContext context, IDateTimeProvider dateTimeProvider)
+    public PostService(DataContext context, IDateTimeProvider dateTimeProvider, IFileHandler fileHandler)
     {
         _context = context;
         _dateTimeProvider = dateTimeProvider;
+        _fileHandler = fileHandler;
     }
 
 	public async Task<IEnumerable<Post>> GetAllPostsAsync(PostFilter filter, int currentUserId)
@@ -59,36 +61,21 @@ public sealed class PostService : IPostService
         await _context.SaveChangesAsync();
     }
     
-    public async Task UpdatePostAsync(Post updatedPost, int currentUserId)
-    {
-	    var post = await _context.Posts
-		    .SingleOrDefaultAsync(p => p.Id == updatedPost.Id);
-	    
-	    if (post is null)
-		    throw new NotFoundException("Post was not found.");
-	    
-	    if (post.UserId != currentUserId)
-		    throw new NotValidException("Post can be updated only by the author.");
-	    
-	    post.Visibility = updatedPost.Visibility;
-	    post.Images = updatedPost.Images;
-	    post.Content = updatedPost.Content;
-	    
-	    await _context.SaveChangesAsync();
-    }
-    
     public async Task DeletePostAsync(int postId, int currentUserId)
     {
 	    var post = await _context.Posts
-		    .Include(e => e.Comments)
-		    .SingleOrDefaultAsync(e => e.Id == postId);
+		    .Include(p => p.Comments)
+		    .Include(p => p.Images)
+		    .SingleOrDefaultAsync(p => p.Id == postId);
 	    
 	    if (post is null)
 		    throw new NotFoundException("Post was not found.");
 	    
 	    if (post.UserId != currentUserId)
 			throw new NotValidException("Post can be deleted only by the author.");
-		    
+
+	    foreach (var image in post.Images) _fileHandler.Delete(image.Path);
+
 	    _context.Comments.RemoveRange(post.Comments);
 	    _context.Images.RemoveRange(post.Images);
 	    _context.Posts.Remove(post);
