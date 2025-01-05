@@ -32,7 +32,7 @@ public sealed class AccountController : ApiControllerBase
     [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> Login(LoginDto dto)
          => await ExecuteAsync(() => _accountAppService.LoginAsync(dto));
-
+    
     [AllowAnonymous]
     [HttpPost("refresh-token")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(AuthTokensDto))]

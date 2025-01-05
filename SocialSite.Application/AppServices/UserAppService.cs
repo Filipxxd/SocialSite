@@ -74,4 +74,12 @@ public sealed class UserAppService
 	{
 		await _userService.ChangeUsernameAsync(dto.UserId, dto.NewUsername);
 	}
+
+	public async Task<UsernameAvailabilityDto> CheckUsernameAsync(string username)
+	{
+		return new()
+		{
+			IsAvailable = !await _userService.UsernameExistsAsync(username)
+		};
+	}
 }

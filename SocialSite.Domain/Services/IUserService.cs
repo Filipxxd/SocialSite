@@ -14,4 +14,5 @@ public interface IUserService
     Task UpdateUserRoleAsync(int userId, string newRole);
     Task ToggleUserBanAsync(int userId, bool banned);
     Task ChangeUsernameAsync(int userId, string newUsername);
+    Task<bool> UsernameExistsAsync(string username);
 }

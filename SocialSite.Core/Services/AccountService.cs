@@ -56,7 +56,7 @@ public sealed class AccountService : IAccountService
 		var user = await _userManager.FindByIdAsync(userId.ToString())
 		    ?? throw new NotFoundException("User was not found.");
 
-		var userRoles = await _userManager.GetRolesAsync(user); ;
+		var userRoles = await _userManager.GetRolesAsync(user);
 
 		return
 		[

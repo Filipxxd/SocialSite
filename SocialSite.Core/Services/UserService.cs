@@ -158,4 +158,9 @@ public sealed class UserService : IUserService
 	    user.UserName = newUsername;
 	    await _context.SaveChangesAsync();
     }
+
+    public async Task<bool> UsernameExistsAsync(string username)
+    {
+	    return await _context.Users.AnyAsync(u => u.UserName == username);
+    }
 }

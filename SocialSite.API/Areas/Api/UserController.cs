@@ -85,4 +85,10 @@ public sealed class UserController : ApiControllerBase
 	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
 	public async Task<IActionResult> UpdateUsername(ChangeUsernameDto dto) 
 		=> await ExecuteWithoutContentAsync(() => _userAppService.ChangeUsernameAsync(dto));
+	
+	[AllowAnonymous]
+	[HttpGet("username")]
+	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UsernameAvailabilityDto))]
+	public async Task<IActionResult> IsUsernameAvailable(string username)
+		=> await ExecuteAsync(() => _userAppService.CheckUsernameAsync(username));
 }
