@@ -49,7 +49,7 @@ namespace SocialSite.Core.Utilities;
 		await File.WriteAllBytesAsync(filePath, bytes);
 		
 		return isPublic 
-		   ? Path.Combine(Path.PathSeparator.ToString() ,FileConstants.PublicPath, yearFolder, monthFolder, dayFolder, uniqueFileName)
+		   ? Path.Combine(Path.DirectorySeparatorChar.ToString(), FileConstants.PublicPath, yearFolder, monthFolder, dayFolder, uniqueFileName)
 		   : Path.Combine(FileConstants.PrivatePath, yearFolder, monthFolder, dayFolder, uniqueFileName);
     }
 
