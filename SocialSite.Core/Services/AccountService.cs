@@ -56,13 +56,14 @@ public sealed class AccountService : IAccountService
 		var user = await _userManager.FindByIdAsync(userId.ToString())
 		    ?? throw new NotFoundException("User was not found.");
 
-		var userRoles = await _userManager.GetRolesAsync(user);
-		var claims = userRoles.Select(e => new Claim(ClaimTypes.Role, e)).ToList();
+		var userRoles = await _userManager.GetRolesAsync(user); ;
 
-		claims.Add(new(AppClaimTypes.UserId, user.Id.ToString()));
-		claims.Add(new(AppClaimTypes.Username, user.UserName));
-
-		return claims;
+		return
+		[
+			userRoles.Select(e => new Claim(AppClaimTypes.Role, e)).First(),
+			new(AppClaimTypes.UserId, user.Id.ToString()),
+			new(AppClaimTypes.Username, user.UserName)
+		];
 	}
 	
 	public async Task CreateRefreshTokenAsync(RefreshToken refreshToken)
