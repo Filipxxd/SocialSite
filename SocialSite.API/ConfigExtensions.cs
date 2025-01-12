@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using System.Text;
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -18,194 +16,193 @@ using SocialSite.Data.EF;
 using SocialSite.Domain.Constants;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Utilities;
+using System.Reflection;
+using System.Text;
 using TokenHandler = SocialSite.Application.Utilities.TokenHandler;
 
 namespace SocialSite.API;
 
 internal static class ConfigExtensions
 {
-    public static IServiceCollection AddContextWithIdentity(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
-    {
-        services.AddDbContext<DataContext>(options =>
-        {
-            options.UseSqlServer(configuration.GetConnectionString("Default"));
-            options.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
+	public static IServiceCollection AddContextWithIdentity(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
+	{
+		services.AddDbContext<DataContext>(options =>
+		{
+			options.UseSqlServer(configuration.GetConnectionString("Default"));
+			options.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
 
-            if (environment.IsDevelopment())
-            {
-                options.EnableSensitiveDataLogging();
-                options.EnableDetailedErrors();
-            }
-        });
+			if (environment.IsDevelopment())
+			{
+				options.EnableSensitiveDataLogging();
+				options.EnableDetailedErrors();
+			}
+		});
 
-        services.AddIdentity<User, Role>(options =>
-            {
-	            options.Password.RequireDigit = false;
-	            options.Password.RequireLowercase = false;
-	            options.Password.RequireUppercase = false;
-	            options.Password.RequireNonAlphanumeric = false;
-	            options.Password.RequiredLength = 2;
-	            options.Password.RequiredUniqueChars = 0;
-            })
-            .AddEntityFrameworkStores<DataContext>()
-            .AddDefaultTokenProviders();
+		services.AddIdentity<User, Role>(options =>
+			{
+				options.Password.RequireDigit = false;
+				options.Password.RequireLowercase = false;
+				options.Password.RequireUppercase = false;
+				options.Password.RequireNonAlphanumeric = false;
+				options.Password.RequiredLength = 2;
+				options.Password.RequiredUniqueChars = 0;
+			})
+			.AddEntityFrameworkStores<DataContext>()
+			.AddDefaultTokenProviders();
 
-        return services;
-    }
+		return services;
+	}
 
-    public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(options =>
-        {
-            options.SaveToken = true;
-            options.RequireHttpsMetadata = false;
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidAudience = configuration["JWT:ValidAudience"],
-                ValidIssuer = configuration["JWT:ValidIssuer"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:AccessSecret"] ?? ""))
-            };
-        });
-		
-        services.AddAuthorization(options =>
-        {
-	        options.AddPolicy(AuthPolicies.SuperUsers, policy => policy.RequireRole(Roles.Admin));
-	        options.AddPolicy(AuthPolicies.ElevatedUsers, policy =>
-	        {
-		        policy.RequireAssertion(context =>
-			        context.User.IsInRole(Roles.Moderator) || context.User.IsInRole(Roles.Admin));
-	        });	        
-	        options.AddPolicy(AuthPolicies.RegularUsers, policy =>
-	        {
-		        policy.RequireAssertion(context =>
-			        context.User.IsInRole(Roles.User) || context.User.IsInRole(Roles.Moderator) || context.User.IsInRole(Roles.Admin));
-	        });
-        });
-        
-        return services;
-    }
+	public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
+	{
+		services.AddAuthentication(options =>
+		{
+			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+			options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+		})
+		.AddJwtBearer(options =>
+		{
+			options.SaveToken = true;
+			options.RequireHttpsMetadata = false;
+			options.TokenValidationParameters = new TokenValidationParameters
+			{
+				ValidAudience = configuration["JWT:ValidAudience"],
+				ValidIssuer = configuration["JWT:ValidIssuer"],
+				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:AccessSecret"] ?? ""))
+			};
+		});
 
-    public static IServiceCollection AddServices(this IServiceCollection services)
-    {
-        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
-        services.AddScoped<TokenHandler>();
-        services.AddScoped<IFileHandler, FileHandler>();
+		services.AddAuthorizationBuilder()
+				.AddPolicy(AuthPolicies.SuperUsers, policy => policy.RequireRole(Roles.Admin))
+				.AddPolicy(AuthPolicies.ElevatedUsers, policy =>
+				{
+					policy.RequireAssertion(context =>
+						context.User.IsInRole(Roles.Moderator) || context.User.IsInRole(Roles.Admin));
+				})
+				.AddPolicy(AuthPolicies.RegularUsers, policy =>
+				{
+					policy.RequireAssertion(context => context.User.IsInRole(Roles.User) || context.User.IsInRole(Roles.Moderator) || context.User.IsInRole(Roles.Admin));
+				});
 
-        services.Scan(scan =>
-        {
-            scan.FromAssembliesOf(typeof(UserService))
-                .AddClasses(classes => classes.Where(type => type.IsClass && type.Name.EndsWith("Service")))
-                .AsImplementedInterfaces()
-                .WithScopedLifetime();
+		return services;
+	}
 
-            scan.FromAssembliesOf(typeof(UserAppService))
-                .AddClasses(classes => classes.Where(type => type.IsClass && type.Name.EndsWith("AppService")))
-                .AsSelf()
-                .WithScopedLifetime();
-        });
+	public static IServiceCollection AddServices(this IServiceCollection services)
+	{
+		services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+		services.AddScoped<TokenHandler>();
+		services.AddScoped<IFileHandler, FileHandler>();
 
-        return services;
-    }
+		services.Scan(scan =>
+		{
+			scan.FromAssembliesOf(typeof(UserService))
+				.AddClasses(classes => classes.Where(type => type.IsClass && type.Name.EndsWith("Service")))
+				.AsImplementedInterfaces()
+				.WithScopedLifetime();
 
-    public static IMvcBuilder AddEndpointValidation(this IMvcBuilder builder)
-    {
-        builder.ConfigureApiBehaviorOptions(options =>
-         {
-             options.InvalidModelStateResponseFactory = context =>
-             {
-                 var errors = context.ModelState
-                     .Where(ms => ms.Value?.Errors.Any() == true)
-                     .ToDictionary(
-                         kvp => kvp.Key,
-                         kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage) ?? []
-                     );
+			scan.FromAssembliesOf(typeof(UserAppService))
+				.AddClasses(classes => classes.Where(type => type.IsClass && type.Name.EndsWith("AppService")))
+				.AsSelf()
+				.WithScopedLifetime();
+		});
 
-                 return new BadRequestObjectResult(new
-                 {
-                     Success = false,
-                     Errors = errors
-                 });
-             };
-         });
+		return services;
+	}
 
-        builder.Services.AddValidatorsFromAssemblyContaining<CreateDirectChatDtoValidator>();
-        builder.Services.AddFluentValidationAutoValidation();
+	public static IMvcBuilder AddEndpointValidation(this IMvcBuilder builder)
+	{
+		builder.ConfigureApiBehaviorOptions(options =>
+		 {
+			 options.InvalidModelStateResponseFactory = context =>
+			 {
+				 var errors = context.ModelState
+					 .Where(ms => ms.Value?.Errors.Any() == true)
+					 .ToDictionary(
+						 kvp => kvp.Key,
+						 kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage) ?? []
+					 );
 
-        return builder;
-    }
+				 return new BadRequestObjectResult(new
+				 {
+					 Success = false,
+					 Errors = errors
+				 });
+			 };
+		 });
 
-    public static IServiceCollection AddSwagger(this IServiceCollection services)
-    {
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "SocialSite API", Version = "v1" });
+		builder.Services.AddValidatorsFromAssemblyContaining<CreateDirectChatDtoValidator>();
+		builder.Services.AddFluentValidationAutoValidation();
 
-            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                Scheme = "Bearer",
-                BearerFormat = "JWT",
-                In = ParameterLocation.Header,
-                Description = "Enter 'Bearer' followed by space and your JWT token"
-            });
+		return builder;
+	}
 
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    []
-                }
-            });
-        });
+	public static IServiceCollection AddSwagger(this IServiceCollection services)
+	{
+		services.AddSwaggerGen(c =>
+		{
+			c.SwaggerDoc("v1", new OpenApiInfo { Title = "SocialSite API", Version = "v1" });
 
-        return services;
-    }
-    
-    public static IEndpointRouteBuilder MapHubs(this WebApplication app)
-    {
-	    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-	    {
-		    var hubTypes = assembly.GetTypes()
-			    .Where(t => typeof(Hub).IsAssignableFrom(t) && !t.IsAbstract && t.IsClass);
+			c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+			{
+				Name = "Authorization",
+				Type = SecuritySchemeType.Http,
+				Scheme = "Bearer",
+				BearerFormat = "JWT",
+				In = ParameterLocation.Header,
+				Description = "Enter 'Bearer' followed by space and your JWT token"
+			});
 
-		    foreach (var hub in hubTypes)
-		    {
-			    var routeAttribute = hub.GetCustomAttribute<RouteAttribute>();
-			    if (routeAttribute == null || string.IsNullOrWhiteSpace(routeAttribute.Template))
-				    continue;
+			c.AddSecurityRequirement(new OpenApiSecurityRequirement
+			{
+				{
+					new OpenApiSecurityScheme
+					{
+						Reference = new OpenApiReference
+						{
+							Type = ReferenceType.SecurityScheme,
+							Id = "Bearer"
+						}
+					},
+					[]
+				}
+			});
+		});
 
-			    var areaAttribute = hub.GetCustomAttribute<AreaAttribute>();
-			    var areaPrefix = areaAttribute?.RouteValue ?? string.Empty;
+		return services;
+	}
 
-			    var route = routeAttribute.Template.Replace("[area]/", string.Empty);
-			    var fullRouteTemplate = string.IsNullOrWhiteSpace(areaPrefix) ? route : $"{areaPrefix}/{route}";
+	public static IEndpointRouteBuilder MapHubs(this WebApplication app)
+	{
+		foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+		{
+			var hubTypes = assembly.GetTypes()
+				.Where(t => typeof(Hub).IsAssignableFrom(t) && !t.IsAbstract && t.IsClass);
 
-			    // Use reflection to invoke the MapHub<T> method
-			    var mapHubMethod = typeof(HubEndpointRouteBuilderExtensions)
-				    .GetMethods(BindingFlags.Static | BindingFlags.Public)
-				    .FirstOrDefault(m => m.Name == "MapHub" && m.IsGenericMethod);
+			foreach (var hub in hubTypes)
+			{
+				var routeAttribute = hub.GetCustomAttribute<RouteAttribute>();
+				if (routeAttribute == null || string.IsNullOrWhiteSpace(routeAttribute.Template))
+					continue;
 
-			    if (mapHubMethod != null)
-			    {
-				    var genericMethod = mapHubMethod.MakeGenericMethod(hub);
-				    genericMethod.Invoke(null, new object[] { app, fullRouteTemplate });
-			    }
-		    }
-	    }
-	    return app;
-    }
+				var areaAttribute = hub.GetCustomAttribute<AreaAttribute>();
+				var areaPrefix = areaAttribute?.RouteValue ?? string.Empty;
+
+				var route = routeAttribute.Template.Replace("[area]/", string.Empty);
+				var fullRouteTemplate = string.IsNullOrWhiteSpace(areaPrefix) ? route : $"{areaPrefix}/{route}";
+
+				// Use reflection to invoke the MapHub<T> method
+				var mapHubMethod = typeof(HubEndpointRouteBuilderExtensions)
+					.GetMethods(BindingFlags.Static | BindingFlags.Public)
+					.FirstOrDefault(m => m.Name == "MapHub" && m.IsGenericMethod);
+
+				if (mapHubMethod != null)
+				{
+					var genericMethod = mapHubMethod.MakeGenericMethod(hub);
+					genericMethod.Invoke(null, new object[] { app, fullRouteTemplate });
+				}
+			}
+		}
+		return app;
+	}
 }
