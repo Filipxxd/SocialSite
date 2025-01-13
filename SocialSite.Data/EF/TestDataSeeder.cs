@@ -11,7 +11,6 @@ public sealed class TestDataSeeder
 
 	private List<Role> Roles { get; set; } = [];
 	private List<User> Users { get; set; } = [];
-	private List<UserRole> AspNetUserRoles { get; set; } = [];
 	private List<FriendRequest> FriendRequests { get; set; } = [];
 	private List<Friendship> Friendships { get; set; } = [];
 	private List<Post> Posts { get; set; } = [];
@@ -70,7 +69,7 @@ public sealed class TestDataSeeder
 
 	private async Task DeleteDataAndResetIdentity()
 	{
-		var tableNames = new string[]
+		var tableNames = new[]
 		{
 			Tables.Reports,
 			Tables.Comments,
