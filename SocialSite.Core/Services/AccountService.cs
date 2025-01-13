@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SocialSite.Core.Constants;
@@ -7,18 +6,22 @@ using SocialSite.Data.EF;
 using SocialSite.Domain.Constants;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
+using SocialSite.Domain.Utilities;
+using System.Security.Claims;
 
 namespace SocialSite.Core.Services;
 
 public sealed class AccountService : IAccountService
 {
 	private readonly DataContext _dataContext;
+	private readonly IDateTimeProvider _dateTimeProvider;
 	private readonly UserManager<User> _userManager;
 
-	public AccountService(DataContext dataContext, UserManager<User> userManager)
+	public AccountService(DataContext dataContext, UserManager<User> userManager, IDateTimeProvider dateTimeProvider)
 	{
 		_dataContext = dataContext;
 		_userManager = userManager;
+		_dateTimeProvider = dateTimeProvider;
 	}
 
 	public async Task<int> LoginAsync(string userName, string password)
@@ -33,7 +36,7 @@ public sealed class AccountService : IAccountService
 
 		if (user.IsBanned)
 			throw new NotValidException("Banned");
-			
+
 		return user.Id;
 	}
 
@@ -50,11 +53,11 @@ public sealed class AccountService : IAccountService
 
 		await _userManager.AddToRoleAsync(user, Roles.User);
 	}
-	
+
 	public async Task<IEnumerable<Claim>> GetUserClaimsAsync(int userId)
 	{
 		var user = await _userManager.FindByIdAsync(userId.ToString())
-		    ?? throw new NotFoundException("User was not found.");
+			?? throw new NotFoundException("User was not found.");
 
 		var userRoles = await _userManager.GetRolesAsync(user);
 
@@ -65,18 +68,19 @@ public sealed class AccountService : IAccountService
 			new(AppClaimTypes.Username, user.UserName)
 		];
 	}
-	
+
 	public async Task CreateRefreshTokenAsync(RefreshToken refreshToken)
 	{
+		refreshToken.DateCreated = _dateTimeProvider.GetDateTime();
 		await _dataContext.RefreshTokens.AddAsync(refreshToken);
 		await _dataContext.SaveChangesAsync();
 	}
-	
+
 	public async Task<RefreshToken?> GetRefreshTokenAsync(string token)
 	{
 		return await _dataContext.RefreshTokens.SingleOrDefaultAsync(rt => rt.Token == token);
 	}
-	
+
 	public async Task DeleteRefreshTokenAsync(int tokenId)
 	{
 		var refreshToken = await _dataContext.RefreshTokens.FindAsync(tokenId);
