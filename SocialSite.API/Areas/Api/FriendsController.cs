@@ -1,9 +1,10 @@
-using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Constants;
 using SocialSite.Application.Dtos.Friends;
+using System.Net;
+using ILogger = SocialSite.Domain.Utilities.ILogger;
 
 namespace SocialSite.API.Areas.Api;
 
@@ -14,7 +15,7 @@ public sealed class FriendsController : ApiControllerBase
 {
 	private readonly FriendsAppService _friendsAppService;
 
-	public FriendsController(FriendsAppService friendsAppService)
+	public FriendsController(FriendsAppService friendsAppService, ILogger logger) : base(logger)
 	{
 		_friendsAppService = friendsAppService;
 	}
@@ -32,7 +33,7 @@ public sealed class FriendsController : ApiControllerBase
 	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
 	public async Task<IActionResult> RemoveFriend(int friendId)
 		=> await ExecuteWithoutContentAsync(() => _friendsAppService.RemoveFriendAsync(friendId, GetCurrentUserId()));
-	
+
 	[HttpGet("requests")]
 	[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<FriendRequestDto>))]
 	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
@@ -45,8 +46,8 @@ public sealed class FriendsController : ApiControllerBase
 	[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ValidationProblemDetails))]
 	public async Task<IActionResult> SendFriendRequest(int receiverId)
 		=> await ExecuteWithoutContentAsync(() => _friendsAppService.SendFriendRequestAsync(new()
-		{  ReceiverId = receiverId, }, GetCurrentUserId()));
-    
+		{ ReceiverId = receiverId, }, GetCurrentUserId()));
+
 	[HttpPut("request")]
 	[ProducesResponseType((int)HttpStatusCode.NoContent)]
 	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]
@@ -54,7 +55,7 @@ public sealed class FriendsController : ApiControllerBase
 	[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ProblemDetails))]
 	public async Task<IActionResult> ResolveFriendRequest(ResolveFriendRequestDto dto)
 		=> await ExecuteWithoutContentAsync(() => _friendsAppService.ResolveFriendRequestAsync(dto, GetCurrentUserId()));
-	
+
 	[HttpDelete("request/{receiverId:int}")]
 	[ProducesResponseType((int)HttpStatusCode.NoContent)]
 	[ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(ProblemDetails))]

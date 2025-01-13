@@ -7,6 +7,7 @@ using SocialSite.Application.Dtos.Images;
 using SocialSite.Application.Dtos.Users;
 using SocialSite.Domain.Filters;
 using System.Net;
+using ILogger = SocialSite.Domain.Utilities.ILogger;
 
 namespace SocialSite.API.Areas.Api;
 
@@ -17,7 +18,7 @@ public sealed class UserController : ApiControllerBase
 {
 	private readonly UserAppService _userAppService;
 
-	public UserController(UserAppService userAppService)
+	public UserController(UserAppService userAppService, ILogger logger) : base(logger)
 	{
 		_userAppService = userAppService;
 	}

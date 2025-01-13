@@ -1,4 +1,3 @@
-using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialSite.Application.AppServices;
@@ -6,6 +5,8 @@ using SocialSite.Application.Constants;
 using SocialSite.Application.Dtos;
 using SocialSite.Application.Dtos.Posts;
 using SocialSite.Domain.Filters;
+using System.Net;
+using ILogger = SocialSite.Domain.Utilities.ILogger;
 
 namespace SocialSite.API.Areas.Api;
 
@@ -16,7 +17,7 @@ public sealed class PostsController : ApiControllerBase
 {
 	private readonly PostAppService _postAppService;
 
-	public PostsController(PostAppService postAppService)
+	public PostsController(PostAppService postAppService, ILogger logger) : base(logger)
 	{
 		_postAppService = postAppService;
 	}

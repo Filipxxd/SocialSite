@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using SocialSite.Application.AppServices;
 using SocialSite.Application.Constants;
 using SocialSite.Application.Dtos.Chats;
+using SocialSite.Domain.Models;
+using System.Net;
+using ILogger = SocialSite.Domain.Utilities.ILogger;
 
 namespace SocialSite.API.Areas.Api;
 
@@ -14,7 +17,7 @@ public sealed class ChatController : ApiControllerBase
 {
     private readonly ChatAppService _chatAppService;
 
-    public ChatController(ChatAppService chatAppService)
+    public ChatController(ChatAppService chatAppService, ILogger logger) : base(logger)
     {
         _chatAppService = chatAppService;
     }
