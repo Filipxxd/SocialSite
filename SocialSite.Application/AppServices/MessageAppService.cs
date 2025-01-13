@@ -1,8 +1,7 @@
-﻿using SocialSite.Application.Dtos.Messages;
+﻿using SocialSite.Application.Dtos.Chats;
+using SocialSite.Application.Dtos.Messages;
 using SocialSite.Application.Mappers;
-using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
-using SocialSite.Domain.Utilities;
 
 namespace SocialSite.Application.AppServices;
 
@@ -21,4 +20,11 @@ public sealed class MessageAppService
 
         await _messageService.SendMessageAsync(message);
     }
+    
+    public async Task<ChatMessageDto> GetMessageByIdAsync(int messageId, int currentUserId)
+	{
+		var message = await _messageService.GetMessageByIdAsync(messageId, currentUserId);
+
+		return message.Map(currentUserId);
+	}
 }

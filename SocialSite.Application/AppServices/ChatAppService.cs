@@ -1,8 +1,6 @@
 ﻿using SocialSite.Application.Dtos.Chats;
 using SocialSite.Application.Mappers;
-using SocialSite.Core.Exceptions;
 using SocialSite.Domain.Services;
-using SocialSite.Domain.Utilities;
 
 namespace SocialSite.Application.AppServices;
 
@@ -47,4 +45,7 @@ public sealed class ChatAppService
     {
         await _chatService.AssignUsersToGroupChatAsync(dto.GroupChatId, dto.UserIds.ToList(), currentUserId);
     }
+    
+    public Task<bool> IsUserInChatAsync(int chatId, int userId)
+		=> _chatService.IsUserInChatAsync(chatId, userId);
 }

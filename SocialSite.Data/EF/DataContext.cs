@@ -24,7 +24,7 @@ public class DataContext(DbContextOptions<DataContext> options) : IdentityDbCont
     public DbSet<Post> Posts { get; set; }
     public DbSet<Report> Reports { get; set; }
     public DbSet<Comment> Comments { get; set; }
-    public DbSet<ChatUser> GroupUsers { get; set; }
+    public DbSet<ChatUser> ChatUsers { get; set; }
     public DbSet<Image> Images { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
 

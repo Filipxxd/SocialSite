@@ -109,6 +109,13 @@ public sealed class ChatService : IChatService
         await _context.SaveChangesAsync();
     }
     
+    public async Task<bool> IsUserInChatAsync(int chatId, int userId)
+	{
+		return await _context.GroupUsers
+			.AsNoTracking()
+			.AnyAsync(cu => cu.ChatId == chatId && cu.UserId == userId);
+	}
+    
     private async Task ValidateUserIdsAsync(IList<int> userIds)
     {
         var validUserCount = await _context.Users.CountAsync(u => userIds.Contains(u.Id));

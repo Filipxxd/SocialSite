@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialSite.Core.Exceptions;
 using SocialSite.Data.EF;
+using SocialSite.Data.EF.Extensions;
 using SocialSite.Domain.Models;
 using SocialSite.Domain.Services;
 using SocialSite.Domain.Utilities;
@@ -35,4 +36,34 @@ public sealed class MessageService : IMessageService
         _context.Messages.Add(message);
         await _context.SaveChangesAsync();
     }
+    
+    public async Task DeleteMessageAsync(int messageId, int currentUserId)
+	{
+		var message = await _context.Messages
+			.IncludeMessageImages()
+			.SingleOrDefaultAsync(e => e.Id == messageId)
+				?? throw new NotFoundException("Message was not found.");
+
+		if (message.SenderId != currentUserId)
+			throw new NotValidException("User is not owner of message.");
+		
+		_context.Images.RemoveRange(message.Images);
+		_context.Messages.Remove(message);
+		await _context.SaveChangesAsync();
+	}
+    
+    public async Task<Message> GetMessageByIdAsync(int messageId, int currentUserId)
+	{
+		var message = await _context.Messages.AsNoTracking()
+			.IncludeMessageImages()
+			.Include(e => e.Chat)
+				.ThenInclude(e => e!.ChatUsers)
+			.SingleOrDefaultAsync(e => e.Id == messageId)
+				?? throw new NotFoundException("Message was not found.");
+		
+		if (message.Chat!.ChatUsers.Any(e => e.UserId != currentUserId))
+			throw new NotValidException("User is not part of Chat");
+
+		return message;
+	}
 }

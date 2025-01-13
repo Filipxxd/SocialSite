@@ -1,9 +1,10 @@
 ﻿using SocialSite.Domain.Models;
-using SocialSite.Domain.Utilities;
 
 namespace SocialSite.Domain.Services;
 
 public interface IMessageService
 {
     Task SendMessageAsync(Message message);
+    Task<Message> GetMessageByIdAsync(int messageId, int currentUserId);
+    Task DeleteMessageAsync(int messageId, int currentUserId);
 }

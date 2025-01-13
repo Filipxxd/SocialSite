@@ -89,6 +89,65 @@ internal static class ConfigExtensions
 
 		return services;
 	}
+    public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.SaveToken = true;
+            options.Audience = configuration["JWT:ValidAudience"];
+            options.Authority = configuration["JWT:ValidIssuer"];
+            options.RequireHttpsMetadata = false;
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidAudience = configuration["JWT:ValidAudience"],
+                ValidIssuer = configuration["JWT:ValidIssuer"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:AccessSecret"] ?? ""))
+            };
+            options.Events = new JwtBearerEvents
+            {
+	            OnMessageReceived = ctx => 
+	            {
+		            var accessToken = ctx.Request.Query["access_token"];
+	     
+		            var path = ctx.HttpContext.Request.Path;
+		            if (!string.IsNullOrEmpty(accessToken) &&
+		                path.StartsWithSegments("/hubs"))
+			            ctx.Token = accessToken;
+		            else
+						ctx.Token = ctx.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", string.Empty);
+	     
+		            return Task.CompletedTask;
+	            },
+				OnTokenValidated = ctx =>
+				{
+					return Task.CompletedTask;
+				},
+	            OnAuthenticationFailed = ctx =>
+	            {
+		            if (ctx.Exception.GetType() == typeof(SecurityTokenExpiredException)) ctx.Response.Headers.Add("Token-Expired", "true");
+		            return Task.CompletedTask;
+	            },
+            };
+        });
+		
+        services.AddAuthorization(options =>
+        {
+	        options.AddPolicy(AuthPolicies.ElevatedUsers, policy => policy.RequireRole(Roles.Admin));
+	        options.AddPolicy(AuthPolicies.RegularUsers, policy =>
+	        {
+		        policy.RequireAssertion(context =>
+			        context.User.IsInRole(Roles.User) || context.User.IsInRole(Roles.Admin));
+	        });
+        });
+        
+        return services;
+    }
 
 	public static IServiceCollection AddServices(this IServiceCollection services)
 	{

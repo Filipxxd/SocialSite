@@ -10,14 +10,7 @@ internal static class ChatMappingExtensions
         ChatId = input.Id,
         Name = input.Name ?? input.ChatUsers.Select(e => e.User).First(e => e!.Id != currentUserId)!.Fullname,
         IsDirect = input.IsDirect,
-        Messages = input.Messages.Select(message => new ChatMessageDto
-        {
-            Id = message.Id,
-            SenderFullname = message.Sender!.Fullname,
-            Content = message.Content,
-            IsSentByCurrentUser = message.SenderId == currentUserId,
-            SentAt = message.DateCreated,
-        }),
+        Messages = input.Messages.Map(currentUserId),
         Users = input.ChatUsers.Select(chatUser => new ChatUserDto
         {
             Id = chatUser.User!.Id,
