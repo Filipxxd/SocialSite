@@ -14,28 +14,28 @@ public sealed class ReportService : IReportService
 	private readonly DataContext _context;
 	private readonly IDateTimeProvider _dateTimeProvider;
 	private readonly IFileHandler _fileHandler;
-	
+
 	public ReportService(DataContext context, IDateTimeProvider dateTimeProvider, IFileHandler fileHandler)
 	{
 		_context = context;
 		_dateTimeProvider = dateTimeProvider;
 		_fileHandler = fileHandler;
 	}
-	
+
 	public async Task<IEnumerable<Report>> GetAllReportsAsync(ReportsFilter filter)
 	{
-		return await GetFilteredReports(filter)			
+		return await GetFilteredReports(filter)
 			.Skip(filter.PageSize * (filter.PageNumber - 1))
 			.Take(filter.PageSize)
 			.OrderBy(r => r.DateCreated)
 			.ToListAsync();
 	}
-	
+
 	public async Task<int> GetReportsCountAsync(ReportsFilter filter)
 	{
 		return await GetFilteredReports(filter).CountAsync();
 	}
-	
+
 	public async Task ResolveReportAsync(int reportId, bool accepted)
 	{
 		var report = await _context.Reports.SingleOrDefaultAsync(x => x.Id == reportId);
@@ -52,7 +52,7 @@ public sealed class ReportService : IReportService
 				.Include(p => p.Images)
 				.Include(p => p.Comments)
 				.SingleOrDefaultAsync(p => p.Id == report.PostId);
-			
+
 			if (post is null)
 				throw new NotFoundException("Post not found");
 
@@ -61,34 +61,38 @@ public sealed class ReportService : IReportService
 			var otherReports = await _context.Reports
 				.Where(r => r.PostId == report.PostId && r.Id != reportId)
 				.ToListAsync();
-			
+
 			_context.Images.RemoveRange(post.Images);
 			_context.Comments.RemoveRange(post.Comments);
 			_context.Reports.RemoveRange(otherReports);
 			_context.Reports.Remove(report);
 			_context.Posts.Remove(post);
 		}
-		
+
 		await _context.SaveChangesAsync();
 	}
-	
+
 	public async Task CreateReportAsync(Report report)
 	{
 		var postExists = await _context.Posts.AnyAsync(x => x.Id == report.PostId);
-		if(!postExists)
+		if (!postExists)
 			throw new NotFoundException("Post not found");
-		
+
 		var userExists = await _context.Users.AnyAsync(x => x.Id == report.UserId);
-		if(!userExists)
+		if (!userExists)
 			throw new NotFoundException("User not found");
-		
+
 		var alreadyReported = await _context.Reports.AnyAsync(x => x.UserId == report.UserId && x.PostId == report.PostId);
 		if (alreadyReported)
 			throw new NotValidException("Report already exists");
 
+		var selfReport = await _context.Posts.AnyAsync(x => x.Id == report.PostId && x.UserId == report.UserId);
+		if (selfReport)
+			throw new NotValidException("Cannot report self-created post");
+
 		report.State = ReportState.Pending;
 		report.DateCreated = _dateTimeProvider.GetDateTime();
-		
+
 		_context.Add(report);
 		await _context.SaveChangesAsync();
 	}
