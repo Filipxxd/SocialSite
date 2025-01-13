@@ -65,6 +65,7 @@ public sealed class PostService : IPostService
 	{
 		var post = await _context.Posts
 			.Include(p => p.Comments)
+			.Include(p => p.Reports)
 			.Include(p => p.Images)
 			.SingleOrDefaultAsync(p => p.Id == postId);
 
@@ -77,6 +78,7 @@ public sealed class PostService : IPostService
 		foreach (var image in post.Images) _fileHandler.Delete(image.Path);
 
 		_context.Comments.RemoveRange(post.Comments);
+		_context.Reports.RemoveRange(post.Reports);
 		_context.Images.RemoveRange(post.Images);
 		_context.Posts.Remove(post);
 
