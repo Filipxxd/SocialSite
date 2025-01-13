@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SocialSite.Application.AppServices;
@@ -28,6 +29,7 @@ internal static class ConfigExtensions
 	{
 		services.AddDbContext<DataContext>(options =>
 		{
+			options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
 			options.UseSqlServer(configuration.GetConnectionString("Default"));
 			options.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
 
