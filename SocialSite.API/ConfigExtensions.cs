@@ -198,7 +198,6 @@ internal static class ConfigExtensions
 				var route = routeAttribute.Template.Replace("[area]/", string.Empty);
 				var fullRouteTemplate = string.IsNullOrWhiteSpace(areaPrefix) ? route : $"{areaPrefix}/{route}";
 
-				// Use reflection to invoke the MapHub<T> method
 				var mapHubMethod = typeof(HubEndpointRouteBuilderExtensions)
 					.GetMethods(BindingFlags.Static | BindingFlags.Public)
 					.FirstOrDefault(m => m.Name == "MapHub" && m.IsGenericMethod);
