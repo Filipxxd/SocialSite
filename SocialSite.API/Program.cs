@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using SocialSite.API;
 using SocialSite.Application.Utilities;
+using SocialSite.Data.EF;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,18 +24,28 @@ builder.Services.AddCors(options =>
                           .AllowCredentials());
 });
 
-if (builder.Environment.IsDevelopment())
-    builder.Services.AddSwagger();
+builder.Services.AddSwagger();
 
 
 var app = builder.Build();
 
 app.UseCors("AllowSpecificOrigin");
 
+app.UseSwagger();
+app.UseSwaggerUI();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var shouldSeed = builder.Configuration.GetValue<bool>("Seeding");
+    if (shouldSeed)
+    {
+	    using var scope = app.Services.CreateScope();
+	    await using var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+	    
+	    var seeder = new TestDataSeeder(context);
+
+	    await seeder.SeedAsync();
+    }
 }
 
 app.UseHttpsRedirection();
